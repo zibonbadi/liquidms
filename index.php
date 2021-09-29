@@ -15,7 +15,7 @@ $tmp = array_merge_recursive($tmp, $doc);
 }
 $nodelist = $tmp;
 
-function listmsservers($msservers) {
+function liquidrequest($msservers, $apipage) {
     $getrooms = array('http' =>
         array(
             'method' => 'GET'
@@ -24,18 +24,26 @@ function listmsservers($msservers) {
 
     $context = stream_context_create($getrooms); // creating the context for HTTP GET requests
 
-    $servresults = file_get_contents($msservers . "/rooms", //in this example we're checking for rooms, issue #3
+    $servresults = file_get_contents($msservers . $apipage,
                       False,
                       $context
                    );
 
-    echo $servresults;
+    echo $servresults; //Do whatever you want with the output from here (ex. giving the array another option like file location)
 }
 
-
-foreach($nodelist['fetch'] as $msservers) {
-    listmsservers($msservers); //checking all the servers -- I don't know why, but after the official
-    //SRB2 MS, it attempts to run the function on nothing (file_get_contents())
-    //Perhaps a configuration issue on my part?
+function updateliquid() {
+    $apipages = array(
+        "/rooms",
+        "/versions/18",
+        "/rooms/33/servers" //I'd much rather remove this, once there's a way of parsing room lists
+    );
+    global $nodelist;
+    foreach($nodelist['fetch'] as $msservers) {
+        foreach($apipages as $api2) {
+            liquidrequest($msservers, "$api2"); //checking all the servers/pages
+        }
+    }
 }
+updateliquid()
 ?>
