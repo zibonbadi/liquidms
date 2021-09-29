@@ -4,9 +4,16 @@ if (!extension_loaded('yaml')) {
     exit; //You need YAML. *Probably* another extension as well, but I'm not well aware.
 }
 
-$configpath = $_SERVER['DOCUMENT_ROOT'] . "/config.yaml"; //the config file
+$configpath = __DIR__ . "/config.yaml"; //the config file
 
 $nodelist = yaml_parse_file($configpath, -1);
+
+// Merge all yaml configs together
+$tmp = [];
+foreach($nodelist as $docname => $doc) {
+$tmp = array_merge_recursive($tmp, $doc);
+}
+$nodelist = $tmp;
 
 function listmsservers($msservers) {
     $getrooms = array('http' =>
@@ -26,7 +33,7 @@ function listmsservers($msservers) {
 }
 
 
-foreach($nodelist[0]['fetch'] as $msservers) {
+foreach($nodelist['fetch'] as $msservers) {
     listmsservers($msservers); //checking all the servers -- I don't know why, but after the official
     //SRB2 MS, it attempts to run the function on nothing (file_get_contents())
     //Perhaps a configuration issue on my part?
