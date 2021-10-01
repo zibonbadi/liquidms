@@ -110,7 +110,9 @@ END;
       });
 
 LiquidMS\Router::get('/versions/([0-9]*)', function($versionid){
-      return "50 2.2.9\n";
+      $versionstring =
+      yaml_parse_file("config.yaml.example")["versions"][$versionid]; // Local var kludge
+      return "${versionstring}\n";
       });
 
 

@@ -14,4 +14,6 @@ fetch: # Master servers to leech off of
 - "http://mb.srb2.org/0/MS"
 - "http://goldentails.tk/ms"
 - "http://mother.asnet.org/"
+versions:
+   18: "50 2.2.9"
 ...
