@@ -3,7 +3,11 @@
 db: # liquidMS DB connection settings
    dsn: "DRIVER=liquidMS ODBC driver;SERVER=localhost" # ODBC DSN string.
    user: "alice"
-   password: "password" # KEEP THIS SECRET!
+   password: "password" #Keep this secret
+   database: "servers"
+fetchtimeout: 25
+motd: |
+  liquidMS is an AGPL-licensed, API-compatible reimplementation of the SRB2 master server. By fetching other servers, it can be used as a decentralized node network.
 fetch: # Master servers to leech off of
    host: "http://mb.srb2.org/MS/0":
    minute: 5
