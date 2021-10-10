@@ -1,7 +1,8 @@
 ---
 # This is an example config.yaml for a liquidMS node environment
 db: # liquidMS DB connection settings
-   dsn: "DRIVER=liquidMS ODBC driver;SERVER=localhost" # ODBC DSN string.
+   server: "localhost"
+   driver: "MYSQL ODBC x.xx DRIVER"
    user: "alice"
    password: "password" #Keep this secret
    database: "servers"
