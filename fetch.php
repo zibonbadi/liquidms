@@ -107,14 +107,12 @@ function db_excecute(string $query, array $config){
    //    database: # database to access
 
    // Sanity check
-   if( !array_key_exists("db", $config) ){ echo 'No section "db" in config file. Please contact your administrator.'; return false; }
-   if( !array_key_exists("server", $config["db"]) ){ echo 'No server given in database config. Please contact your administrator.'; return false; }
-   if( !array_key_exists("driver", $config["db"]) ){ echo 'No driver given in database config. Please contact your administrator.'; return false; }
-   if( !array_key_exists("user", $config["db"]) ){ echo 'No user given in database config. Please contact your administrator.'; return false; }
-   if( !array_key_exists("password", $config["db"]) ){ echo 'No password given in database config. Please contact your administrator.'; return false; }
-   if( !array_key_exists("database", $config["db"]) ){ echo 'No database given in database config. Please contact your administrator.'; return false; }
+   if( !array_key_exists("db", $config) ){ echo 'No section "db" in config file.'; return false; }
+   if( !array_key_exists("dsn", $config["db"]) ){ echo 'No DSN string given in database config.'; return false; }
+   if( !array_key_exists("user", $config["db"]) ){ echo 'No user given in database config.'; return false; }
+   if( !array_key_exists("password", $config["db"]) ){ echo 'No password given in database config.'; return false; }
 
-   $odbcstring = "DRIVER={$config["db"]["driver"]};SERVER={$config["db"]["server"]};DATABASE={$config["db"]["database"]};";
+   $odbcstring = $config["db"]["dsn"];
 
    $connection = odbc_connect(
 	 $odbcstring, 
@@ -133,6 +131,6 @@ function db_excecute(string $query, array $config){
    #return $odbcstring;
 }
 
-echo yaml_emit( fetchUpdate($config) );
+#echo yaml_emit( fetchUpdate($config) );
 echo db_excecute("SELECT * FROM `servers`", $config);
 ?>
