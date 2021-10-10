@@ -1,11 +1,9 @@
 ---
 # This is an example config.yaml for a liquidMS node environment
 db: # liquidMS DB connection settings
-   server: "localhost"
-   driver: "MYSQL ODBC x.xx DRIVER"
+   dsn: "DRIVER=liquidMS ODBC driver;SERVER=localhost" # ODBC DSN string.
    user: "alice"
    password: "password" # KEEP THIS SECRET!
-   database: "liquidms"
 fetch: # Master servers to leech off of
 - "http://mb.srb2.org/0/MS"
 - "http://goldentails.tk/ms"
