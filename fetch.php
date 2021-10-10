@@ -16,7 +16,7 @@ function fetchUpdate(array $config){
       $res_rooms = file_get_contents(rtrim($hostname, "/")."/rooms");
       $res_server = file_get_contents(rtrim($hostname, "/")."/servers");
 
-      // Regex match server list into a group array:
+      // Regex match room list into a group array:
       // - - "[Entire match]"
       //   - "[Room # as string]"
       //   - "[Room name]"
@@ -94,5 +94,44 @@ function fetchUpdate(array $config){
    return $rVal;
 }
 
+function db_excecute(string $query, array $config){
+
+   // The following YAML structure will be used from `config.yaml`.
+   //
+   // db: # liquidMS DB connection settings
+   //    server: # ODBC database server
+   //    driver: # ODBC database driver
+   //    user: # database user
+   //    password: # database password
+   //    database: # database to access
+
+   // Sanity check
+   if( !array_key_exists("db", $config) ){ echo 'No section "db" in config file. Please contact your administrator.'; return false; }
+   if( !array_key_exists("server", $config["db"]) ){ echo 'No server given in database config. Please contact your administrator.'; return false; }
+   if( !array_key_exists("driver", $config["db"]) ){ echo 'No driver given in database config. Please contact your administrator.'; return false; }
+   if( !array_key_exists("user", $config["db"]) ){ echo 'No user given in database config. Please contact your administrator.'; return false; }
+   if( !array_key_exists("password", $config["db"]) ){ echo 'No password given in database config. Please contact your administrator.'; return false; }
+   if( !array_key_exists("database", $config["db"]) ){ echo 'No database given in database config. Please contact your administrator.'; return false; }
+
+   $odbcstring = "DRIVER={$config["db"]["driver"]};SERVER={$config["db"]["server"]};DATABASE={$config["db"]["database"]};";
+
+   $connection = odbc_connect(
+	 $odbcstring, 
+	 $config["db"]["user"],
+	 $config["db"]["password"] );
+
+   echo $odbcstring;
+
+   if($connection){
+      return odbc_exec($query);
+   }else{
+      return false;
+      #throw new Exception("ODBC connection failed");
+   }
+
+   #return $odbcstring;
+}
+
 echo yaml_emit( fetchUpdate($config) );
+echo db_excecute("SELECT * FROM `servers`", $config);
 ?>
