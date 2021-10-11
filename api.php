@@ -97,10 +97,10 @@ END;
       });
 
 LiquidMS\Router::get('/servers', function(){
-		// Server test kludge. The game seems to ping every listed server and
-		// filter by response. Listing dummy servers is thus not possible.
-      $maincontent = file_get_contents("https://mb.srb2.org/MS/0/servers");
-      return <<<END
+    // Server test kludge. The game seems to ping every listed server and
+    // filter by response. Listing dummy servers is thus not possible.
+   $maincontent = file_get_contents("https://mb.srb2.org/MS/0/servers");
+   return <<<END
 42
 127.0.0.1 5029 Dummy%20server 2.2.9
 
@@ -116,13 +116,14 @@ LiquidMS\Router::get('/versions/([0-9]*)', function($versionid){
 
 /* POST API */
 LiquidMS\Router::post('/rooms/([0-9]*)/register', function(){
-      // Register Server and put ID here
+      // Register Server and put ID here.  ID format is not specified; Vanilla 
+      // returns numbers, we will return a random base64 string for security.
       return "42";
       });
 
 LiquidMS\Router::post('/servers/([0-9]*)/update', function(){
-      // Unsure what to put here. Refer to Master Server API spec v1
-      return "dummy";
+      // No Response body
+      return;
       });
 
 LiquidMS\Router::post('/servers/([0-9]*)/unlist', function(){
