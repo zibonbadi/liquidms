@@ -121,7 +121,7 @@ function db_excecute(string $query, array $config){
    echo $odbcstring;
 
    if($connection){
-      return odbc_exec($query);
+      return odbc_exec($connection, $query);
    }else{
       return false;
       #throw new Exception("ODBC connection failed");
