@@ -20,7 +20,7 @@ CREATE TABLE `versions` (
   `gameid` int(11) NOT NULL DEFAULT 1,
   `name` varchar(32) DEFAULT NULL,
   PRIMARY KEY (`_id`)
-)
+);
 
 -- Bans will be handled through subnet ranges.
 -- Default duration: 24h.
