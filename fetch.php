@@ -130,6 +130,19 @@ function db_excecute(string $query, array $config){
    #return $odbcstring;
 }
 
+$fetchdata = fetchUpdate($config);
+
+// Generate insert values
+$fetchsql = "";
+foreach( $fetchdata as $serv_index => $serv_val){
+   $fetchsql .= "(\"{$serv_val["host"]}\", \"{$serv_val["port"]}\", \"{$serv_val["servername"]}\", \"{$serv_val["version"]}\", \"{$serv_val["roomname"]}\", \"{$serv_val["origin"]}\"),";
+}
+$fetchsql = rtrim($fetchsql,", \n\r\t");
+
+$insertquery = "REPLACE INTO servers (host, port, servername, version, roomname, origin) VALUES {$fetchsql}";
+
 #echo yaml_emit( fetchUpdate($config) );
-echo db_excecute("SELECT * FROM `servers`", $config);
+var_dump( db_excecute("SELECT * FROM `servers`", $config) );
+echo "\n\n=== QUERY ===\n{$insertquery}\n\n";
+var_dump( db_excecute($insertquery, $config) );
 ?>
