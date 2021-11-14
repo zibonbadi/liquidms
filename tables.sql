@@ -6,11 +6,11 @@ CREATE TABLE `servers` (
   `version` VARCHAR(16) NOT NULL,
   `roomname` VARCHAR(32) DEFAULT NULL,
   `origin` VARCHAR(64) DEFAULT NULL,
-  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`host`,`port`)
 );
 
-CREATE EVENT serverlist_cleanup
+CREATE EVENT IF NOT EXISTS serverlist_cleanup
    ON SCHEDULE EVERY 3 MINUTE
    COMMENT 'Removes server entries older than 10 minutes'
    DO DELETE FROM servers WHERE updated_at < DATE_SUB(NOW(), INTERVAL 10 MINUTE);
@@ -66,3 +66,8 @@ INSERT INTO `versions` (`_id`, `gameid`,`name`) VALUES
 (2,1,'v0.22'),
 (1,207,'v2.0.7')
 ;
+
+-- Launching the server
+
+-- Enabling event scheduler
+SET GLOBAL event_scheduler = ON

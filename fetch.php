@@ -94,7 +94,7 @@ function fetchUpdate(array $config){
    return $rVal;
 }
 
-function db_excecute(string $query, array $config){
+function db_execute(string $query, array $config){
 
    // The following YAML structure will be used from `config.yaml`.
    //
@@ -128,11 +128,17 @@ function db_excecute(string $query, array $config){
 	    "data" => [],
 	    "rows" => odbc_num_rows($result),
 	    ];
-	 #if( > 0 ){
+
+	 // Checking for multiple results. Basically a hotfix
+	 // for INSERT and UPDATE queries
+	 $n_results = 0;
+	 while(odbc_next_result($result)){ $n_results++; }
+
+	 if( $n_results > 0 ){
 	    while($row = odbc_fetch_array($result)) {
 	       $rTable["data"][] = $row;
 	    }
-	 #}
+	 }
 	 return $rTable;
       }
    }else{
@@ -142,8 +148,6 @@ function db_excecute(string $query, array $config){
 	 "query" => $query,
 	 ];
    }
-
-   #return $odbcstring;
 }
 
 $fetchdata = fetchUpdate($config);
@@ -156,7 +160,7 @@ foreach( $fetchdata as $serv_index => $serv_val){
 $fetchsql = rtrim($fetchsql,", \n\r\t");
 
 // Upsert database (yes that's a real word)
-echo yaml_emit( db_excecute(
+echo yaml_emit( db_execute(
     "INSERT INTO servers (host, port, servername, version, roomname, origin)
     VALUES {$fetchsql}
     ON DUPLICATE KEY UPDATE
@@ -165,7 +169,7 @@ echo yaml_emit( db_excecute(
 
 /* 
 // Reserved upsert for when MySQL actually supports MERGE from SQL:2003
-echo yaml_emit( db_excecute(
+echo yaml_emit( db_execute(
     "MERGE INTO servers AS lms
        USING VALUES {$fetchsql} AS new (host, port, servername, version, roomname, origin)
        ON lms.host = new.host AND lms.port = new.port 
@@ -177,5 +181,5 @@ echo yaml_emit( db_excecute(
    $config) );
 */
 
-#echo yaml_emit( db_excecute( "SELECT * FROM servers", $config) );
+#echo yaml_emit( db_execute( "SELECT * FROM servers", $config) );
 ?>
