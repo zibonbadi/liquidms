@@ -1,13 +1,19 @@
 CREATE DATABASE IF NOT EXISTS `liquidms`;
 CREATE TABLE `servers` (
-  `host` varchar(64) NOT NULL,
-  `port` smallint(6) unsigned NOT NULL,
-  `servername` varchar(64) NOT NULL,
-  `version` varchar(16) NOT NULL,
-  `roomname` varchar(32) DEFAULT NULL,
-  `origin` varchar(64) DEFAULT NULL,
-  PRIMARY KEY (`host`)
+  `host` VARCHAR(64) NOT NULL,
+  `port` SMALLINT(6) unsigned NOT NULL,
+  `servername` VARCHAR(64) NOT NULL,
+  `version` VARCHAR(16) NOT NULL,
+  `roomname` VARCHAR(32) DEFAULT NULL,
+  `origin` VARCHAR(64) DEFAULT NULL,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`host`,`port`)
 );
+
+CREATE EVENT serverlist_cleanup
+   ON SCHEDULE EVERY 3 MINUTE
+   COMMENT 'Removes server entries older than 10 minutes'
+   DO DELETE FROM servers WHERE updated_at < DATE_SUB(NOW(), INTERVAL 10 MINUTE);
 
 CREATE TABLE `rooms` (
   `roomname` varchar(32) NOT NULL,
@@ -33,6 +39,11 @@ CREATE TABLE `bans` (
   `expire` DATETIME DEFAULT adddate(CURRENT_TIMESTAMP,1),
   PRIMARY KEY (`_id`)
 );
+
+CREATE EVENT banlist_cleanup
+   ON SCHEDULE EVERY 3 MINUTE
+   COMMENT 'Removes expired ban entries'
+   DO DELETE FROM servers WHERE updated_at < CURRENT_TIMESTAMP;
 
 -- Data section
 INSERT INTO `versions` (`_id`, `gameid`,`name`) VALUES
