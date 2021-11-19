@@ -5,7 +5,8 @@ db: # liquidMS DB connection settings
    user: "alice"
    password: "password" # KEEP THIS SECRET!
 fetch: # Master servers to leech off of
-- "http://mb.srb2.org/0/MS"
-- "http://goldentails.tk/ms"
-- "http://mother.asnet.org/"
+   host: "http://mb.srb2.org/MS/0":
+   minute: 5
+- "http://goldentails.tk/ms":
+- "http://mother.asnet.org/":
 ...

@@ -1,5 +1,8 @@
 CREATE DATABASE IF NOT EXISTS `liquidms`;
-CREATE TABLE `servers` (
+USE `liquidms`;
+
+-- server list with all automations
+CREATE TABLE IF NOT EXISTS `servers` (
   `host` VARCHAR(64) NOT NULL,
   `port` SMALLINT(6) unsigned NOT NULL,
   `servername` VARCHAR(64) NOT NULL,
@@ -10,21 +13,28 @@ CREATE TABLE `servers` (
   PRIMARY KEY (`host`,`port`)
 );
 
-CREATE EVENT IF NOT EXISTS serverlist_cleanup
-   ON SCHEDULE EVERY 3 MINUTE
-   COMMENT 'Removes server entries older than 10 minutes'
-   DO DELETE FROM servers WHERE updated_at < DATE_SUB(NOW(), INTERVAL 10 MINUTE);
 
-CREATE TABLE `rooms` (
-  `roomname` varchar(32) NOT NULL,
-  `description` text NOT NULL,
-  PRIMARY KEY (`roomname`)
+-- Room list with all automations
+CREATE TABLE IF NOT EXISTS `rooms` (
+  `_id` INT(11) NOT NULL UNIQUE,
+  `roomname` VARCHAR(32) NOT NULL,
+  `origin` VARCHAR(32) DEFAULT NULL,
+  `description` text DEFAULT "Powered by liquidMS",
+  PRIMARY KEY (`roomname`,`origin`)
 );
+-- CREATE EVENT IF NOT EXISTS roomlist_rebuild
+   -- ON SCHEDULE EVERY MINUTE
+   -- COMMENT 'Restructures the room table'
+   -- DO BEGIN
+   -- TRUNCATE rooms;
+   -- INSERT INTO rooms(`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+1 AS `_id`,`roomname`,`origin` FROM `servers` GROUP BY `roomname`;
+   -- END;
 
-CREATE TABLE `versions` (
-  `_id` int(11) NOT NULL AUTO_INCREMENT,
-  `gameid` int(11) NOT NULL DEFAULT 1,
-  `name` varchar(32) DEFAULT NULL,
+
+CREATE TABLE IF NOT EXISTS `versions` (
+  `_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `gameid` INT(11) NOT NULL DEFAULT 1,
+  `name` VARCHAR(32) DEFAULT NULL,
   PRIMARY KEY (`_id`)
 );
 
@@ -32,18 +42,14 @@ CREATE TABLE `versions` (
 -- Default duration: 24h.
 -- Timestamp NULL == permaban
 
-CREATE TABLE `bans` (
+CREATE TABLE IF NOT EXISTS `bans` (
   `_id` INT(11) NOT NULL AUTO_INCREMENT,
   `host` VARCHAR(64) NOT NULL,
   `subnetmask` VARCHAR(64) DEFAULT "255.255.255.255",
   `expire` DATETIME DEFAULT adddate(CURRENT_TIMESTAMP,1),
+  `protocol` VARCHAR(64) DEFAULT "IPv4",
   PRIMARY KEY (`_id`)
 );
-
-CREATE EVENT banlist_cleanup
-   ON SCHEDULE EVERY 3 MINUTE
-   COMMENT 'Removes expired ban entries'
-   DO DELETE FROM servers WHERE updated_at < CURRENT_TIMESTAMP;
 
 -- Data section
 INSERT INTO `versions` (`_id`, `gameid`,`name`) VALUES
@@ -65,7 +71,58 @@ INSERT INTO `versions` (`_id`, `gameid`,`name`) VALUES
 (3,10,'vX-010'),
 (2,1,'v0.22'),
 (1,207,'v2.0.7')
-;
+ON DUPLICATE KEY UPDATE
+`_id`=VALUES(`_id`), `gameid`=VALUES(`gameid`), `name`=VALUES(`name`);
+
+
+-- Behaviour
+
+CREATE EVENT IF NOT EXISTS banlist_cleanup
+   ON SCHEDULE EVERY 3 MINUTE
+   COMMENT 'Removes expired ban entries'
+   DO DELETE FROM servers WHERE updated_at < CURRENT_TIMESTAMP;
+
+CREATE EVENT IF NOT EXISTS serverlist_cleanup
+   ON SCHEDULE EVERY 3 MINUTE
+   COMMENT 'Removes server entries older than 10 minutes'
+   DO DELETE FROM servers WHERE updated_at < DATE_SUB(NOW(), INTERVAL 10 MINUTE);
+
+DELIMITER #
+CREATE OR REPLACE TRIGGER `serverslist_bancleanup_insert`
+   AFTER INSERT
+   ON `servers` FOR EACH ROW
+   BEGIN
+   DELETE FROM servers WHERE #SERVER IN BANLIST#;
+   END
+   #
+
+CREATE OR REPLACE TRIGGER `serverslist_bancleanup_update`
+   AFTER UPDATE
+   ON `servers` FOR EACH ROW
+   BEGIN
+   DELETE FROM servers WHERE #SERVER IN BANLIST#;
+   END
+   #
+
+CREATE OR REPLACE TRIGGER `roomlist_rebuild_insert`
+   AFTER INSERT
+   ON `servers` FOR EACH ROW
+   BEGIN
+   DELETE FROM `rooms`;
+   INSERT INTO `rooms` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+1 AS `_id`,`roomname`,`origin` FROM `servers` GROUP BY `roomname`;
+   END
+   #
+
+CREATE OR REPLACE TRIGGER `roomlist_rebuild_update`
+   AFTER UPDATE
+   ON `servers` FOR EACH ROW
+   BEGIN
+   DELETE FROM `rooms`;
+   INSERT INTO `rooms` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+1 AS `_id`,`roomname`,`origin` FROM `servers` GROUP BY `roomname`;
+   END
+   #
+
+DELIMITER ;
 
 -- Launching the server
 
