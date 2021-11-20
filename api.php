@@ -20,7 +20,7 @@ LiquidMS\Router::get('/', function(){
 */
 
 LiquidMS\Router::get('/rooms', function(){
-      // The rooms Universe(0) and Mobius(1) are technical and should always
+      // The rooms Universe(0) and World(1) are technical and should always
       // be added with automatically generated MOTDs to indicate function
       //
       // Since network adresses too small to append to name (blame bitmap font),
@@ -43,7 +43,7 @@ ${motd}
 
 
 1
-Mobius
+World
 Powered by liquidMS
 
 This room queries all available rooms internal to the node.
