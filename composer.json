@@ -7,7 +7,6 @@
 	    "ext-mbstring": "*",
 	    "ext-yaml": "*",
 	    "ext-pdo": "*",
-	    "ext-curl": "^8.0",
 	    "klein/klein": "^2.1"
 	},
 	"license": "AGPL-3.0-or-later",
