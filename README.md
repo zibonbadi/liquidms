@@ -24,30 +24,34 @@ served as a reference to this project.
 INSTALLATION
 ------------
 
-<<<<<<< HEAD
-liquidMS requires a separate SQL-capable relational database and an [ODBC]
-driver to connect to it. As the ODBC is a universal database interface that
-allows liquidMS to connect to arbitrary databeses, be they on-disk, on-system or
-remote. All details about the preferred database connection can be configured
-in the *environment file*; see __CONFIGURATION__ for more info.
-=======
-To run a node, simply launch it as a PHP server:
+
+First, download the source code and install all dependencies.  You'll need
+[PHP] and [Composer] for this with the following PHP extensions enabled:
+
+- EXT_PDO
+- EXT_YAML
+- EXT_MBSTRING
+
+[PHP]: <https://www.php.net/>
+[Composer]: <https://getcomposer.org/doc/00-intro.md>
+
+```
+$ git clone "https://github.com/zibonbadi/liquidms.git"
+$ cd liquidms
+liquidms$ composer install
+```
+
+To run a development server for your node, simply launch it as a PHP server:
 
 ```Bash
 php -S 127.0.0.1:8000 server.php
 ```
-
-Make sure the following PHP extensions are enabled:
-
-- EXT_PDO
-- EXT_YAML
 
 liquidMS requires a seperate SQL-capable relational database. As the
 connection is established through an [ODBC] interface, this can be either
 on-disk, on-system or remote.  All details about the preferred database
 connection can be configured in the *environment file*; see
 __CONFIGURATION__ for more info.
->>>>>>> 75f0002 (Router and dummy API routes)
 
 [ODBC]: <https://en.wikipedia.org/w/index.php?title=Open_Database_Connectivity&oldid=1044732966> "ODBC - Wikipedia"
 
