@@ -1,41 +1,66 @@
 <?php
-include_once __DIR__.'/Router.php';
+$router->with('/servers', function() use ($router){
+	$router->respond('GET', '/?', function($request, $response){
+			// Server test kludge. The game seems to ping every listed server and
+			// filter by response. Listing dummy servers is thus not possible.
+			$maincontent = file_get_contents("https://mb.srb2.org/MS/0/servers");
+			return <<<END
+			42
+			127.0.0.1 5029 Dummy%20server 2.2.9
 
-LiquidMS\Router::notFound(function($path){
-      http_response_code(404);
-      return "Unknown Action\n";
-      });
+			${maincontent}
 
-LiquidMS\Router::invalidPage(function(){
-      return "Unknown Action\n";
-      });
+			END;
+	});
+	$router->respond('POST', '/[:serverid]?/update', function($request, $response){
+			// No Response body
+			return;
+	});
+
+	$router->respond('POST', '/([serverId]*)/unlist', function($request, $response){
+			// No Response body
+			return;
+	});
+});
+
+$router->with('/versions', function() use ($router){
+				$router->respond('GET', '/[:versionId]?', function($request, $response){
+								$versionstring =
+								yaml_parse_file("config.yaml.example")["versions"][$request->versionId]; // Local var kludge
+								return "${versionstring}\n";
+								});
+				});
 
 
-/* GET API */
+/* POST API */
+$router->with('/rooms', function() use ($router){
+				$router->respond('POST', '/[:roomId]/register', function($request, $response){
+								// Register Server and put ID here.  ID format is not specified; Vanilla 
+								// returns numbers, we will return a random base64 string for security.
+								if( intval($request->roomId) == 1){
+										$response->code(403);
+										return "403 Forbidden";
+								}else{
+										return "42";
+								}
+								});
+				$router->respond('GET', '/?', function($request, $response){
+						// The rooms Universe(0) and World(1) are technical and should always
+						// be added with automatically generated MOTDs to indicate function
+						//
+						// Since network adresses too small to append to name (blame bitmap font),
+						// the name of the fetch server shall be added as "@[address]" into
+						// the first line of the MOTD.
+						// Example: see dummy response
 
-/*
-LiquidMS\Router::get('/', function(){
-      return "Unknown Action\n";
-      });
-*/
-
-LiquidMS\Router::get('/rooms', function(){
-      // The rooms Universe(0) and World(1) are technical and should always
-      // be added with automatically generated MOTDs to indicate function
-      //
-      // Since network adresses too small to append to name (blame bitmap font),
-      // the name of the fetch server shall be added as "@[address]" into
-      // the first line of the MOTD.
-      // Example: see dummy response
-
-      // This is a demo mirror. Put DB queries here.
-      $motd = yaml_parse_file("config.yaml.example")["motd"]; // Local var kludge
-      return <<<END
+						// This is a demo mirror. Put DB queries here.
+						$motd = yaml_parse_file("config.yaml.example")["motd"]; // Local var kludge
+						return <<<END
 0
 Universe
 Powered by liquidMS
 
-This room queries all available rooms, internal and remote.
+This room queries all available rooms, local and remote.
 
 =MOTD=
 
@@ -46,7 +71,7 @@ ${motd}
 World
 Powered by liquidMS
 
-This room queries all available rooms internal to the node.
+This room queries all available rooms local to the node.
 
 =MOTD=
 
@@ -72,12 +97,12 @@ merely serves to test the liquidMS API.
 
 
 END;
-      //return "Bananarama";
-      });
+						//return "Bananarama";
+				});
 
-LiquidMS\Router::get('/rooms/([0-9]*)', function($roomid){
-      return <<<END
-${roomid}
+				$router->respond('GET', '/[:roomId]', function($request, $response){
+								return <<<END
+{$request->roomId}
 Dummy Room
 This is a dummy response.
 
@@ -86,50 +111,21 @@ merely serves to test the liquidMS API.
 
 
 END;
-      });
+								});
 
-LiquidMS\Router::get('/rooms/([0-9]*)/servers', function($roomid){
-      return <<<END
-${roomid}
+				$router->respond('GET', '/[:roomId]/servers', function($request, $response){
+								return <<<END
+{$request->roomId}
 127.0.0.1 5029 Dummy%20server v2.2.9
 
 END;
-      });
+								});
+});
 
-LiquidMS\Router::get('/servers', function(){
-    // Server test kludge. The game seems to ping every listed server and
-    // filter by response. Listing dummy servers is thus not possible.
-   $maincontent = file_get_contents("https://mb.srb2.org/MS/0/servers");
-   return <<<END
-42
-127.0.0.1 5029 Dummy%20server 2.2.9
-
-${maincontent}
-
-END;
-      });
-
-LiquidMS\Router::get('/versions/([0-9]*)', function($versionid){
-      $versionstring =
-      yaml_parse_file("config.yaml.example")["versions"][$versionid]; // Local var kludge
-      return "${versionstring}\n";
-      });
-
-
-/* POST API */
-LiquidMS\Router::post('/rooms/([0-9]*)/register', function(){
-      // Register Server and put ID here.  ID format is not specified; Vanilla 
-      // returns numbers, we will return a random base64 string for security.
-      return "42";
-      });
-
-LiquidMS\Router::post('/servers/([0-9]*)/update', function(){
-      // No Response body
-      return;
-      });
-
-LiquidMS\Router::post('/servers/([0-9]*)/unlist', function(){
-      // No Response body
-      return;
-      });
+$router->with('/', function() use ($router){
+				$router->respond('GET', '*', function($request, $response){
+								$response->code(404);
+								return "Unknown action\n";
+								});
+				});
 ?>
