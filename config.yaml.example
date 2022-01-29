@@ -7,8 +7,13 @@ db: # liquidMS DB connection settings
    user: "alice"
    password: "password" #Keep this secret
    database: "servers"
+fetchtimeout: 25
+motd: |
+  liquidMS is an AGPL-licensed, API-compatible reimplementation of the SRB2 master server. By fetching other servers, it can be used as a decentralized node network.
 fetch: # Master servers to leech off of
 - "http://mb.srb2.org/0/MS"
 - "http://goldentails.tk/ms"
 - "http://mother.asnet.org/"
+versions:
+   18: "50 2.2.9"
 ...
