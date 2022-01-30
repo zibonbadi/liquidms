@@ -118,7 +118,6 @@ $router->with('/rooms', function() use ($router){
 
 
 						{$maincontent}
-
 						END;
 		});
 
