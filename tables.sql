@@ -108,7 +108,7 @@ CREATE OR REPLACE TRIGGER `roomlist_rebuild_insert`
    AFTER INSERT
    ON `servers` FOR EACH ROW
    BEGIN
-   DELETE FROM `rooms`;
+   DELETE FROM `rooms` WHERE origin != '';
    INSERT INTO `rooms` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+1 AS `_id`,`roomname`,`origin` FROM `servers` GROUP BY `roomname`;
    END
    #
@@ -117,7 +117,7 @@ CREATE OR REPLACE TRIGGER `roomlist_rebuild_update`
    AFTER UPDATE
    ON `servers` FOR EACH ROW
    BEGIN
-   DELETE FROM `rooms`;
+   DELETE FROM `rooms`; WHERE origin != ''
    INSERT INTO `rooms` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+1 AS `_id`,`roomname`,`origin` FROM `servers` GROUP BY `roomname`;
    END
    #
