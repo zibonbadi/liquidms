@@ -32,7 +32,26 @@ class NetgameModel{
 				}
 		}
 
-		public static function getServers(int $room = null){
+		public static function getVersions(int $id = null){
+
+				// Filter server block into distinct value arrays (step 2)
+				// - "[_id]"
+				//   "[gameid]"
+				//   "[version]"
+
+				$rVal = [];
+				$query = "SELECT * FROM versions";
+				if($id != NULL){ $query .= " WHERE _id = {$id}"; }
+				#echo "($id) $query\n";
+				$serverdata = self::db_execute($query);
+
+				if($serverdata["error"] == 0){
+					return $serverdata["data"];
+				}
+				return [];
+		}
+
+		public static function getServers($room = null){
 
 				// Filter server block into distinct value arrays (step 2)
 				// - - "[server line]"
@@ -41,7 +60,6 @@ class NetgameModel{
 				//   - "[name]"
 				//   - "[version]"
 
-				$rVal = [];
 				$query = "SELECT host, port, servername, rooms._id AS roomid, version, rooms.roomname, servers.origin FROM servers INNER JOIN rooms ON servers.roomname = rooms.roomname";
 				if($room != NULL){ $query .= " WHERE rooms._id = {$room}"; }
 				#echo $query."\n";
@@ -52,7 +70,6 @@ class NetgameModel{
 				}
 				return [];
 		}
-
 		public static function getRooms(int $room = null){
 
 				// Filter server block into distinct value arrays (step 2)

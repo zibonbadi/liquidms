@@ -56,9 +56,18 @@ $router->with('/servers', function() use ($router){
 });
 
 $router->with('/versions', function() use ($router){
-		$router->respond('GET', '/[:versionId]?', function($request, $response){
-				$versionstring = yaml_parse_file("config.yaml.example")["versions"][$request->versionId]; // Local var kludge
-				return "${versionstring}\n";
+		$router->respond('GET', '/[:versionId]', function($request, $response){
+				#$versionstring = yaml_parse_file("config.yaml.example")["versions"][$request->versionId]; // Local var kludge
+				#echo "Versionizer is here {$request->versionId}\n";
+				$maincontent = "";
+				$import = NetgameModel::getVersions(intval($request->versionId));
+				// Technically an unspecified room would blurt out all. The
+				// router takes care of it, but that's actually non-compliant.
+				foreach($import as $ver_index => $ver_value){
+					$maincontent .= $ver_value["gameid"]." ".
+									$ver_value["name"]."\n";
+				}
+				return "${maincontent}";
 		});
 });
 
@@ -127,8 +136,8 @@ $router->with('/rooms', function() use ($router){
 
 					foreach($rooms as $room_index => $room_value){
 						$maincontent .= $room_value["roomid"]."\n".
-														$room_value["roomname"]."\n".
-														$room_value["description"]."\n\n\n";
+										$room_value["roomname"]."\n".
+										$room_value["description"]."\n\n\n";
 					}
 				return <<<END
 						{$maincontent}
