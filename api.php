@@ -99,8 +99,9 @@ $router->with('/rooms', function() use ($router){
 
 					foreach($rooms as $room_index => $room_value){
 						$maincontent .= $room_value["roomid"]."\n".
-														$room_value["roomname"]."\n".
-														$room_value["description"]."\n\n\n";
+										$room_value["roomname"]."@\n".
+										"@".$room_value["origin"]."\n".
+										$room_value["description"]."\n\n\n";
 					}
 				$motd = ConfigModel::getConfig()["motd"]; // Local var kludge
 				return <<<END
@@ -137,6 +138,7 @@ $router->with('/rooms', function() use ($router){
 					foreach($rooms as $room_index => $room_value){
 						$maincontent .= $room_value["roomid"]."\n".
 										$room_value["roomname"]."\n".
+										"@".$room_value["origin"]."\n".
 										$room_value["description"]."\n\n\n";
 					}
 				return <<<END
