@@ -1,6 +1,11 @@
 <?php
-include_once('clichecks.php');
-include_once('fetch_common.php');
+require_once __DIR__.'/src/ConfigModel.php';
+include_once(__DIR__.'/src/fetch_common.php');
+
+use LiquidMS\ConfigModel;
+
+ConfigModel::init();
+$config = ConfigModel::getConfig(); // Local var kludge
 
 // Parse args into jobnames
 $fetchjobs = [];
@@ -36,7 +41,7 @@ function db_excecute(string $query, array $config){
    echo $odbcstring;
 
    if($connection){
-      return odbc_exec($query);
+      return odbc_exec($connection, $query);
    }else{
       return false;
       #throw new Exception("ODBC connection failed");

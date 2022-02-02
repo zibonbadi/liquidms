@@ -38,7 +38,7 @@ class ConfigModel{
 								if( self::child_assertType("dsn", $import_compose["db"], "string") ){
 										self::$config["db"]["dsn"] = $import_compose["db"]["dsn"];
 								}
-								if( self::child_assertType("dsn", $import_compose["db"], "string") ){
+								if( self::child_assertType("user", $import_compose["db"], "string") ){
 										self::$config["db"]["user"] = $import_compose["db"]["user"];
 								}
 								if( self::child_assertType("password", $import_compose["db"], "string") ){

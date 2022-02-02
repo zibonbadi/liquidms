@@ -1,8 +1,13 @@
 <?php
-include_once('clichecks.php');
-include_once('fetch_common.php');
+require_once __DIR__.'/src/ConfigModel.php';
+include_once(__DIR__.'/src/fetch_common.php');
+
+use LiquidMS\ConfigModel;
 
 // Get job list
+ConfigModel::init();
+$config = ConfigModel::getConfig(); // Local var kludge
+var_dump($config);
 $fetchjobs = array_keys($config["fetch"]);
 
 #var_dump($fetchjobs);
@@ -18,7 +23,6 @@ foreach( $fetchjobs as $job_i => $job_v){
 // Start "daemon"
 while(true){
    foreach( $fetchjobs as $job_i => $job_v){
-      #echo "JOB_I: ".$job_i;
       $currentjob = $config["fetch"][$job_v];
       $fetchdata = fetchUpdate($config, [$job_v]);
 
@@ -44,7 +48,7 @@ while(true){
       if($dbresponse["error"] != 0){ echo yaml_emit( $dbresponse ); }
       else{ echo $dbresponse["rows"]." rows upserted.\n"; }
 
-      sleep(5);
+      sleep(30);
       /* 
       // Reserved upsert for when MySQL actually supports MERGE from SQL:2003
       echo yaml_emit( db_execute(
