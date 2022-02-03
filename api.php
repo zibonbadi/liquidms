@@ -99,10 +99,17 @@ $router->with('/rooms', function() use ($router){
 					$maincontent = "";
 
 					foreach($rooms as $room_index => $room_value){
+						if($room_value["origin"] != ''){
+							$roomname_token = "@{$room_value["roomname"]}";
+							$description_token = "@{$room_value["origin"]}\n{$room_value["description"]}";
+						}else{
+							$roomname_token = "{$room_value["roomname"]}";
+							$description_token = "{$room_value["description"]}";
+						}
+
 						$maincontent .= $room_value["roomid"]."\n".
-										$room_value["roomname"]."@\n".
-										"@".$room_value["origin"]."\n".
-										$room_value["description"]."\n\n\n";
+										"$roomname_token\n".
+										"$description_token\n\n\n";
 					}
 				$motd = ConfigModel::getConfig()["motd"]; // Local var kludge
 				return <<<END
@@ -137,10 +144,17 @@ $router->with('/rooms', function() use ($router){
 					$maincontent = "";
 
 					foreach($rooms as $room_index => $room_value){
+						if($room_value["origin"] != ''){
+							$roomname_token = "@{$room_value["roomname"]}";
+							$description_token = "@{$room_value["origin"]}\n{$room_value["description"]}";
+						}else{
+							$roomname_token = "{$room_value["roomname"]}";
+							$description_token = "{$room_value["description"]}";
+						}
+
 						$maincontent .= $room_value["roomid"]."\n".
-										$room_value["roomname"]."\n".
-										"@".$room_value["origin"]."\n".
-										$room_value["description"]."\n\n\n";
+										"$roomname_token\n".
+										"$description_token\n\n\n";
 					}
 				return <<<END
 						{$maincontent}

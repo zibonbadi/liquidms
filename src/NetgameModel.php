@@ -65,7 +65,7 @@ class NetgameModel{
 				$ip = $request->ip();
 				$post = $request->params();
 				$room = $request->roomId;
-				$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`, `updated_at`) VALUES ('{$ip}', '{$port}', '{$title}', '{$version}', '{$roomname}', '', 'current_timestamp()')";
+				$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`) VALUES ('{$ip}', '{$port}', '{$title}', '{$version}', '{$roomname}', '')";
 				$serverdata = self::db_execute($query);
 				if($serverdata["error"] == 0){
 						return $serverdata["data"];
