@@ -51,6 +51,28 @@ class NetgameModel{
 				return [];
 		}
 
+		public static function publishServer($request) {
+
+				//Creates an SQL query based of all the info we provided.
+				//Really dirty, could possibly get cleaned.
+
+				parse_str($request->body(), $info);
+				$roomlist = self::getRooms($request->roomId);
+				$roomname = $roomlist[0]['roomname'];
+				$version = $info['version'];
+				$title = $info['title'];
+				$port = $info['port'];
+				$ip = $request->ip();
+				$post = $request->params();
+				$room = $request->roomId;
+				$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`, `updated_at`) VALUES ('{$ip}', '{$port}', '{$title}', '{$version}', '{$roomname}', '', 'current_timestamp()')";
+				$serverdata = self::db_execute($query);
+				if($serverdata["error"] == 0){
+						return $serverdata["data"];
+				}
+				return [];
+		}
+
 		public static function getServers($room = null){
 
 				// Filter server block into distinct value arrays (step 2)

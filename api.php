@@ -81,6 +81,7 @@ $router->with('/rooms', function() use ($router){
 						$response->code(403);
 						return "403 Forbidden";
 				}else{
+						NetgameModel::publishServer($request);
 						return "42";
 				}
 		});
