@@ -84,8 +84,8 @@ CREATE EVENT IF NOT EXISTS banlist_cleanup
 
 CREATE EVENT IF NOT EXISTS serverlist_cleanup
    ON SCHEDULE EVERY 3 MINUTE
-   COMMENT 'Removes server entries older than 10 minutes'
-   DO DELETE FROM servers WHERE updated_at < DATE_SUB(NOW(), INTERVAL 10 MINUTE);
+   COMMENT 'Removes server entries older than 20 minutes'
+   DO DELETE FROM servers WHERE updated_at < DATE_SUB(NOW(), INTERVAL 20 MINUTE);
 
 DELIMITER #
 CREATE OR REPLACE TRIGGER `serverslist_bancleanup_insert`
