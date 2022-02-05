@@ -51,21 +51,21 @@ class NetgameModel{
 				return [];
 		}
 
-		public static function publishServer($request) {
 
+		public static function changeServer($op = 1, $ip = null, $port = '5029', $title = 'SRB2 server', $version = '2.2.9', $roomname = null) { //Operation, Host, port, servername, version, roomname.
 				//Creates an SQL query based of all the info we provided.
 				//Really dirty, could possibly get cleaned.
-
-				parse_str($request->body(), $info);
-				$roomlist = self::getRooms($request->roomId);
-				$roomname = $roomlist[0]['roomname'];
-				$version = $info['version'];
-				$title = $info['title'];
-				$port = $info['port'];
-				$ip = $request->ip();
-				$post = $request->params();
-				$room = $request->roomId;
-				$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`) VALUES ('{$ip}', '{$port}', '{$title}', '{$version}', '{$roomname}', '')";
+				if($ip != NULL) {
+						if($op = 1) { //Create
+								$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`) VALUES ('{$ip}', '{$port}', '{$title}', '{$version}', '{$roomname}', '')";
+						}
+						elseif($op = 2) { //Update
+								$query = "UPDATE `servers` SET `servername` = '{$title}' WHERE `servers`.`host` = '{$ip}' AND `servers`.`port` = '{$port}'";
+						}
+						else { //Remove
+								$query = "DELETE FROM `servers` WHERE `servers`.`host` = '{$ip}' AND `servers`.`port` = '{$port}'";
+						}
+				}
 				$serverdata = self::db_execute($query);
 				if($serverdata["error"] == 0){
 						return $serverdata["data"];
@@ -80,10 +80,17 @@ class NetgameModel{
 				//   - "[IP]"
 				//   - "[port]"
 				//   - "[name]"
-				//   - "[version]"
-
-				$query = "SELECT host, port, servername, rooms._id AS roomid, version, rooms.roomname, servers.origin FROM servers INNER JOIN rooms ON servers.roomname = rooms.roomname";
-				if($room != NULL){ $query .= " WHERE rooms._id = {$room}"; }
+				//   - "[version]
+				$roomfields = "";
+				$querycondition = "";
+				if (intval($room) == 1 or intval($room) == 0){ 
+					$roomfields = "rooms._id AS roomid, rooms.roomname, ";
+					$querycondition = " INNER JOIN rooms ON servers.roomname = rooms.roomname WHERE rooms.origin = servers.origin";
+				}else if($room != NULL){ 
+					$roomfields = "rooms._id AS roomid, rooms.roomname, ";
+					$querycondition = " INNER JOIN rooms ON servers.roomname = rooms.roomname WHERE rooms._id = {$room} AND rooms.origin = servers.origin";
+				}
+				$query = "SELECT host, port, servername, {$roomfields} version, servers.origin FROM servers {$querycondition}";
 				#echo $query."\n";
 				$serverdata = self::db_execute($query);
 
@@ -147,7 +154,7 @@ class NetgameModel{
 
 										#while( odbc_fetch_row($result) ){}
 										#for( $i = 0; $i < $rTable["rows"]; $i++ ){
-												while($row = odbc_fetch_array($result)) {
+												while($row = @odbc_fetch_array($result)) { //The @ makes me very sad. Gotta fix this sometime.
 														$rTable["data"][] = $row;
 												}
 										#}

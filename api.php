@@ -45,11 +45,17 @@ $router->with('/servers', function() use ($router){
 			END;
 	});
 	$router->respond('POST', '/[:serverid]?/update', function($request, $response){
+			parse_str($request->body(), $info);
+			$request->ip();
+			NetgameModel::changeServer(2, $request->ip(), $request->serverid, $info['title'], null, null);
 			// No Response body
 			return;
 	});
 
-	$router->respond('POST', '/([serverId]*)/unlist', function($request, $response){
+	$router->respond('POST', '/[:serverid]?/unlist', function($request, $response){
+			parse_str($request->body(), $info);
+			$request->ip();
+			NetgameModel::changeServer(0, $request->ip(), $request->serverid, null, null, null);
 			// No Response body
 			return;
 	});
@@ -81,8 +87,10 @@ $router->with('/rooms', function() use ($router){
 						$response->code(403);
 						return "403 Forbidden";
 				}else{
-						NetgameModel::publishServer($request);
-						return "42";
+						$rooms = NetgameModel::getRooms($request->roomId);
+						parse_str($request->body(), $info);
+						NetgameModel::changeServer(1, $request->ip(), $info['port'], urlencode($info['title']), $info['version'], $rooms[0]['roomname']);
+						return $info['port'];
 				}
 		});
 		$router->respond('GET', '/?', function($request, $response){
