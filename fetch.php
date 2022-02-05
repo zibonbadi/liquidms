@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__.'/src/ConfigModel.php';
-include_once(__DIR__.'/src/fetch_common.php');
+require_once __DIR__.'/src/fetch_common.php';
 
 use LiquidMS\ConfigModel;
 
@@ -14,6 +14,7 @@ foreach( $argv as $argno => $argval ){
    $fetchjobs[] = $argval;
 }
 
+/*
 function db_excecute(string $query, array $config){
 
    // The following YAML structure will be used from `config.yaml`.
@@ -49,9 +50,10 @@ function db_excecute(string $query, array $config){
 
    #return $odbcstring;
 }
+*/
 
 #echo yaml_emit( fetchUpdate($config) );
-echo db_excecute("SELECT * FROM `servers`", $config);
+#echo db_execute("SELECT * FROM `servers`", $config);
 $fetchdata = fetchUpdate($config, $fetchjobs);
 
 // Generate insert values

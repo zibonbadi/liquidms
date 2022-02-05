@@ -48,6 +48,19 @@ class NetgameModel{
 				return $serverdata;
 		}
 
+		public static function pushServers(Array $servers) {
+
+			// Generate insert values
+			$values = "";
+			foreach( $servers as $netgameId => $netgame){
+			   $values .= "(\"{$netgame["host"]}\", \"{$netgame["port"]}\", \"{$netgame["servername"]}\", \"{$netgame["version"]}\", \"{$netgame["roomname"]}\", \"{$netgame["origin"]}\"),";
+			}
+			$values = rtrim($values,", \n\r\t");
+			$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`) VALUES {$values}";
+
+			$serverdata = self::db_execute($query);
+			return $serverdata;
+		}
 
 		public static function changeServer($op = 1, $ip = null, $port = '5029', $title = 'SRB2 server', $version = '2.2.9', $roomname = null) { //Operation, Host, port, servername, version, roomname.
 				//Creates an SQL query based of all the info we provided.

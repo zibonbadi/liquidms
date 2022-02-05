@@ -32,7 +32,7 @@ $router->with('/liquidms', function() use ($router){
 				//$response->json($servers["data"]);
 			}else{
 				$response->code(404);
-				$response->json($servers["data"]);
+				return "";
 			}
 		}else{
 			$response->code(500);
@@ -41,19 +41,66 @@ $router->with('/liquidms', function() use ($router){
 		}
 	});
 
-	$router->respond('POST', '/snitch', function($request, $response){
+	$router->respond('POST', '/snitch', function($request, $response, $service){
 		// Provide some CSV text and it'll get parsed into tables
 		//$csvdata[] = str_getcsv($request->body());
 		$csvdata = [];
 		$files = $request->files();
-		foreach( $files["files"]["tmp_name"] as $fileId => $file){
-			#echo(file_get_contents($file));
-			$csvlines = explode("\n",rtrim(file_get_contents($file),"\n"));
-			$csvdata = array_merge( $csvdata, array_map('str_getcsv', $csvlines) );
-		}
-		// Keep kosher entries, discard the rest
 
-		// For now, just mirror what got parsed for testing
-		$response->json($csvdata);
+		foreach( $files["files"]["tmp_name"] as $fileId => $file){
+			//Formatting
+			$csvlines = explode("\n",rtrim(file_get_contents($file),"\n"));
+			$csvdata_raw = array_map('str_getcsv', $csvlines);
+			foreach($csvdata_raw as $csvnetgameId => $csvnetgame){
+				$csvdata[] = [
+					"host" => $csvnetgame[0],
+					"port" => $csvnetgame[1],
+					"servername" => $csvnetgame[2],
+					"version" => $csvnetgame[3],
+					"roomname" => $csvnetgame[4],
+					"origin" => $csvnetgame[5],
+				];
+			}
+		}
+
+		#var_dump($csvdata);
+		foreach($csvdata as $netgameId => $netgame){
+			// Check entries. Keep halal ones, discard the rest
+			echo $netgame["host"];
+			if(
+				($netgame["host"] == "localhost") ||
+				($netgame["host"] == "127.0.0.1") ||
+				($netgame["origin"] == "localhost") ||
+				($netgame["origin"] == "127.0.0.1")
+			){
+				unset($csvdata[$netgameId]);
+			}
+		}
+
+		// I'll think of something
+		$dbresponse = NetgameModel::pushServers($csvdata);
+
+		if( $dbresponse["error"] == 0 ){
+			if( $dbresponse["rows"] > 0 ){
+				// For now, just mirror what got parsed for testing
+				$response->json( [
+				"status" => $response->code(),
+				"message" => "Success",
+				] );
+			}else{
+				$response->code(403);
+				$response->json( [
+				"status" => $response->code(),
+				"message" => "Can't add those\n",
+				] );
+			}
+		}else{
+			$response->code(500);
+			$response->json( [
+			"status" => $response->code(),
+			"message" => $service->render(__DIR__."/src/ErrorView.php", ["response" => $dbresponse]),
+			] );
+		}
+
 	});
 });
