@@ -21,7 +21,7 @@ Special thanks to GoldenTails whose reverse engineered HTTP master server
 served as a reference to this project.  
 <https://git.do.srb2.org/Golden/RevEngMS>
 
-[vqspec]: <https://mb.srb2.org/MS/tools/api/v1/>
+[vqspec]: <https://web.archive.org/web/20220205110841/https://mb.srb2.org/MS/tools/api/v1/>
 
 INSTALLATION
 ------------
