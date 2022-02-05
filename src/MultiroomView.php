@@ -6,7 +6,7 @@ $servers_sorted = [];
 
 #var_dump($rooms);
 // Guarantee room slots
-foreach($rooms["data"] as $room_index => $room_value){ $servers_sorted[$room_value["roomid"]] = []; }
+#foreach($rooms["data"] as $room_index => $room_value){ $servers_sorted[$room_value["roomid"]] = []; }
 
 // Sort into room slots
 foreach($import["data"] as $import_index => $import_value){
