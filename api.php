@@ -14,7 +14,7 @@ $router->with('/servers', function() use ($router){
 				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){
 					$service->render(__DIR__."/src/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);
 				}else{
-					$response->code(500);
+					$response->code(403);
 					if( ($servers["error"] != 0)){ $service->render(__DIR__."/src/ErrorView.php", ["response" => $servers]); };
 					if( ($rooms["error"] != 0)){ $service->render(__DIR__."/src/ErrorView.php", ["response" => $rooms]); };
 				}
@@ -23,16 +23,24 @@ $router->with('/servers', function() use ($router){
 			parse_str($request->body(), $info);
 			$request->ip();
 			NetgameModel::changeServer(2, $request->ip(), $request->serverid, $info['title'], null, null);
-			// No Response body
-			return;
+			if( $rooms["rows"] > 0 ){
+				// No Response body
+				return;
+			}else{
+				return "No such server\n";
+			}
 	});
 
 	$router->respond('POST', '/[:serverid]?/unlist', function($request, $response){
 			parse_str($request->body(), $info);
 			$request->ip();
 			NetgameModel::changeServer(0, $request->ip(), $request->serverid, null, null, null);
-			// No Response body
-			return;
+			if( $rooms["rows"] > 0 ){
+				// No Response body
+				return;
+			}else{
+				return "No such server\n";
+			}
 	});
 });
 
@@ -48,6 +56,10 @@ $router->with('/versions', function() use ($router){
 					foreach($import["data"] as $ver_index => $ver_value){
 						$maincontent .= $ver_value["gameid"]." ".
 										$ver_value["name"]."\n";
+					}
+					if($import["rows"] < 1){
+						$response->code(404);
+						$maincontent = "No such version\n";
 					}
 					return "${maincontent}";
 				}else{
@@ -69,11 +81,16 @@ $router->with('/rooms', function() use ($router){
 				}else{
 						$rooms = NetgameModel::getRooms($request->roomId);
 						if( $rooms["error"] == 0 ){
-							parse_str($request->body(), $info);
-							NetgameModel::changeServer(1, $request->ip(), $info['port'], urlencode($info['title']), $info['version'], $rooms["data"][0]['roomname']);
-							return $info['port'];
+							if( $rooms["rows"] > 0 ){
+								parse_str($request->body(), $info);
+								NetgameModel::changeServer(1, $request->ip(), $info['port'], urlencode($info['title']), $info['version'], $rooms["data"][0]['roomname']);
+								return $info['port'];
+							}else{
+								$response->code(404);
+								return "No such room\n";
+							}
 						}else{
-							$response->code(500);
+							$response->code(403);
 							$service->render(__DIR__."/src/ErrorView.php", ["response" => $servers]);
 						}
 				}
@@ -140,25 +157,30 @@ $router->with('/rooms', function() use ($router){
 		$router->respond('GET', '/[:roomId]', function($request, $response){
 				$rooms = NetgameModel::getRooms($request->roomId);
 				if( $rooms["error"] == 0 ){
-					$maincontent = "";
+					if( $rooms["rows"] > 0 ){
+						$maincontent = "";
 
-					foreach($rooms as $room_index => $room_value){
-						if($room_value["origin"] != 'localhost'){
-							$roomname_token = "@{$room_value["roomname"]}";
-							$description_token = "@{$room_value["origin"]}\n{$room_value["roomname"]}\n{$room_value["description"]}";
-						}else{
-							$roomname_token = "{$room_value["roomname"]}";
-							$description_token = "{$room_value["description"]}";
+						foreach($rooms as $room_index => $room_value){
+							if($room_value["origin"] != 'localhost'){
+								$roomname_token = "@{$room_value["roomname"]}";
+								$description_token = "@{$room_value["origin"]}\n{$room_value["roomname"]}\n{$room_value["description"]}";
+							}else{
+								$roomname_token = "{$room_value["roomname"]}";
+								$description_token = "{$room_value["description"]}";
+							}
+
+							$maincontent .= $room_value["roomid"]."\n".
+											"$roomname_token\n".
+											"$description_token\n\n\n";
 						}
+						return <<<END
+								{$maincontent}
 
-						$maincontent .= $room_value["roomid"]."\n".
-										"$roomname_token\n".
-										"$description_token\n\n\n";
+								END;
+					}else{
+						$response->code(404);
+						return "No such room\n";
 					}
-					return <<<END
-							{$maincontent}
-
-							END;
 				}else{
 					$response->code(500);
 					$service->render(__DIR__."/src/ErrorView.php", ["response" => $servers]);
@@ -173,7 +195,12 @@ $router->with('/rooms', function() use ($router){
 				#var_dump($servers);
 				$rooms = NetgameModel::getWorldRooms();
 				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){
-					$service->render(__DIR__."/src/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);
+					if( ($servers["rows"] > 0) && ($rooms["rows"] > 0) ){
+						$service->render(__DIR__."/src/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);
+					}else{
+						$response->code(404);
+						return "{$request->roomId}\n\n";
+					}
 				}else{
 					$response->code(500);
 					if( ($servers["error"] != 0)){ $service->render(__DIR__."/src/ErrorView.php", ["response" => $servers]); };
@@ -192,7 +219,7 @@ $router->with('/rooms', function() use ($router){
 
 $router->with('/', function() use ($router){
 		$router->respond('GET', '*', function($request, $response){
-				$response->code(404);
+				$response->code(400);
 				return "Unknown action\n";
 		});
 });
