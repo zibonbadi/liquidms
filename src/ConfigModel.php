@@ -16,6 +16,11 @@ class ConfigModel{
 		];
 
 				public static function init(){
+
+						if(!file_exists(__DIR__."/../config.yaml")){
+							copy(__DIR__."/../config.yaml.example", __DIR__."/../config.yaml");
+						}
+
 						$import = yaml_parse_file(__DIR__."/../config.yaml", -1);
 
 						// Merge all yaml configs together
@@ -33,6 +38,14 @@ class ConfigModel{
 										if( self::child_assertType("host", $peer_data, "string") ){
 												self::$config["fetch"][$peer_name]["host"] = $peer_data["host"];
 										}
+										if(
+										self::child_assertType("minute", $peer_data, "integer") ){
+												self::$config["fetch"][$peer_name]["minute"] = $peer_data["minute"];
+										}
+										if(
+										self::child_assertType("updated_at", $peer_data, "integer") ){
+												self::$config["fetch"][$peer_name]["updated_at"] = $peer_data["updated_at"];
+										}
 						}
 						if( self::child_assertType("db", $import_compose, "array") ){
 								if( self::child_assertType("dsn", $import_compose["db"], "string") ){
@@ -47,6 +60,11 @@ class ConfigModel{
 						}
 				}
 				static function getConfig(){return self::$config;}
+				static function setConfig(Array $newconfig){self::$config = $newconfig;}
+
+				static function dumpConfig(){
+					yaml_emit_file(__DIR__."/../config.yaml", self::$config);
+				}
 
 				private static function child_assertType(string $field, Array $parent, string $type){
 						return (    array_key_exists($field, $parent) &&

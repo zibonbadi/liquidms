@@ -7,23 +7,20 @@ use LiquidMS\ConfigModel;
 // Get job list
 ConfigModel::init();
 $config = ConfigModel::getConfig(); // Local var kludge
-var_dump($config);
 $fetchjobs = array_keys($config["fetch"]);
 
-#var_dump($fetchjobs);
-// Preemptive cleanup
-foreach( $fetchjobs as $job_i => $job_v){
-   if(	 array_key_exists("day", $config["fetch"][$job_v]) ||
-	 array_key_exists("hour", $config["fetch"][$job_v]) ||
-	 array_key_exists("minute", $config["fetch"][$job_v])
-     ){ continue; } // Skip working ones
-   #echo $job_v." REMOVED!\n";
-   unset($job_v); // Delete rest
-}
 // Start "daemon"
 while(true){
    foreach( $fetchjobs as $job_i => $job_v){
-      $currentjob = $config["fetch"][$job_v];
+		$currentjob = &$config["fetch"][$job_v];
+		if( array_key_exists("updated_at", $currentjob) &&
+			$currentjob["updated_at"] > time()-(60*$currentjob["minute"])
+		){
+			// Too early, skip
+			continue;
+		}
+		// Update timestamp
+		$currentjob["updated_at"] = time();
       $fetchdata = fetchUpdate($config, [$job_v]);
 
       // Generate insert values
@@ -48,7 +45,6 @@ while(true){
       if($dbresponse["error"] != 0){ echo yaml_emit( $dbresponse ); }
       else{ echo $dbresponse["rows"]." rows upserted.\n"; }
 
-      sleep(30);
       /* 
       // Reserved upsert for when MySQL actually supports MERGE from SQL:2003
       echo yaml_emit( db_execute(
@@ -63,5 +59,8 @@ while(true){
 	 $config) );
       */
    }
+	ConfigModel::setConfig($config);
+	ConfigModel::dumpConfig();
+	sleep(60);
 }
 ?>
