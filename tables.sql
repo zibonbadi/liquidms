@@ -5,10 +5,10 @@ USE `liquidms`;
 CREATE TABLE IF NOT EXISTS `servers` (
   `host` VARCHAR(64) NOT NULL,
   `port` SMALLINT(6) unsigned NOT NULL,
-  `servername` VARCHAR(64) NOT NULL,
+  `servername` VARCHAR(256) NOT NULL,
   `version` VARCHAR(16) NOT NULL,
   `roomname` VARCHAR(32) DEFAULT NULL,
-  `origin` VARCHAR(64) DEFAULT NULL,
+  `origin` VARCHAR(64) NOT NULL DEFAULT 'localhost',
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`host`,`port`)
 );
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `servers` (
 CREATE TABLE IF NOT EXISTS `rooms` (
   `_id` INT(11) NOT NULL UNIQUE,
   `roomname` VARCHAR(32) NOT NULL,
-  `origin` VARCHAR(32) DEFAULT '',
+  `origin` VARCHAR(32) NOT NULL DEFAULT 'localhost',
   `description` text DEFAULT "Powered by liquidMS",
   PRIMARY KEY (`roomname`,`origin`)
 );
@@ -108,8 +108,9 @@ CREATE OR REPLACE TRIGGER `roomlist_rebuild_insert`
    AFTER INSERT
    ON `servers` FOR EACH ROW
    BEGIN
-   DELETE FROM `rooms` WHERE origin <> '';
-   INSERT INTO `rooms` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+1 AS `_id`,`roomname`,`origin` FROM `servers` GROUP BY `roomname`;
+   DELETE FROM `rooms` WHERE _id > 99;
+   INSERT INTO `rooms` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+100 AS `_id`,`roomname`,`origin` FROM `servers` WHERE `origin` <> 'localhost' GROUP BY `roomname`;
+   DELETE FROM `rooms` WHERE roomname = '' OR origin = '' ;
    END
    #
 
@@ -117,14 +118,15 @@ CREATE OR REPLACE TRIGGER `roomlist_rebuild_update`
    AFTER UPDATE
    ON `servers` FOR EACH ROW
    BEGIN
-   DELETE FROM `rooms` WHERE origin <> '';
-   INSERT INTO `rooms` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+1 AS `_id`,`roomname`,`origin` FROM `servers` GROUP BY `roomname`;
+   DELETE FROM `rooms` WHERE _id > 99;
+   INSERT INTO `rooms` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+100 AS `_id`,`roomname`,`origin` FROM `servers` WHERE `origin` <> 'localhost' GROUP BY `roomname`;
+   DELETE FROM `rooms` WHERE roomname = '' OR origin = '' ;
    END
    #
 
 DELIMITER ;
 
 -- Launching the server
-
+INSERT INTO `rooms` (`_id`, `roomname`, `description`) VALUES (2, 'liquid', 'Default liquidMS room');
 -- Enabling event scheduler
 SET GLOBAL event_scheduler = ON

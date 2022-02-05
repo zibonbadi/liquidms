@@ -12,7 +12,7 @@ SUMMARY
 -------
 
 *liquidMS* is an API-compatible clean room implementation of the Sonic Robo
-Blast 2 HTTP Master Server. It is capable of fetching server info from any
+Blast 2 [HTTP Master Server API][v1spec]. It is capable of fetching server info from any
 API Compatible master server and include the response in it's own output,
 thus being capable to be operated as a node within a distributed master
 server network.
@@ -20,6 +20,8 @@ server network.
 Special thanks to GoldenTails whose reverse engineered HTTP master server
 served as a reference to this project.  
 <https://git.do.srb2.org/Golden/RevEngMS>
+
+[vqspec]: <https://mb.srb2.org/MS/tools/api/v1/>
 
 INSTALLATION
 ------------

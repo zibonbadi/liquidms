@@ -45,10 +45,7 @@ class NetgameModel{
 				#echo "($id) $query\n";
 				$serverdata = self::db_execute($query);
 
-				if($serverdata["error"] == 0){
-					return $serverdata["data"];
-				}
-				return [];
+				return $serverdata;
 		}
 
 
@@ -57,20 +54,21 @@ class NetgameModel{
 				//Really dirty, could possibly get cleaned.
 				if($ip != NULL) {
 						if($op = 1) { //Create
-								$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`) VALUES ('{$ip}', '{$port}', '{$title}', '{$version}', '{$roomname}', '')";
+								$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`)
+								VALUES ('{$ip}', '{$port}', '{$title}', '{$version}', '{$roomname}', 'localhost')";
 						}
 						elseif($op = 2) { //Update
-								$query = "UPDATE `servers` SET `servername` = '{$title}' WHERE `servers`.`host` = '{$ip}' AND `servers`.`port` = '{$port}'";
+								$query = "UPDATE `servers` SET `servername` = '{$title}'
+								WHERE `servers`.`host` = '{$ip}' AND `servers`.`port` = '{$port}'";
 						}
 						else { //Remove
-								$query = "DELETE FROM `servers` WHERE `servers`.`host` = '{$ip}' AND `servers`.`port` = '{$port}'";
+								$query = "DELETE FROM `servers`
+								WHERE `servers`.`host` = '{$ip}'
+								AND `servers`.`port` = '{$port}'";
 						}
 				}
 				$serverdata = self::db_execute($query);
-				if($serverdata["error"] == 0){
-						return $serverdata["data"];
-				}
-				return [];
+				return $serverdata;
 		}
 
 		public static function getServers($room = null){
@@ -83,7 +81,7 @@ class NetgameModel{
 				//   - "[version]
 				$querycondition = "";
 				if(intval($room) == 1){ 
-					$querycondition = "WHERE servers.origin = ''";
+					$querycondition = "WHERE servers.origin = 'localhost'";
 				}else if($room != NULL){ 
 					$querycondition = "WHERE rooms._id = {$room}";
 				}
@@ -91,10 +89,7 @@ class NetgameModel{
 				#echo $query."\n";
 				$serverdata = self::db_execute($query);
 
-				if($serverdata["error"] == 0){
-						return $serverdata["data"];
-				}
-				return [];
+				return $serverdata;
 		}
 		public static function getRooms(int $room = null){
 
@@ -111,10 +106,24 @@ class NetgameModel{
 				#echo $query."\n";
 				$serverdata = self::db_execute($query);
 
-				if($serverdata["error"] == 0){
-						return $serverdata["data"];
-				}
-				return [];
+				return $serverdata;
+		}
+
+		public static function getWorldRooms(){
+
+				// Filter server block into distinct value arrays (step 2)
+				// - - "[server line]"
+				//   - "[IP]"
+				//   - "[port]"
+				//   - "[name]"
+				//   - "[version]"
+
+				$rVal = [];
+				$query = "SELECT _id AS roomid, roomname, origin, description FROM rooms WHERE origin = 'localhost'";
+				#echo $query."\n";
+				$serverdata = self::db_execute($query);
+
+				return $serverdata;
 		}
 
 		private static function db_execute(string $query){
