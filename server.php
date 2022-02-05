@@ -23,7 +23,7 @@ NetgameModel::init($config["db"]);
 
 // Set API routes
 include_once __DIR__.'/api.php';
-#include_once __DIR__.'/liquidendpoints.php';
+include_once __DIR__.'/liquidendpoints.php';
 
 // Start accepting requests
 $router->dispatch();
