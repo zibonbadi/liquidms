@@ -109,7 +109,7 @@ $router->with('/rooms', function() use ($router){
 					foreach($rooms as $room_index => $room_value){
 						if($room_value["origin"] != ''){
 							$roomname_token = "@{$room_value["roomname"]}";
-							$description_token = "@{$room_value["origin"]}\n{$room_value["description"]}";
+							$description_token = "@{$room_value["origin"]}\n{$room_value["roomname"]}\n{$room_value["description"]}";
 						}else{
 							$roomname_token = "{$room_value["roomname"]}";
 							$description_token = "{$room_value["description"]}";
@@ -154,7 +154,7 @@ $router->with('/rooms', function() use ($router){
 					foreach($rooms as $room_index => $room_value){
 						if($room_value["origin"] != ''){
 							$roomname_token = "@{$room_value["roomname"]}";
-							$description_token = "@{$room_value["origin"]}\n{$room_value["description"]}";
+							$description_token = "@{$room_value["origin"]}\n{$room_value["roomname"]}\n{$room_value["description"]}";
 						}else{
 							$roomname_token = "{$room_value["roomname"]}";
 							$description_token = "{$room_value["description"]}";

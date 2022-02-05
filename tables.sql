@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `servers` (
 CREATE TABLE IF NOT EXISTS `rooms` (
   `_id` INT(11) NOT NULL UNIQUE,
   `roomname` VARCHAR(32) NOT NULL,
-  `origin` VARCHAR(32) DEFAULT NULL,
+  `origin` VARCHAR(32) DEFAULT '',
   `description` text DEFAULT "Powered by liquidMS",
   PRIMARY KEY (`roomname`,`origin`)
 );
@@ -88,27 +88,27 @@ CREATE EVENT IF NOT EXISTS serverlist_cleanup
    DO DELETE FROM servers WHERE updated_at < DATE_SUB(NOW(), INTERVAL 20 MINUTE);
 
 DELIMITER #
-CREATE OR REPLACE TRIGGER `serverslist_bancleanup_insert`
-   AFTER INSERT
-   ON `servers` FOR EACH ROW
-   BEGIN
-   DELETE FROM servers WHERE #SERVER IN BANLIST#;
-   END
-   #
+-- CREATE OR REPLACE TRIGGER `serverslist_bancleanup_insert`
+   -- AFTER INSERT
+   -- ON `servers` FOR EACH ROW
+   -- BEGIN
+   -- DELETE FROM servers WHERE #SERVER IN BANLIST#;
+   -- END
+   -- #
 
-CREATE OR REPLACE TRIGGER `serverslist_bancleanup_update`
-   AFTER UPDATE
-   ON `servers` FOR EACH ROW
-   BEGIN
-   DELETE FROM servers WHERE #SERVER IN BANLIST#;
-   END
-   #
+-- CREATE OR REPLACE TRIGGER `serverslist_bancleanup_update`
+   -- AFTER UPDATE
+   -- ON `servers` FOR EACH ROW
+   -- BEGIN
+   -- DELETE FROM servers WHERE #SERVER IN BANLIST#;
+   -- END
+   -- #
 
 CREATE OR REPLACE TRIGGER `roomlist_rebuild_insert`
    AFTER INSERT
    ON `servers` FOR EACH ROW
    BEGIN
-   DELETE FROM `rooms` WHERE origin != '';
+   DELETE FROM `rooms` WHERE origin <> '';
    INSERT INTO `rooms` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+1 AS `_id`,`roomname`,`origin` FROM `servers` GROUP BY `roomname`;
    END
    #
@@ -117,7 +117,7 @@ CREATE OR REPLACE TRIGGER `roomlist_rebuild_update`
    AFTER UPDATE
    ON `servers` FOR EACH ROW
    BEGIN
-   DELETE FROM `rooms`; WHERE origin != ''
+   DELETE FROM `rooms` WHERE origin <> '';
    INSERT INTO `rooms` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+1 AS `_id`,`roomname`,`origin` FROM `servers` GROUP BY `roomname`;
    END
    #

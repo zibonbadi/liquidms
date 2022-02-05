@@ -81,12 +81,13 @@ class NetgameModel{
 				//   - "[port]"
 				//   - "[name]"
 				//   - "[version]
-				$roomfields = "";
 				$querycondition = "";
-				if($room != NULL and !(intval($room) == 1 or intval($room) == 0)){ 
-					$querycondition = " rooms._id = {$room} AND";
+				if(intval($room) == 1){ 
+					$querycondition = "WHERE servers.origin = ''";
+				}else if($room != NULL){ 
+					$querycondition = "WHERE rooms._id = {$room}";
 				}
-				$query = "SELECT host, port, servername, rooms._id AS roomid, rooms.roomname, version, servers.origin FROM servers INNER JOIN rooms ON servers.roomname = rooms.roomname WHERE {$querycondition} rooms.origin = servers.origin";
+				$query = "SELECT host, port, servername, rooms._id AS roomid, rooms.roomname, version, servers.origin FROM servers INNER JOIN rooms ON servers.roomname = rooms.roomname AND rooms.origin = servers.origin {$querycondition}";
 				#echo $query."\n";
 				$serverdata = self::db_execute($query);
 
