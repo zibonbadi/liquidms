@@ -148,14 +148,42 @@ function db_execute(string $query, array $config){
 function snitch(Array $data, Array $finsters){
 	// Couldn't come up with a better var name for peers to snitch to, so I referenced Recess.
 	$rowCount = count($data);
+	$csvContent = "";
+	$http_response = "";
+
 	echo "[".date(DateTime::ISO8601, time())."] Processing {$rowCount} rows of data...\n";
 	foreach($data as $dataIndex => $dataRow){
 		// Create data
 		#echo "[".date(DateTime::ISO8601, time())."] Processing row {$dataIndex}...\n";
+
+		// Write CSV to var. Iterative opening may
+		// be slower, but guarantees clean output
+		$tmp = fopen('php://temp', 'r+');
+		$csvChars = fputcsv($tmp, $dataRow);
+		rewind($tmp);
+		$csvContent .= fread($tmp, $csvChars);
+		fclose($tmp);
 	}
+	rtrim($csvContent, "\n");
+
+	echo $csvContent;
+
+	// This is a body-based request. Migrate to file upload to avoid size caps
+	$http_config = [
+		'http' => [
+			'method'  => 'POST',
+			// Request headers here
+			'header'  => 'Content-type: text/csv',
+			'content' => $csvContent
+		]
+	];
+	$http_context = stream_context_create($http_config);
 
 	foreach($finsters as $finster){
 		echo "[".date(DateTime::ISO8601, time())."] Snitching to \"{$finster}\"...\n";
+		$http_response .= file_get_contents(
+							rtrim($finster,'/')."/liquidms/snitch",
+							false, $http_context);
 	}
 }
 ?>

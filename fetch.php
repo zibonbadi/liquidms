@@ -59,7 +59,7 @@ switch($config["fetchmode"]){
 		*/
 		break;
 	}case "snitch":{
-		echo yaml_emit( snitch($fetchdata, $config["snitch"]) );
+		echo snitch($fetchdata, $config["snitch"]);
 		break;
 	}
 }
