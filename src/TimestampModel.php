@@ -5,10 +5,10 @@ require_once __DIR__.'/../vendor/autoload.php';
 
 class TimestampModel{
 
-	private static $filename = __DIR__."/../liquidanacron.yaml";
+	private static $filename = __DIR__."/../timestamps.yaml";
 	private static $data = [];
 
-	public static function init(string $filename = __DIR__."/../liquidanacron.yaml"){
+	public static function init(string $filename = __DIR__."/../timestamps.yaml"){
 
 		if(!file_exists($filename)){
 			yaml_emit_file($filename, []);

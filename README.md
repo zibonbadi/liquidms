@@ -144,7 +144,7 @@ Should you choose to use `liquidanacron.php` for your fetch queries, the
 execution of master server queries will be determined by the field
 `minute`. Much like anacron on POSIX systems, this script will keep track
 of when a query has been executed last using timestamps documented in the
-automatically generated file `liquidanacron.yaml` and automatically query a
+automatically generated file `timestamps.yaml` and automatically query a
 master server once a specified amount of time has passed since last
 execution.
 

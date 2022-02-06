@@ -145,12 +145,17 @@ function db_execute(string $query, array $config){
    }
 }
 
-function snitch(Array $servers, Array $finsters){
+function snitch(Array $data, Array $finsters){
 	// Couldn't come up with a better var name for peers to snitch to, so I referenced Recess.
-	$config = NetgameModel::getConfig();
+	$rowCount = count($data);
+	echo "[".date(DateTime::ISO8601, time())."] Processing {$rowCount} rows of data...\n";
+	foreach($data as $dataIndex => $dataRow){
+		// Create data
+		#echo "[".date(DateTime::ISO8601, time())."] Processing row {$dataIndex}...\n";
+	}
 
-	foreach($finsters as $finsterId => $finsterVal){
-		echo "[DUMMY] Snitching to \"{$finsterVal}\"...\n";
+	foreach($finsters as $finster){
+		echo "[".date(DateTime::ISO8601, time())."] Snitching to \"{$finster}\"...\n";
 	}
 }
 ?>
