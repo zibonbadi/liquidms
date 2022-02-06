@@ -18,11 +18,16 @@ Blast 2 [HTTP Master Server API][v1spec]. It is capable of mirroring data
 from any API Compatible master server, thus being capable to be operated as
 a node within a distributed master server network.
 
+The project is licensed under the [GNU AFFERO GENERAL PUBLIC LICENSE Version 3][gnuaffero],
+which is accessible via this link, the included `LICENSE.md` file
+or via the HTTP endpoint `/liquidms/license`.
+
 Special thanks to GoldenTails whose reverse engineered HTTP master server
 served as a reference to this project.  
 <https://git.do.srb2.org/Golden/RevEngMS>
 
 [vqspec]: <https://web.archive.org/web/20220205110841/https://mb.srb2.org/MS/tools/api/v1/>
+[gnuaffero]: <https://www.gnu.org/licenses/agpl-3.0.en.html>
 
 INSTALLATION
 ------------
@@ -144,10 +149,9 @@ master server once a specified amount of time has passed since last
 execution.
 
 Each number above 0 entered into a time field will be interpreted as a
-multiplier to be understood as "every x minutes"; other values
-will equate to 1. To ignore a specific temporal requirement, simply omit
-it's time field from the job. For example, to execute a query every 24
-hours and 15 minutes, a job may look like the following:
+multiplier to be understood as "every x minutes"; other values will equate
+to 1. To ignore a specific temporal requirement, simply omit it's time
+field from the job.
 
 
 USAGE
@@ -205,6 +209,30 @@ fetch:
     minute: 15
 ```
 
+### Snitching
+
+liquidMS features a custom extension called the *Snitch API*. Through use
+of the endpoint `/liquidms/snitch` via HTTP GET and POST requests,
+independent hosts can contribute to database mirroring on other liquidMS
+nodes without the need for database access authorization on behalf of the
+peer.
+
+By supplying a peer files of type `text/csv;header=absent` to the peer's
+HTTP API, hosts can actively contribute to that peer's database. The CSV
+data that is both supplied as well as expected by liquidMS nodes is
+defined by the following structure:
+
+	<host>,<port>,<servername>,<version>,<roomname>,<origin>
+
+To easily contribute data towards a peer ("snitching"), the configuration
+file `config.yaml` defines the fields `fetchmode` with possible values of
+`fetch` and `snitch` as well as the collection `snitch`. When set to
+*fetch*, the fetch scripts `fetch.php` and `liquidanacron.php` will attempt
+to provide automatically generated SQL queries to the configured odbc
+connection, as if these were to be used for a self hosted node setup. When
+set to *snitch*, these scripts will instead attempt to supply their data to
+all peers specified in the *snitch* collection of the configuration file.
+
 
 DEVELOPMENT
 -----------
@@ -215,3 +243,8 @@ Simply Launch a server with PHP:
 
 NOTE: The game has been reported to have difficulties around the local DNS
       name `localhost`. Also note that the URL must not end in a slash for
+
+Our `.gitignore` file also reserves a dedicated directory `local/` in case
+you need to store information locally without committing them or fiddling
+with resets or the `.gitignore`; config files and database setup scripts
+for example.

@@ -14,46 +14,6 @@ foreach( $argv as $argno => $argval ){
    $fetchjobs[] = $argval;
 }
 
-/*
-function db_excecute(string $query, array $config){
-
-   // The following YAML structure will be used from `config.yaml`.
-   //
-   // db: # liquidMS DB connection settings
-   //    server: # ODBC database server
-   //    driver: # ODBC database driver
-   //    user: # database user
-   //    password: # database password
-   //    database: # database to access
-
-   // Sanity check
-   if( !array_key_exists("db", $config) ){ echo 'No section "db" in config file.'; return false; }
-   if( !array_key_exists("dsn", $config["db"]) ){ echo 'No DSN string given in database config.'; return false; }
-   if( !array_key_exists("user", $config["db"]) ){ echo 'No user given in database config.'; return false; }
-   if( !array_key_exists("password", $config["db"]) ){ echo 'No password given in database config.'; return false; }
-
-   $odbcstring = $config["db"]["dsn"];
-
-   $connection = odbc_connect(
-	 $odbcstring, 
-	 $config["db"]["user"],
-	 $config["db"]["password"] );
-
-   echo $odbcstring;
-
-   if($connection){
-      return odbc_exec($connection, $query);
-   }else{
-      return false;
-      #throw new Exception("ODBC connection failed");
-   }
-
-   #return $odbcstring;
-}
-*/
-
-#echo yaml_emit( fetchUpdate($config) );
-#echo db_execute("SELECT * FROM `servers`", $config);
 $fetchdata = fetchUpdate($config, $fetchjobs);
 
 // Generate insert values

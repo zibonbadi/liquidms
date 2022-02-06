@@ -8,7 +8,17 @@ use LiquidMS\NetgameModel;
 // Namespace for extended 
 $router->with('/liquidms', function() use ($router){
 	$router->respond('GET', '/?', function($request, $response, $service){
-		$response->json($router);
+		$response->json([
+		"routes" => [
+			"/license",
+			"/snitch",
+			]
+		]);
+	});
+
+	$router->respond('GET', '/license/?', function($request, $response, $service){
+		$response->header('Content-Type','text/plain;syntax=markdown');
+		return file_get_contents(__DIR__."/LICENSE.md");
 	});
 
 	$router->respond('PUT', '/?', function($request, $response){
@@ -18,7 +28,7 @@ $router->with('/liquidms', function() use ($router){
 		$response->json($reqdata);
 	});
 
-	$router->respond('GET', '/snitch', function($request, $response){
+	$router->respond('GET', '/snitch/?', function($request, $response){
 		// Get all known netgames as a CSV table (e.g. for snitching to other nodes)
 		$response->header('Content-Type','text/csv;header=absent');
 		$servers = NetgameModel::getServers();

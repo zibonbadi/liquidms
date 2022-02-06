@@ -2,12 +2,10 @@
 function fetchUpdate(array $config, array $jobs = []){
    $rVal = []; // Return value
    $response = "";
-   $joblist = (empty($jobs))?array_keys($config["fetch"]):$jobs;
 
-   #var_dump($joblist);
-
-   foreach($joblist as $jobname => $jobval) {
-      $currentjob = $config["fetch"][$jobval];
+   foreach($jobs as $jobname => $jobval) {
+	  echo "[".date(DateTime::ISO8601, time())." {$jobname}] Fetching \"{$jobval["host"]}\"...\n";
+      $currentjob = $config["fetch"][$jobname];
       #var_dump($currentjob["host"]);
 
       $res_rooms = file_get_contents(rtrim($currentjob["host"], "/")."/rooms");
@@ -145,5 +143,14 @@ function db_execute(string $query, array $config){
 	 "query" => $query,
       ];
    }
+}
+
+function snitch(Array $servers, Array $finsters){
+	// Couldn't come up with a better var name for peers to snitch to, so I referenced Recess.
+	$config = NetgameModel::getConfig();
+
+	foreach($finsters as $finsterId => $finsterVal){
+		echo "[DUMMY] Snitching to \"{$finsterVal}\"...\n";
+	}
 }
 ?>
