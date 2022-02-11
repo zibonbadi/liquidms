@@ -57,9 +57,21 @@ $router->with('/liquidms', function() use ($router){
 		$csvdata = [];
 		$files = $request->files();
 
-		foreach( $files["files"]["tmp_name"] as $fileId => $file){
+		error_log("Files received:\n".yaml_emit($files->all()));
+
+		if(empty($files) ||
+		$files == NULL){
+			$response->code(400);
+			$response->json( [
+			"status" => $response->code(),
+			"message" => "No valid data provided"
+			] );
+			return;
+		}
+
+		foreach( $files as $fileId => $file){
 			//Formatting
-			$csvlines = explode("\n",rtrim(file_get_contents($file),"\n"));
+			$csvlines = explode("\n",rtrim(file_get_contents($file['tmp_name']),"\n"));
 			$csvdata_raw = array_map('str_getcsv', $csvlines);
 			foreach($csvdata_raw as $csvnetgameId => $csvnetgame){
 				$csvdata[] = [
@@ -73,18 +85,27 @@ $router->with('/liquidms', function() use ($router){
 			}
 		}
 
-		#var_dump($csvdata);
+		error_log("csvdata:\n".yaml_emit($csvdata));
 		foreach($csvdata as $netgameId => $netgame){
 			// Check entries. Keep halal ones, discard the rest
-			echo $netgame["host"];
 			if(
 				($netgame["host"] == "localhost") ||
 				($netgame["host"] == "127.0.0.1") ||
 				($netgame["origin"] == "localhost") ||
 				($netgame["origin"] == "127.0.0.1")
 			){
+				error_log("Removing invalid netgame \"{$netgame["servername"]}\"");
 				unset($csvdata[$netgameId]);
 			}
+		}
+
+		if(empty($csvdata) || $csvdata == NULL){
+			$response->code(400);
+			$response->json( [
+			"status" => $response->code(),
+			"message" => "No valid data provided"
+			] );
+			return;
 		}
 
 		// I'll think of something

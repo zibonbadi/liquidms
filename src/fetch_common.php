@@ -150,6 +150,9 @@ function snitch(Array $data, Array $finsters){
 	$rowCount = count($data);
 	$csvContent = "";
 	$http_response = "";
+	$multipart_boundary = '--------------------------'.microtime(true);
+	$multipart_fieldname = 'data';
+	$multipart_filename = 'snitch.csv';
 
 	echo "[".date(DateTime::ISO8601, time())."] Processing {$rowCount} rows of data...\n";
 	foreach($data as $dataIndex => $dataRow){
@@ -166,24 +169,39 @@ function snitch(Array $data, Array $finsters){
 	}
 	rtrim($csvContent, "\n");
 
-	echo $csvContent;
+	//echo $csvContent;
+
+	$httpcontent =  "--{$multipart_boundary}\r\n".
+		"Content-Disposition: form-data; name=\"{$multipart_fieldname}\"; filename=\"{$multipart_filename}\"\r\n".
+		"Content-Type: text/csv; header=absent\r\n\r\n".
+		$csvContent."\r\n";
+
+	// signal end of request (note the trailing "--")
+	$httpcontent .= "--{$multipart_boundary}--\r\n";
+
+	//echo $httpcontent."\n";
 
 	// This is a body-based request. Migrate to file upload to avoid size caps
-	$http_config = [
-		'http' => [
-			'method'  => 'POST',
+	$filewrapper = http_build_query([
+		"data" => $httpcontent,
+	]);
+	$http_context = stream_context_create([
+		"http" => [
+			"method"  => "POST",
 			// Request headers here
-			'header'  => 'Content-type: text/csv',
-			'content' => $csvContent
+			"header"  => "Content-type: multipart/form-data; boundary={$multipart_boundary}",
+			"content" => $filewrapper,
 		]
-	];
-	$http_context = stream_context_create($http_config);
+	]);
 
 	foreach($finsters as $finster){
-		echo "[".date(DateTime::ISO8601, time())."] Snitching to \"{$finster}\"...\n";
-		$http_response .= file_get_contents(
-							rtrim($finster,'/')."/liquidms/snitch",
-							false, $http_context);
+		$url = rtrim($finster,'/')."/liquidms/snitch";
+		echo "[".date(DateTime::ISO8601, time())."] Snitching to \"{$url}\"...\n";
+		$response_tmp = file_get_contents( $url, false, $http_context);
+		if($response_tmp !== false){
+			$http_response .= $repsonse_tmp;
+		}
 	}
+	echo $http_response."\n";
 }
 ?>
