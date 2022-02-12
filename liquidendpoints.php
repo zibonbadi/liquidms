@@ -57,7 +57,7 @@ $router->with('/liquidms', function() use ($router){
 		$csvdata = [];
 		$files = $request->files();
 
-		error_log("Files received:\n".yaml_emit($files->all()));
+		error_log($request->ip()." provided the following files:\n".yaml_emit($files->all()));
 
 		if(empty($files) ||
 		$files == NULL){
@@ -85,7 +85,6 @@ $router->with('/liquidms', function() use ($router){
 			}
 		}
 
-		error_log("csvdata:\n".yaml_emit($csvdata));
 		foreach($csvdata as $netgameId => $netgame){
 			// Check entries. Keep halal ones, discard the rest
 			if(
@@ -107,6 +106,8 @@ $router->with('/liquidms', function() use ($router){
 			] );
 			return;
 		}
+
+		error_log($request->ip()." snitched the following netgames:\n".yaml_emit($csvdata));
 
 		// I'll think of something
 		$dbresponse = NetgameModel::pushServers($csvdata);

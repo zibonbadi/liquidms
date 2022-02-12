@@ -181,16 +181,12 @@ function snitch(Array $data, Array $finsters){
 
 	//echo $httpcontent."\n";
 
-	// This is a body-based request. Migrate to file upload to avoid size caps
-	$filewrapper = http_build_query([
-		"data" => $httpcontent,
-	]);
 	$http_context = stream_context_create([
 		"http" => [
 			"method"  => "POST",
 			// Request headers here
 			"header"  => "Content-type: multipart/form-data; boundary={$multipart_boundary}",
-			"content" => $filewrapper,
+			"content" => $httpcontent,
 		]
 	]);
 
