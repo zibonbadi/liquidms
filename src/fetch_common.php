@@ -155,6 +155,12 @@ function snitch(Array $data, Array $finsters){
 	$multipart_filename = 'snitch.csv';
 
 	echo "[".date(DateTime::ISO8601, time())."] Processing {$rowCount} rows of data...\n";
+
+	if($rowCount < 1){
+		echo "[".date(DateTime::ISO8601, time())."] No data to propagate. Skipping...\n";
+		return;
+	}
+
 	foreach($data as $dataIndex => $dataRow){
 		// Create data
 		#echo "[".date(DateTime::ISO8601, time())."] Processing row {$dataIndex}...\n";
