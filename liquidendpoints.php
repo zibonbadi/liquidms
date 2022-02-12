@@ -37,7 +37,16 @@ $router->with('/liquidms', function() use ($router){
 				$out = fopen('php://output', 'w');
 				foreach($servers["data"] as $server){
 					if(($server["origin"] == "localhost") || ($server["origin"] == "127.0.0.1")){ $server["origin"] = $_SERVER["SERVER_NAME"]; }
-					fputcsv($out, $server);
+					// Reordering to guarantee API-compliant output
+					fputcsv($out, [
+						"host" => $server["host"],
+						"port" => $server["port"],
+						"servername" => $server["servername"],
+						"version" => $server["version"],
+						"roomname" => $server["roomname"],
+						"origin" => $server["origin"],
+					]
+					);
 				}
 				//$response->json($servers["data"]);
 			}else{
