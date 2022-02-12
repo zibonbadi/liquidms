@@ -138,6 +138,25 @@ recommend <https://www.connectionstrings.com/>. Otherwise we are not able to
 take accountability for how you decide to run or connect to your database
 using this interface; it is simply impossible for us to help you with that.
 
+
+### MariaDB
+
+As MariaDB currently remains our testing and design databaase (both due to
+lack of database feature standardization as well as it's libre
+software-induced ubiquity), here's a few tips on how to configure MariaDB
+for a smooth, painless liquidMS experience:
+
+#### Enabling the event scheduler
+
+liquidMS relies on programmable database events to allow for live server
+updates in a secure manner. In order to keep the necessary event scheduler
+persistently enabled across reboots of the MariaDB daemon, add the
+following line to your MariaDB config file (usually `my.cnf` or `my.ini`):
+
+    event_scheduler=ON
+
+
+
 ### liquidanacron
 
 Should you choose to use `liquidanacron.php` for your fetch queries, the
@@ -239,7 +258,7 @@ DEVELOPMENT
 
 Simply Launch a server with PHP:
 
-	$ php -S 127.0.0.1:8080 server.php
+	$ php -S 127.0.0.1:8080
 
 NOTE: The game has been reported to have difficulties around the local DNS
       name `localhost`. Also note that the URL must not end in a slash for
