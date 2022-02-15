@@ -1,19 +1,17 @@
 ---
 # This is an example config.yaml for a liquidMS node environment
 db: # liquidMS DB connection settings
-   host: "db.liquidms.org"
-   port: 8080
-   engine: "ODBC"
+   dsn: "DRIVER=liquidMS ODBC driver;SERVER=localhost" # ODBC DSN string.
    user: "alice"
    password: "password" #Keep this secret
    database: "servers"
-fetchtimeout: 25
+fetch_mode: "server" # "server" to hook into ODBC; "snitch" to snitch to your peers
 motd: |
   liquidMS is an AGPL-licensed, API-compatible reimplementation of the SRB2 master server. By fetching other servers, it can be used as a decentralized node network.
 fetch: # Master servers to leech off of
-- "http://mb.srb2.org/0/MS"
-- "http://goldentails.tk/ms"
-- "http://mother.asnet.org/"
-versions:
-   18: "50 2.2.9"
+  vanilla:
+    host: "https://mb.srb2.org/MS/0"
+    minute: 5
+snitch: # Servers to snitch to
+- "localhost:8080"
 ...
