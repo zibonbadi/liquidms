@@ -5,7 +5,7 @@ require_once __DIR__.'/src/NetgameModel.php';
 use LiquidMS\ConfigModel;
 use LiquidMS\NetgameModel;
 
-$router->with('/servers', function() use ($router){
+$router->with('/v1/servers', function() use ($router){
 	$router->respond('GET', '/?', function($request, $response, $service){
 			// Server test kludge. The game seems to ping every listed server and
 			// filter by response. Listing dummy servers is thus not possible.
@@ -44,7 +44,7 @@ $router->with('/servers', function() use ($router){
 	});
 });
 
-$router->with('/versions', function() use ($router){
+$router->with('/v1/versions', function() use ($router){
 		$router->respond('GET', '/[:versionId]', function($request, $response){
 				#$versionstring = yaml_parse_file("config.yaml.example")["versions"][$request->versionId]; // Local var kludge
 				#echo "Versionizer is here {$request->versionId}\n";
@@ -71,7 +71,7 @@ $router->with('/versions', function() use ($router){
 
 
 /* POST API */
-$router->with('/rooms', function() use ($router){
+$router->with('/v1/rooms', function() use ($router){
 		$router->respond('POST', '/[:roomId]/register', function($request, $response){
 				// Register Server and put ID here.  ID format is not specified; Vanilla 
 				// returns numbers, we will return a random base64 string for security.
@@ -217,8 +217,8 @@ $router->with('/rooms', function() use ($router){
 		});
 });
 
-$router->with('/', function() use ($router){
-		$router->respond('GET', '*', function($request, $response){
+$router->with('/v1', function() use ($router){
+		$router->respond('GET', '/*?', function($request, $response){
 				$response->code(400);
 				return "Unknown action\n";
 		});
