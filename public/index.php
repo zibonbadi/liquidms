@@ -1,10 +1,10 @@
 <?php
 // Setup, configs etc.
-require_once __DIR__.'/vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 // Local utilities
-require_once __DIR__.'/src/ConfigModel.php';
-require_once __DIR__.'/src/NetgameModel.php';
+require_once __DIR__.'/../liquidms/modules/ConfigModel.php';
+require_once __DIR__.'/../liquidms/modules/NetgameModel.php';
 
 
 use LiquidMS\ConfigModel;
@@ -22,8 +22,8 @@ $config = ConfigModel::getConfig();
 NetgameModel::init($config["db"]);
 
 // Set API routes
-include_once __DIR__.'/api.php';
-include_once __DIR__.'/liquidendpoints.php';
+include_once __DIR__.'/../liquidms/api.php';
+include_once __DIR__.'/../liquidms/liquidendpoints.php';
 
 // Start accepting requests
 $router->dispatch();

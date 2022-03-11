@@ -1,7 +1,7 @@
 <?php
 namespace LiquidMS;
 
-require_once __DIR__.'/../vendor/autoload.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 #require_once __DIR__.'/../fetch_common.php';
 
 class NetgameModel{

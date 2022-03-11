@@ -1,7 +1,7 @@
 <?php
 namespace LiquidMS;
 
-require_once __DIR__.'/../vendor/autoload.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 
 class ConfigModel{
 
@@ -19,11 +19,11 @@ class ConfigModel{
 
 		public static function init(){
 
-			if(!file_exists(__DIR__."/../config.yaml")){
-				copy(__DIR__."/../config.yaml.example", __DIR__."/../config.yaml");
+			if(!file_exists(__DIR__."/../../config.yaml")){
+				copy(__DIR__."/../../config.yaml.example", __DIR__."/../../config.yaml");
 			}
 
-			$import = yaml_parse_file(__DIR__."/../config.yaml", -1);
+			$import = yaml_parse_file(__DIR__."/../../config.yaml", -1);
 
 			// Merge all yaml configs together
 			$import_compose = [];
@@ -83,7 +83,7 @@ class ConfigModel{
 		}
 
 		static function dumpConfig(){
-			yaml_emit_file(__DIR__."/../config.yaml", self::$config);
+			yaml_emit_file(__DIR__."/../../config.yaml", self::$config);
 		}
 
 		private static function child_assertType(string $field, Array $parent, string $type){

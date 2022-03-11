@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__.'/src/ConfigModel.php';
-require_once __DIR__.'/src/NetgameModel.php';
+require_once __DIR__.'/modules/ConfigModel.php';
+require_once __DIR__.'/modules/NetgameModel.php';
 
 use LiquidMS\ConfigModel;
 use LiquidMS\NetgameModel;
@@ -139,7 +139,7 @@ $router->with('/liquidms', function() use ($router){
 			$response->code(500);
 			$response->json( [
 			"status" => $response->code(),
-			"message" => $service->render(__DIR__."/src/ErrorView.php", ["response" => $dbresponse]),
+			"message" => $service->render(__DIR__."/modules/ErrorView.php", ["response" => $dbresponse]),
 			] );
 		}
 
