@@ -5,7 +5,7 @@ db: # liquidMS DB connection settings
    user: "alice"
    password: "password" #Keep this secret
    database: "servers"
-fetch_mode: "server" # "server" to hook into ODBC; "snitch" to snitch to your peers
+fetch_mode: "fetch" # "fetch" to hook into ODBC; "snitch" to snitch to your peers
 motd: |
   liquidMS is an AGPL-licensed, API-compatible reimplementation of the SRB2 master server. By fetching other servers, it can be used as a decentralized node network.
 fetch: # Master servers to leech off of
