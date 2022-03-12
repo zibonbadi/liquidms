@@ -18,18 +18,43 @@ class NetgameModel{
 				//    user: # database user
 				//    password: # database password
 
-				if( array_key_exists("dsn", $settings) &&
-								gettype($settings["dsn"]) == "string"){
-						self::$dsn = $settings["dsn"];
-				}
-				if( array_key_exists("user", $settings) &&
-								gettype($settings["user"]) == "string"){
-						self::$username = $settings["user"];
-				}
-				if( array_key_exists("password", $settings) &&
-								gettype($settings["password"]) == "string"){
-						self::$password = $settings["password"];
-				}
+			if( array_key_exists("dsn", $settings) &&
+					gettype($settings["dsn"]) == "string"){
+				self::$dsn = $settings["dsn"];
+			}
+			if( array_key_exists("user", $settings) &&
+					gettype($settings["user"]) == "string"){
+				self::$username = $settings["user"];
+			}
+			if( array_key_exists("password", $settings) &&
+					gettype($settings["password"]) == "string"){
+				self::$password = $settings["password"];
+			}
+		}
+
+		private static function map4to6(string $address){
+			if(filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) !== false){
+				// Address is IPV4
+				return "::ffff:".$address;
+			}else if(filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) !== false){
+				// Address is IPV6
+				return $address;
+			}else{
+				return false;
+			}
+		}
+
+		private static function map6to4(string $address){
+			if(str_starts_with($address, "::ffff:")){
+				// Address is IPV4-Mapped
+				//echo substr($address, 7);
+				return substr($address, 7);
+			}else if(filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) !== false){
+				// Address is IPV6
+				return $address;
+			}else{
+				return false;
+			}
 		}
 
 		public static function getVersions(int $id = null){
@@ -53,7 +78,7 @@ class NetgameModel{
 			// Generate insert values
 			$values = "";
 			foreach( $servers as $netgameId => $netgame){
-			   $values .= "(\"{$netgame["host"]}\", \"{$netgame["port"]}\", \"{$netgame["servername"]}\", \"{$netgame["version"]}\", \"{$netgame["roomname"]}\", \"{$netgame["origin"]}\"),";
+			   $values .= "(\"".self::map4to6($netgame["host"])."\", \"{$netgame["port"]}\", \"{$netgame["servername"]}\", \"{$netgame["version"]}\", \"{$netgame["roomname"]}\", \"{$netgame["origin"]}\"),";
 			}
 			$values = rtrim($values,", \n\r\t");
 			$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`) VALUES {$values}";
@@ -68,15 +93,15 @@ class NetgameModel{
 				if($ip != NULL) {
 						if($op = 1) { //Create
 								$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`)
-								VALUES ('{$ip}', '{$port}', '{$title}', '{$version}', '{$roomname}', 'localhost')";
+								VALUES ('".self::map4to6($netgame["host"])."', '{$port}', '{$title}', '{$version}', '{$roomname}', 'localhost')";
 						}
 						elseif($op = 2) { //Update
 								$query = "UPDATE `servers` SET `servername` = '{$title}'
-								WHERE `servers`.`host` = '{$ip}' AND `servers`.`port` = '{$port}'";
+								WHERE `servers`.`host` = '".self::map4to6($netgame["host"])."' AND `servers`.`port` = '{$port}'";
 						}
 						else { //Remove
 								$query = "DELETE FROM `servers`
-								WHERE `servers`.`host` = '{$ip}'
+								WHERE `servers`.`host` = '".self::map4to6($netgame["host"])."'
 								AND `servers`.`port` = '{$port}'";
 						}
 				}
@@ -101,6 +126,10 @@ class NetgameModel{
 				$query = "SELECT host, port, servername, rooms._id AS roomid, rooms.roomname, version, servers.origin FROM servers INNER JOIN rooms ON servers.roomname = rooms.roomname AND rooms.origin = servers.origin {$querycondition}";
 				#echo $query."\n";
 				$serverdata = self::db_execute($query);
+
+				foreach($serverdata["data"] as $netgameId => $netgame){
+					$serverdata["data"][$netgameId]["host"] = self::map6to4($netgame["host"]);
+				};
 
 				return $serverdata;
 		}

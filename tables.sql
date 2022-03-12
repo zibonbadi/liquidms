@@ -3,7 +3,7 @@ USE `liquidms`;
 
 -- server list with all automations
 CREATE TABLE IF NOT EXISTS `servers` (
-  `host` VARCHAR(64) NOT NULL,
+  `host` INET6 NOT NULL,
   `port` SMALLINT(6) unsigned NOT NULL,
   `servername` VARCHAR(256) NOT NULL,
   `version` VARCHAR(16) NOT NULL,
