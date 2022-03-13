@@ -140,7 +140,7 @@ using this interface; it is simply impossible for us to help you with that.
 
 ### MariaDB
 
-As MariaDB currently remains our testing and design databaase (both due to
+As MariaDB currently remains our testing and design database (both due to
 lack of database feature standardization as well as it's libre
 software-induced ubiquity), here's a few tips on how to configure MariaDB
 for a smooth, painless liquidMS experience:
@@ -198,11 +198,43 @@ so don't even attempt to set up a room in this range, it's not worth it.
 ### Hosting a liquidMS node
 
 liquidMS is able to mirror server listings of any API-compliant SRB2
-HTTP V1 master server within it's own server database. The script
-`fetch.php` parses server listings fetched from said master servers defined
-in `config.yaml` and upserts them into it's defined ODBC database.
-For recurring execution, this script can be used either through the
-supplied daemon script `liquidanacron.php` or independently as a
+HTTP V1 master server within it's own server database.
+
+To allow for load balancing optimized network architectures and maximum
+possible uptime, liquidMS was designed with three layers of components in mind:
+
+1. The *ODBC Database* at the core. Think of it as the model to liquidMS,
+   being responsible for managing all hosted data. For security, we
+   deliberately left management of world rooms and banned server subnets to
+   the database server administrator as to guarantee consistency across a
+   ring of first party liquidMS nodes in terms of authorization and API I/O.
+2. *First party liquidMS nodes* to supply a V1 compatible API for
+   registering worldwide netgames and joining the universe. These nodes are
+   also responsible for fetching universe netgames into the ODBC database,
+   due to their need for an authorized database access. More on the
+   concept of fetching down below.
+3. *Universe servers* and *snitches* to provide the first party liquidMS
+   nodes and by extension the database with universewide netgames.
+   More on the concept of snitching down below.
+
+liquidMS supports banning of servers through use of the database table
+`bans`, consisting of the fields `host`, `subnetmask` and `expire`. As the
+names suggest, it allows administrators to ban ranges of IPs based on
+*subnet masks* rather than traditional numeric ranges. This allows for more
+precise control of IP ranges through carefully crafted subnet masks at the
+expense of subnet masks being restricted to sizes equal to a power of two.
+The field `expire` contains a timestamp defining the expiration date and by
+extension duration of the ban after which the entry will be automatically
+removed from the database. The default value is the time of entry plus 24
+hours. A timestamp of `NULL` defines a permanent ban.
+
+
+### Fetching
+
+The script `fetch.php` parses server listings fetched from said master
+servers defined in `config.yaml` and upserts them into it's defined ODBC
+database.  For recurring execution, this script can be used either through
+the supplied daemon script `liquidanacron.php` or independently as a
 system-managed regular occurrence, such as a scheduled task on Windows or a
 (ana)cronjob on POSIX.
 
@@ -213,10 +245,11 @@ script like below. If unspecified, all servers will be fetched at once:
 $ php fetch.php [jobname]
 ```
 
-The script `liquidanarcon.php` serves as a simple daemon that . Acting upon
-every minute, it logs timestamps of individual fetch queries and runs them
-after the timespan defined in it's designated `minute` field has passed.
-If no temporal data is specified for a job, it will be skipped.
+The script `liquidanarcon.php` serves as a simple daemon that regularly
+engages in fetching/snitching of all specified universe servers. Acting
+upon every minute, it logs timestamps of individual fetch queries and runs
+them after the timespan defined in it's designated `minute` field has
+passed. If no temporal data is specified for a job, it will be skipped.
 
 For more information, see the *liquidanacron* section in __CONFIGURATION__.
 
@@ -231,11 +264,12 @@ fetch:
 
 liquidMS features a custom extension called the *Snitch API*. Through use
 of the endpoint `/liquidms/snitch` via HTTP GET and POST requests,
-independent hosts can contribute to database mirroring on other liquidMS
+independent hosts can contribute universe netgame mirrors to other liquidMS
 nodes without the need for database access authorization on behalf of the
-peer.
+peer, as it will automatically sanitize the supplied data based on it's
+internal netgame hosting policy.
 
-By supplying a peer files of type `text/csv;header=absent` to the peer's
+By supplying files of type `text/csv;header=absent` to a peer's
 HTTP API, hosts can actively contribute to that peer's database. The CSV
 data that is both supplied as well as expected by liquidMS nodes is
 defined by the following structure:
@@ -246,7 +280,7 @@ To easily contribute data towards a peer ("snitching"), the configuration
 file `config.yaml` defines the fields `fetchmode` with possible values of
 `fetch` and `snitch` as well as the collection `snitch`. When set to
 *fetch*, the fetch scripts `fetch.php` and `liquidanacron.php` will attempt
-to provide automatically generated SQL queries to the configured odbc
+to provide automatically generated SQL queries to the configured ODBC
 connection, as if these were to be used for a self hosted node setup. When
 set to *snitch*, these scripts will instead attempt to supply their data to
 all peers specified in the *snitch* collection of the configuration file.
