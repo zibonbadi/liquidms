@@ -201,7 +201,7 @@ function snitch(Array $data, Array $finsters){
 		echo "[".date(DateTime::ISO8601, time())."] Snitching to \"{$url}\"...\n";
 		$response_tmp = file_get_contents( $url, false, $http_context);
 		if($response_tmp !== false){
-			$http_response .= $repsonse_tmp;
+			$http_response .= $response_tmp;
 		}
 	}
 	echo $http_response."\n";
