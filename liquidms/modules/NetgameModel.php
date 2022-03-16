@@ -143,7 +143,7 @@ class NetgameModel{
 				//   - "[version]"
 
 				$rVal = [];
-				$query = "SELECT _id AS roomid, roomname, origin, description FROM rooms";
+				$query = "SELECT _id AS roomid, roomname, origin, description FROM rooms ORDER BY _id";
 				if($room != NULL){ $query .= " WHERE _id = {$room}"; }
 				#echo $query."\n";
 				$serverdata = self::db_execute($query);
