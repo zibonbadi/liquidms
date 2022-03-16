@@ -197,7 +197,7 @@ $router->with('/rooms', function() use ($router){
 					if( ($servers["rows"] > 0) && ($rooms["rows"] > 0) ){
 						$service->render(__DIR__."/modules/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);
 					}else{
-						$response->code(404);
+						//$response->code(404);
 						return "{$request->roomId}\n\n";
 					}
 				}else{
