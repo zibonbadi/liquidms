@@ -6,7 +6,7 @@ liquidMS
 SYNOPSIS
 --------
 
-- **php -S** *hostname* **server.php**
+- **php -S** *hostname*
 - **php fetch.php** [*jobname*]
 - **php liquidanacron.php**
 
@@ -26,7 +26,7 @@ Special thanks to GoldenTails whose reverse engineered HTTP master server
 served as a reference to this project.  
 <https://git.do.srb2.org/Golden/RevEngMS>
 
-[vqspec]: <https://web.archive.org/web/20220205110841/https://mb.srb2.org/MS/tools/api/v1/>
+[v1spec]: <https://web.archive.org/web/20220205110841/https://mb.srb2.org/MS/tools/api/v1/>
 [gnuaffero]: <https://www.gnu.org/licenses/agpl-3.0.en.html>
 
 INSTALLATION
@@ -285,6 +285,13 @@ connection, as if these were to be used for a self hosted node setup. When
 set to *snitch*, these scripts will instead attempt to supply their data to
 all peers specified in the *snitch* collection of the configuration file.
 
+```YAML
+fetchmode: "fetch" | "snitch"
+snitch:
+  "http://localhost:8080"
+  "http://my-fav-liquidms.node"
+```
+
 
 DEVELOPMENT
 -----------
@@ -294,7 +301,8 @@ Simply Launch a server with PHP:
 	$ php -S 127.0.0.1:8080
 
 NOTE: The game has been reported to have difficulties around the local DNS
-      name `localhost`. Also note that the URL must not end in a slash for
+      name `localhost`. Also note that the URL must not end in a slash as
+	  the game is not trailing slash-aware when doing HTTP requests.
 
 Our `.gitignore` file also reserves a dedicated directory `local/` in case
 you need to store information locally without committing them or fiddling
