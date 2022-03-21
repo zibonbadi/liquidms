@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `rooms` (
   `_id` INT(11) NOT NULL UNIQUE,
   `roomname` VARCHAR(32) NOT NULL,
   `origin` VARCHAR(32) NOT NULL DEFAULT 'localhost',
-  `description` text DEFAULT "Powered by liquidMS",
+  `description` text DEFAULT "Powered by liquidMS: DO NOT REGISTER NETGAMES HERE.",
   PRIMARY KEY (`roomname`,`origin`)
 );
 -- CREATE EVENT IF NOT EXISTS roomlist_rebuild
@@ -97,12 +97,12 @@ ON DUPLICATE KEY UPDATE
 
 DELIMITER #
 CREATE EVENT IF NOT EXISTS banlist_cleanup
-   ON SCHEDULE EVERY 3 MINUTE
+   ON SCHEDULE EVERY 1 MINUTE
    COMMENT 'Removes expired ban entries'
-   DO DELETE FROM servers WHERE updated_at < CURRENT_TIMESTAMP#
+   DO DELETE FROM bans WHERE expire < CURRENT_TIMESTAMP AND expire <> NULL#
 
 CREATE EVENT IF NOT EXISTS serverlist_cleanup
-   ON SCHEDULE EVERY 3 MINUTE
+   ON SCHEDULE EVERY 1 MINUTE
    COMMENT 'Removes server entries older than 20 minutes'
    DO BEGIN
    DELETE FROM servers WHERE updated_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 20 MINUTE);
@@ -132,7 +132,7 @@ CREATE EVENT IF NOT EXISTS serverlist_cleanup
    -- #
 
 CREATE OR REPLACE TRIGGER `roomlist_rebuild_insert`
-   BEFORE INSERT
+   AFTER INSERT
    ON `servers` FOR EACH ROW
    BEGIN
    DELETE FROM `rooms` WHERE _id > 99;
@@ -142,7 +142,17 @@ CREATE OR REPLACE TRIGGER `roomlist_rebuild_insert`
    #
 
 CREATE OR REPLACE TRIGGER `roomlist_rebuild_update`
-   BEFORE UPDATE
+   AFTER UPDATE
+   ON `servers` FOR EACH ROW
+   BEGIN
+   DELETE FROM `rooms` WHERE _id > 99;
+   INSERT INTO `rooms` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+100 AS `_id`,`roomname`,`origin` FROM `servers` WHERE `origin` <> 'localhost' GROUP BY `roomname`;
+   DELETE FROM `rooms` WHERE roomname = '' OR origin = '' ;
+   END
+   #
+
+CREATE OR REPLACE TRIGGER `roomlist_rebuild_delete`
+   AFTER DELETE
    ON `servers` FOR EACH ROW
    BEGIN
    DELETE FROM `rooms` WHERE _id > 99;
