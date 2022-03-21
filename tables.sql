@@ -95,39 +95,44 @@ ON DUPLICATE KEY UPDATE
 
 -- Behaviour
 
+DELIMITER #
 CREATE EVENT IF NOT EXISTS banlist_cleanup
    ON SCHEDULE EVERY 3 MINUTE
    COMMENT 'Removes expired ban entries'
-   DO DELETE FROM servers WHERE updated_at < CURRENT_TIMESTAMP;
+   DO DELETE FROM servers WHERE updated_at < CURRENT_TIMESTAMP#
 
 CREATE EVENT IF NOT EXISTS serverlist_cleanup
    ON SCHEDULE EVERY 3 MINUTE
    COMMENT 'Removes server entries older than 20 minutes'
-   DO DELETE FROM servers WHERE updated_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 20 MINUTE);
-
-DELIMITER #
-CREATE OR REPLACE TRIGGER `serverslist_bancleanup_insert`
-   AFTER INSERT
-   ON `servers` FOR EACH ROW
-   BEGIN
-   -- Delete based on direct IP match for now (blame MariaDB's lack of bitwise byte operations)
-   -- DELETE `servers` FROM `servers` JOIN `bans` WHERE ( INET6_ATON(`servers`.`host`) & INET6_ATON(`bans`.`subnetmask`) ) = ( INET6_ATON(`bans`.`host`) & INET6_ATON(`bans`.`subnetmask`) );
+   DO BEGIN
+   DELETE FROM servers WHERE updated_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 20 MINUTE);
    DELETE `servers` FROM `servers` JOIN `bans` WHERE INET6_ATON(`servers`.`host`) =  INET6_ATON(`bans`.`host`);
-   END
-   #
+   END#
 
-CREATE OR REPLACE TRIGGER `serverslist_bancleanup_update`
-   AFTER UPDATE
-   ON `servers` FOR EACH ROW
-   BEGIN
-   -- Delete based on direct IP match for now (blame MariaDB's lack of bitwise byte operations)
-   -- DELETE `servers` FROM `servers` JOIN `bans` WHERE ( INET6_ATON(`servers`.`host`) & INET6_ATON(`bans`.`subnetmask`) ) = ( INET6_ATON(`bans`.`host`) & INET6_ATON(`bans`.`subnetmask`) );
-   DELETE `servers` FROM `servers` JOIN `bans` WHERE INET6_ATON(`servers`.`host`) =  INET6_ATON(`bans`.`host`);
-   END
-   #
+-- DROP TRIGGER IF EXISTS `serverslist_bancleanup_insert`#
+-- CREATE OR REPLACE TRIGGER `serverslist_bancleanup_insert`
+   -- AFTER INSERT
+   -- ON `servers` FOR EACH ROW
+   -- BEGIN
+   -- -- Delete based on direct IP match for now (blame MariaDB's lack of bitwise byte operations)
+   -- -- DELETE `servers` FROM `servers` JOIN `bans` WHERE ( INET6_ATON(`servers`.`host`) & INET6_ATON(`bans`.`subnetmask`) ) = ( INET6_ATON(`bans`.`host`) & INET6_ATON(`bans`.`subnetmask`) );
+   -- DELETE `servers` FROM `servers` JOIN `bans` WHERE INET6_ATON(`servers`.`host`) =  INET6_ATON(`bans`.`host`);
+   -- END
+   -- #
+
+-- DROP TRIGGER IF EXISTS `serverslist_bancleanup_insert`#
+-- CREATE OR REPLACE TRIGGER `serverslist_bancleanup_update`
+   -- AFTER UPDATE
+   -- ON `servers` FOR EACH ROW
+   -- BEGIN
+   -- -- Delete based on direct IP match for now (blame MariaDB's lack of bitwise byte operations)
+   -- -- DELETE `servers` FROM `servers` JOIN `bans` WHERE ( INET6_ATON(`servers`.`host`) & INET6_ATON(`bans`.`subnetmask`) ) = ( INET6_ATON(`bans`.`host`) & INET6_ATON(`bans`.`subnetmask`) );
+   -- DELETE `servers` FROM `servers` JOIN `bans` WHERE INET6_ATON(`servers`.`host`) =  INET6_ATON(`bans`.`host`);
+   -- END
+   -- #
 
 CREATE OR REPLACE TRIGGER `roomlist_rebuild_insert`
-   AFTER INSERT
+   BEFORE INSERT
    ON `servers` FOR EACH ROW
    BEGIN
    DELETE FROM `rooms` WHERE _id > 99;
