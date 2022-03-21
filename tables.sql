@@ -57,15 +57,15 @@ CREATE TABLE IF NOT EXISTS `versions` (
 );
 
 -- Bans will be handled through subnet ranges.
+-- IPv4 will be handled through use of IPv4-Mapped IPv6
 -- Default duration: 24h.
 -- Timestamp NULL == permaban
 
 CREATE TABLE IF NOT EXISTS `bans` (
   `_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `host` VARCHAR(64) NOT NULL,
-  `subnetmask` VARCHAR(64) DEFAULT "255.255.255.255",
+  `host` INET6 NOT NULL,
+  `subnetmask` INET6 DEFAULT "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF",
   `expire` DATETIME DEFAULT adddate(CURRENT_TIMESTAMP,1),
-  `protocol` VARCHAR(64) DEFAULT "IPv4",
   PRIMARY KEY (`_id`)
 );
 
@@ -103,24 +103,28 @@ CREATE EVENT IF NOT EXISTS banlist_cleanup
 CREATE EVENT IF NOT EXISTS serverlist_cleanup
    ON SCHEDULE EVERY 3 MINUTE
    COMMENT 'Removes server entries older than 20 minutes'
-   DO DELETE FROM servers WHERE updated_at < DATE_SUB(NOW(), INTERVAL 20 MINUTE);
+   DO DELETE FROM servers WHERE updated_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 20 MINUTE);
 
 DELIMITER #
--- CREATE OR REPLACE TRIGGER `serverslist_bancleanup_insert`
-   -- AFTER INSERT
-   -- ON `servers` FOR EACH ROW
-   -- BEGIN
-   -- DELETE FROM servers WHERE #SERVER IN BANLIST#;
-   -- END
-   -- #
+CREATE OR REPLACE TRIGGER `serverslist_bancleanup_insert`
+   AFTER INSERT
+   ON `servers` FOR EACH ROW
+   BEGIN
+   -- Delete based on direct IP match for now (blame MariaDB's lack of bitwise byte operations)
+   -- DELETE `servers` FROM `servers` JOIN `bans` WHERE ( INET6_ATON(`servers`.`host`) & INET6_ATON(`bans`.`subnetmask`) ) = ( INET6_ATON(`bans`.`host`) & INET6_ATON(`bans`.`subnetmask`) );
+   DELETE `servers` FROM `servers` JOIN `bans` WHERE INET6_ATON(`servers`.`host`) =  INET6_ATON(`bans`.`host`);
+   END
+   #
 
--- CREATE OR REPLACE TRIGGER `serverslist_bancleanup_update`
-   -- AFTER UPDATE
-   -- ON `servers` FOR EACH ROW
-   -- BEGIN
-   -- DELETE FROM servers WHERE #SERVER IN BANLIST#;
-   -- END
-   -- #
+CREATE OR REPLACE TRIGGER `serverslist_bancleanup_update`
+   AFTER UPDATE
+   ON `servers` FOR EACH ROW
+   BEGIN
+   -- Delete based on direct IP match for now (blame MariaDB's lack of bitwise byte operations)
+   -- DELETE `servers` FROM `servers` JOIN `bans` WHERE ( INET6_ATON(`servers`.`host`) & INET6_ATON(`bans`.`subnetmask`) ) = ( INET6_ATON(`bans`.`host`) & INET6_ATON(`bans`.`subnetmask`) );
+   DELETE `servers` FROM `servers` JOIN `bans` WHERE INET6_ATON(`servers`.`host`) =  INET6_ATON(`bans`.`host`);
+   END
+   #
 
 CREATE OR REPLACE TRIGGER `roomlist_rebuild_insert`
    AFTER INSERT
@@ -133,7 +137,7 @@ CREATE OR REPLACE TRIGGER `roomlist_rebuild_insert`
    #
 
 CREATE OR REPLACE TRIGGER `roomlist_rebuild_update`
-   AFTER UPDATE
+   BEFORE UPDATE
    ON `servers` FOR EACH ROW
    BEGIN
    DELETE FROM `rooms` WHERE _id > 99;
@@ -148,3 +152,4 @@ DELIMITER ;
 INSERT INTO `rooms` (`_id`, `roomname`, `description`) VALUES (2, 'liquid', 'Default liquidMS room');
 -- Enabling event scheduler
 SET GLOBAL event_scheduler = ON
+

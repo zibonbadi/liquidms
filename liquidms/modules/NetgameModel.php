@@ -139,9 +139,10 @@ class NetgameModel{
 				}else if($room != NULL){ 
 					$querycondition = "WHERE rooms._id = {$room}";
 				}
-				$query = "SELECT host, port, servername, rooms._id AS roomid, rooms.roomname, version, servers.origin FROM servers INNER JOIN rooms ON servers.roomname = rooms.roomname AND rooms.origin = servers.origin {$querycondition}";
+				$query = "SELECT host, port, servername, rooms._id AS roomid, rooms.roomname, version, servers.origin FROM servers INNER JOIN rooms ON servers.roomname = rooms.roomname AND rooms.origin = servers.origin {$querycondition};";
 				#echo $query."\n";
 				$serverdata = self::db_execute($query);
+				#var_dump($serverdata);
 
 				foreach($serverdata["data"] as $netgameId => $netgame){
 					$serverdata["data"][$netgameId]["host"] = self::map6to4($netgame["host"]);
