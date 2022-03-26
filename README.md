@@ -1,6 +1,6 @@
-![liquidMS logo](doc/liquidMS.svg)
+![LiquidMS logo](doc/liquidMS.svg)
 
-liquidMS
+LiquidMS
 ========
 
 SYNOPSIS
@@ -13,7 +13,7 @@ SYNOPSIS
 SUMMARY
 -------
 
-*liquidMS* is an API-compatible clean room implementation of the Sonic Robo
+*LiquidMS* is an API-compatible clean room implementation of the Sonic Robo
 Blast 2 [HTTP Master Server API][v1spec]. It is capable of mirroring data
 from any API Compatible master server, thus being capable to be operated as
 a node within a distributed master server network.
@@ -33,15 +33,19 @@ INSTALLATION
 ------------
 
 
-First, download the source code and install all dependencies.  You'll need
-[PHP] and [Composer] for this with the following PHP extensions enabled:
+First, download the source code and install all dependencies. You'll need
+[PHP] 8.0+, [Composer] and either [MariaDB] or [MySQL] with for this with
+appropriate ODBC connectors and the following PHP extensions enabled:
 
+- EXT_MBSTRING
+- EXT_ODBC
 - EXT_PDO
 - EXT_YAML
-- EXT_MBSTRING
 
-[PHP]: <https://www.php.net/>
 [Composer]: <https://getcomposer.org/doc/00-intro.md>
+[MariaDB]: <https://mariadb.com/>
+[MySQL]: <https://mysql.com/>
+[PHP]: <https://www.php.net/>
 
 ```
 $ git clone "https://github.com/zibonbadi/liquidms.git"
@@ -49,7 +53,7 @@ $ cd liquidms
 liquidms$ composer install
 ```
 
-liquidMS requires a seperate SQL-capable relational database. As the
+LiquidMS requires a seperate SQL-capable relational database. As the
 connection is established through an [ODBC] interface, this can be either
 on-disk, on-system or remote.  All details about the preferred database
 connection can be configured in the *environment file*; see
@@ -57,10 +61,10 @@ __CONFIGURATION__ for more info.
 
 [ODBC]: <https://en.wikipedia.org/w/index.php?title=Open_Database_Connectivity&oldid=1044732966> "ODBC - Wikipedia"
 
-Each running instance of a liquidMS SRB2 master server is called a *node*.
+Each running instance of a LiquidMS SRB2 master server is called a *node*.
 Nodes may be run independently from their corresponding database and thus
 may be used as read-only database mirrors in case you attempt to run a
-distributed liquidMS node network.
+distributed LiquidMS node network.
 
 ### Setting up ODBC on Unix-like systems (Linux, *BSD, macOS)
 
@@ -82,7 +86,7 @@ For data source definition, we recommend a configuration
 
 ```INI
 [liquidms]
-Description = liquidMS database
+Description = LiquidMS database
 Driver = <your driver>
 Database = <your database>
 Server = <your database server>
@@ -105,7 +109,7 @@ CONFIGURATION
 All server configuration will be stored in the *config file*
 `config.yaml`. For security, this Git repository will **not** include this
 file within its commit history. Use the example file `config.yaml.example` for
-reference as to what configuration options liquidMS will accept. 
+reference as to what configuration options LiquidMS will accept. 
 
 Also keep in mind that YAML is very sensitive about the indentation of
 fields. Each indentation level is defined by *two whitespaces, not tabs*.
@@ -114,9 +118,9 @@ here for Linus-proofing.
 
 ```YAML
 ---
-# This is an example config.yaml for a liquidMS node environment
-db: # liquidMS DB connection settings
-   dsn: "DRIVER=liquidMS ODBC driver;SERVER=localhost" # ODBC DSN string.
+# This is an example config.yaml for a LiquidMS node environment
+db: # LiquidMS DB connection settings
+   dsn: "DRIVER=LiquidMS ODBC driver;SERVER=localhost" # ODBC DSN string.
    user: "alice"
    password: "password" # KEEP THIS SECRET!
 fetch: # Master servers to leech off of
@@ -143,11 +147,11 @@ using this interface; it is simply impossible for us to help you with that.
 As MariaDB currently remains our testing and design database (both due to
 lack of database feature standardization as well as it's libre
 software-induced ubiquity), here's a few tips on how to configure MariaDB
-for a smooth, painless liquidMS experience:
+for a smooth, painless LiquidMS experience:
 
 #### Enabling the event scheduler
 
-liquidMS relies on programmable database events to allow for live server
+LiquidMS relies on programmable database events to allow for live server
 updates in a secure manner. In order to keep the necessary event scheduler
 persistently enabled across reboots of the MariaDB daemon, add the
 following line to your MariaDB config file (usually `my.cnf` or `my.ini`):
@@ -175,49 +179,51 @@ field from the job.
 USAGE
 -----
 
-liquidMS is able to mirror server listings of any API-compliant SRB2
-HTTP V1 master server within it's own server database. This is called the
-"superset mirror" concept and it divides it's servers into two categories:
-
-The room *Universe* is defined as all servers stored within a liquidMS
+The room *Universe* is defined as all servers stored within a LiquidMS
 node's corresponding database, both internal and remote fetched.
 
 The room *World* is defined as all servers uniquely registered to the
-database and it's responses will be automatically generated by liquidMS.
+database and it's responses will be automatically generated by LiquidMS.
 In order to host local rooms, one must register these in their database
 manually with an ID between 2 and 99. This was a deliberate security
 measure to avoid unauthorized remote database fiddling in distributed
 setups. Room ID 1 is reserved for World and remains ignored.
 
 All rooms with an id of 100+ will be reserved to be automatically generated
-by liquidMS depending on the origin and designated room of all remote
+by LiquidMS depending on the origin and designated room of all remote
 servers within it's database. These will be regularly deleted and rebuilt
 so don't even attempt to set up a room in this range, it's not worth it.
 
+When enabled, LiquidMS nodes also offer an integrated web-based server
+browser over the route `/liquidms/browse`. This way players are able to
+check for the status of netgames known to the LiquidMS node without need
+of launching the game.
 
-### Hosting a liquidMS node
 
-liquidMS is able to mirror server listings of any API-compliant SRB2
-HTTP V1 master server within it's own server database.
+### Hosting a LiquidMS node
 
-To allow for load balancing optimized network architectures and maximum
-possible uptime, liquidMS was designed with three layers of components in mind:
+LiquidMS is able to mirror server listings of any API-compliant SRB2 HTTP
+V1 master server within it's own server database. This is called the
+"superset mirror" concept and needs to be kept in mind when hosting a
+LiquidMS node. Furthermore, to allow for load balanced network
+architectures and maximum possible uptime, LiquidMS was designed with three
+layers of operation in mind:
 
-1. The *ODBC Database* at the core. Think of it as the model to liquidMS,
+1. The *ODBC Database* at the core. Think of it as the model to LiquidMS,
    being responsible for managing all hosted data. For security, we
-   deliberately left management of world rooms and banned server subnets to
-   the database server administrator as to guarantee consistency across a
-   ring of first party liquidMS nodes in terms of authorization and API I/O.
-2. *First party liquidMS nodes* to supply a V1 compatible API for
-   registering worldwide netgames and joining the universe. These nodes are
-   also responsible for fetching universe netgames into the ODBC database,
-   due to their need for an authorized database access. More on the
-   concept of fetching down below.
-3. *Universe servers* and *snitches* to provide the first party liquidMS
-   nodes and by extension the database with universewide netgames.
-   More on the concept of snitching down below.
+   deliberately left management of world rooms and banned servers to the
+   database server administrator as to guarantee consistency across a
+   LiquidMS network in terms of authorization and API I/O.
+2. *LiquidMS nodes* provide a V1 compatible API for registering worldwide
+   netgames and supplying the universewide netgames. These nodes can also
+   be used for fetching universe netgames into the ODBC database, due to
+   their need for an authorized database access. More on the concept of
+   fetching down below.
+3. *Universe servers* and *snitches* provide LiquidMS nodes and by
+   extension the database with external universewide netgame data to be
+   mirrored. More on the concept of snitching down below.
 
-liquidMS supports banning of servers through use of the database table
+LiquidMS supports banning of servers through use of the database table
 `bans`, consisting of the fields `host`, `subnetmask` and `expire`. As the
 names suggest, it allows administrators to ban ranges of IPs based on
 *subnet masks* rather than traditional numeric ranges. This allows for more
@@ -262,16 +268,16 @@ fetch:
 
 ### Snitching
 
-liquidMS features a custom extension called the *Snitch API*. Through use
+LiquidMS features a custom extension called the *Snitch API*. Through use
 of the endpoint `/liquidms/snitch` via HTTP GET and POST requests,
-independent hosts can contribute universe netgame mirrors to other liquidMS
+independent hosts can contribute universe netgame mirrors to other LiquidMS
 nodes without the need for database access authorization on behalf of the
 peer, as it will automatically sanitize the supplied data based on it's
 internal netgame hosting policy.
 
 By supplying files of type `text/csv;header=absent` to a peer's
 HTTP API, hosts can actively contribute to that peer's database. The CSV
-data that is both supplied as well as expected by liquidMS nodes is
+data that is both supplied as well as expected by LiquidMS nodes is
 defined by the following structure:
 
 	<host>,<port>,<servername>,<version>,<roomname>,<origin>

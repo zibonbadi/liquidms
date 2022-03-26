@@ -1,0 +1,12 @@
+-- This is an example file for 
+USE `liquidms`;
+INSERT INTO `rooms` (`_id`, `roomname`, `description`) VALUES
+(3, "Sonic's room", 'Gotta go fast with those speedy netgames!'),
+(4, "Tails' workshop", "Let's build better netgames")
+ON DUPLICATE KEY UPDATE _id=VALUES(_id), roomname=VALUES(roomname), description=VALUES(description);
+
+INSERT INTO `bans` (`host`,`subnetmask`,`expire`,`comment`,`bans`) VALUES
+('fe80::1', 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 1 DAY), 'Knuckles needs to calm down'),
+('::ffff:0.0.0.0',  'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff00', NULL, "Lock out Eggman and his robots")
+ON DUPLICATE KEY
+UPDATE _id=VALUES(_id), _id=VALUES(host), _id=VALUES(subnetmask), _id=VALUES(expire), _id=VALUES(comment);

@@ -60,12 +60,14 @@ CREATE TABLE IF NOT EXISTS `versions` (
 -- IPv4 will be handled through use of IPv4-Mapped IPv6
 -- Default duration: 24h.
 -- Timestamp NULL == permaban
+-- Comment is reserved for administration and remains unused
 
 CREATE TABLE IF NOT EXISTS `bans` (
   `_id` INT(11) NOT NULL AUTO_INCREMENT,
   `host` INET6 NOT NULL,
   `subnetmask` INET6 DEFAULT "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF",
   `expire` DATETIME DEFAULT adddate(CURRENT_TIMESTAMP,1),
+  `comment` VARCHAR(128),
   PRIMARY KEY (`_id`)
 );
 
