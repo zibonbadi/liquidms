@@ -22,7 +22,6 @@ require_once __DIR__.'/../vendor/autoload.php';
 require_once __DIR__.'/../liquidms/modules/ConfigModel.php';
 require_once __DIR__.'/../liquidms/modules/NetgameModel.php';
 
-
 use LiquidMS\ConfigModel;
 use LiquidMS\NetgameModel;
 use Klein\Klein;
@@ -37,9 +36,20 @@ $config = ConfigModel::getConfig();
 
 NetgameModel::init($config["db"]);
 
+//var_dump($config);
+
+var_dump($config["modules"]);
+var_dump(in_array('v1', $config["modules"]));
+var_dump(in_array('snitch', $config["modules"]));
+var_dump(in_array('browser', $config["modules"]));
+
 // Set API routes
 include_once __DIR__.'/../liquidms/v1.php';
 include_once __DIR__.'/../liquidms/liquidapi.php';
+include_once __DIR__.'/../liquidms/frontend.php';
+//if(in_array('v1', $config["modules"]){ include_once __DIR__.'/../liquidms/v1.php'; }
+//if(in_array('snitch', $config["modules"]){ include_once __DIR__.'/../liquidms/liquidapi.php'; }
+//if(in_array('browser', $config["modules"]){ include_once __DIR__.'/../liquidms/frontend.php'; }
 
 // Start accepting requests
 $router->dispatch();

@@ -304,7 +304,7 @@ DEVELOPMENT
 
 Simply Launch a server with PHP:
 
-	$ php -S 127.0.0.1:8080
+	$ php -S 127.0.0.1:8080 public/index.php
 
 NOTE: The game has been reported to have difficulties around the local DNS
       name `localhost`. Also note that the URL must not end in a slash as
