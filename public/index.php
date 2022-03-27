@@ -38,8 +38,8 @@ $config = ConfigModel::getConfig();
 NetgameModel::init($config["db"]);
 
 // Set API routes
-include_once __DIR__.'/../liquidms/api.php';
-include_once __DIR__.'/../liquidms/liquidendpoints.php';
+include_once __DIR__.'/../liquidms/v1.php';
+include_once __DIR__.'/../liquidms/liquidapi.php';
 
 // Start accepting requests
 $router->dispatch();
