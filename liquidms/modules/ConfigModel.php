@@ -58,7 +58,7 @@ class ConfigModel{
 			if( self::child_assertType("modules", $newconfig, "array") ){
 				foreach($newconfig["modules"] as $field_index=> $field_val){
 					if( self::child_assertType($field_index, $newconfig["modules"], "string") ){
-						self::$config["modules"][$field_index] = $newconfig["modules"][$field_index];
+						self::$config["modules"][$field_index] = $field_val;
 					}
 				}
 			}
