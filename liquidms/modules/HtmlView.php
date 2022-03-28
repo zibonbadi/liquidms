@@ -20,7 +20,7 @@
 <html>
 <head>
 <link rel="stylesheet" href="browse/css/main.css">
-<script src="browse/js/main.js" defer></script>
+<script src="browse/js/main.js" type="module" defer></script>
 </head>
 <body>
 <h1>Sorry you gotta see us nude!</h1>
