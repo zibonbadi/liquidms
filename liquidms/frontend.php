@@ -33,17 +33,17 @@ $router->with('/liquidms/browse', function() use ($router){
 				}
 	});
 	// Three separate resource routes for capsuled security
-	$router->respond('GET', '/static/[:path]', function($request, $response, $service){
+	$router->respond('GET', '/static/[**:path]', function($request, $response, $service){
 			$response->file(__DIR__."/../public/static/".$request->path);
 			$response->header('Content-type', 'text/html');
 			$response->sendHeaders(true);
 	});
-	$router->respond('GET', '/css/[:path]', function($request, $response, $service){
+	$router->respond('GET', '/css/[**:path]', function($request, $response, $service){
 			$response->file(__DIR__."/../public/css/".$request->path);
 			$response->header('Content-type', 'text/css');
 			$response->sendHeaders(true);
 	});
-	$router->respond('GET', '/js/[:path]', function($request, $response, $service){
+	$router->respond('GET', '/js/[**:path]', function($request, $response, $service){
 			$response->file(__DIR__."/../public/js/".$request->path);
 			$response->header('Content-type', 'application/javascript');
 			$response->sendHeaders(true);
