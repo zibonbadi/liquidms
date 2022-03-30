@@ -7,12 +7,14 @@ export default class Eventbus{
 			if(typeof(message) != "string"){ throw "Invalid message!"; }
 			if(typeof(data) != "object" && typeof(data) != "array"){ throw "Invalid Payload!"; }
 
+			console.log("Propagating message: ", message, data);
+
 			for(let msg in this.subscribers){
-					if(msg == message){
-							for(let callback in this.subscribers[msg]){
-									this.subscribers[msg][callback](message, data);
-							}
+				if(msg == message){
+					for(let callback in this.subscribers[msg]){
+						this.subscribers[msg][callback](message, data);
 					}
+				}
 			}
 		}
 

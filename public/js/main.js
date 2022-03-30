@@ -9,12 +9,12 @@ fetch('/liquidms/snitch')
 */
 
 let SBModules = {
-	Eventbus: './ctrl/eventbus.js',
-	NetgameComponent: './cmp/netgame.js',
-	NetgameController: './ctrl/netgame.js',
-	NetgameListComponent: './cmp/netgamelist.js',
-	NetgameModel: './mdl/netgame.js',
-	RequestController: './ctrl/request.js',
+	Eventbus: './ctrl/Eventbus.js',
+	RequestController: './ctrl/RequestController.js',
+	NetgameModel: './mdl/NetgameModel.js',
+	NetgameComponent: './cmp/NetgameComponent.js',
+	NetgameController: './ctrl/NetgameController.js',
+	NetgameListComponent: './cmp/NetgameListComponent.js',
 };
 
 
@@ -33,6 +33,9 @@ window.onload = function(){
 	ServerBrowser.eventbus = new SBModules.Eventbus();
 	ServerBrowser.db = new SBModules.NetgameModel();
 	ServerBrowser.netgamecon = new SBModules.NetgameController();
+
+	customElements.define('sb-netgame', SBModules.NetgameComponent);
+	customElements.define('sb-netgamelist', SBModules.NetgameListComponent);
 
 	/*
 	ServerBrowser.req.get('/liquidms/snitch')

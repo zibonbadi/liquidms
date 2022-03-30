@@ -1,7 +1,7 @@
 export default class NetgameController{
-		constructor(){
-				this.fetchServers();
-		}
+	constructor(){
+			this.fetchServers();
+	}
 
 	fetchServers(url = '/liquidms/snitch'){
 		ServerBrowser.req.get(url)
@@ -25,19 +25,6 @@ export default class NetgameController{
 			});
 	}
 
-		async get(url = ''){
-				if(typeof(url) != "string"){ throw "Invalid URL"; }
-				return await fetch(url, {
-						method: 'GET',
-						}).then( (response) => {
-								if(response.ok){
-										return response.text();
-								}else{
-										throw response.text();
-								}
-				});
-		}
-
 	// Courtesy of https://www.bennadel.com/
 	CSVToArray( strData, strDelimiter = ','){
 
@@ -54,7 +41,6 @@ export default class NetgameController{
 				"gi"
 				);
 
-
 		// Create an array to hold our data. Give the array
 		// a default empty first row.
 		var arrData = [[]];
@@ -63,11 +49,9 @@ export default class NetgameController{
 		// matching groups.
 		var arrMatches = null;
 
-
 		// Keep looping over the regular expression matches
 		// until we can no longer find a match.
-		while (arrMatches = objPattern.exec( strData )){
-
+		while(arrMatches = objPattern.exec( strData )){
 			// Get the delimiter that was found.
 			var strMatchedDelimiter = arrMatches[ 1 ];
 
@@ -83,7 +67,6 @@ export default class NetgameController{
 				// Since we have reached a new row of data,
 				// add an empty row to our data array.
 				arrData.push( [] );
-
 			}
 
 			var strMatchedValue;
@@ -92,27 +75,20 @@ export default class NetgameController{
 			// let's check to see which kind of value we
 			// captured (quoted or unquoted).
 			if (arrMatches[ 2 ]){
-
 				// We found a quoted value. When we capture
 				// this value, unescape any double quotes.
 				strMatchedValue = arrMatches[ 2 ].replace(
 						new RegExp( "\"\"", "g" ),
 						"\""
 						);
-
 			} else {
-
 				// We found a non-quoted value.
 				strMatchedValue = arrMatches[ 3 ];
-
 			}
-
-
 			// Now that we have our value string, let's add
 			// it to the data array.
 			arrData[ arrData.length - 1 ].push( strMatchedValue );
 		}
-
 		// Return the parsed data.
 		return arrData;
 	}

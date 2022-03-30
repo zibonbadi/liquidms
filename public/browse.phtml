@@ -1,0 +1,54 @@
+<?php
+# liquidMS - distributable SRB2 master server
+# Copyright (C) 2021-2022 Zibon Badi et al.
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="browse/css/main.css">
+<script src="browse/js/main.js" defer></script>
+<!-- Custom element templates -->
+<link rel="stylesheet" href="browse/css/NetgameComponent.css">
+<template data-name="netgame">
+	<link rel="stylesheet" href="browse/css/NetgameComponent-shadow.css">
+	<ul>
+	<li><slot name="hostname">0.0.0.0</slot></li>
+	<li><slot name="port">0000</slot></li>
+	<li><slot name="servername">Dummy server</slot></li>
+	<li><slot name="version">1.0</slot></li>
+	<li><slot name="roomname">default</slot></li></li>
+	<li><slot name="origin">here</slot></li>
+	<li><slot name="players">1</slot></li>
+	<li><slot name="maxplayers">10</slot></li>
+	<li><slot name="ping">9001</slot></li>
+	</ul>
+</template>
+<link rel="stylesheet" href="browse/css/NetgameListComponent.css">
+<template data-name="netgamelist">
+	<link rel="stylesheet" href="browse/css/NetgameListComponent-shadow.css">
+	<ul>
+	<slot name="netgames"></slot>
+	</ul>
+</template>
+</head>
+<body>
+<h1>Sorry you gotta see us nude!</h1>
+<p>We're working on a better browser right as we write! Until then, have this table:</p>
+<sb-netgamelist></sb-netgamelist>
+</body>
+</html>
+

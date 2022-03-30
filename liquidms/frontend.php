@@ -25,7 +25,8 @@ $router->with('/liquidms/browse', function() use ($router){
 	$router->respond('GET', '/?', function($request, $response, $service){
 			$servers = NetgameModel::getServers();
 			$rooms = NetgameModel::getRooms();
-				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){ $service->render(__DIR__."/modules/HtmlView.php", ["data" => $servers, "rooms" => $rooms]);
+				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){
+				$service->render(__DIR__."/../public/browse.phtml", ["data" => $servers, "rooms" => $rooms]);
 				}else{
 					$response->code(403);
 					if( ($servers["error"] != 0)){ $service->render(__DIR__."/modules/ErrorView.php", ["response" => $servers]); };
