@@ -40,9 +40,8 @@ export default class NetgameListComponent extends HTMLElement{
 			newspan.slot = 'netgames';
 			this.appendChild(newspan);
 		}
-		this.querySelector('[slot="netgames"]').innerHTML = '';
-		for(let i in this.servers){
-			this.querySelector('[slot="netgames"]').appendChild(this.servers[i]);
+		for(let i in this.netgames){
+			this.querySelector('[slot="netgames"]').appendChild(this.netgames[i]);
 		}
 		console.log("Rendered List: ",this);
 	}

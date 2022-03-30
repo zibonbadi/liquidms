@@ -16,13 +16,14 @@ export default class NetgameComponent extends HTMLElement{
 	attributesChangedCallback(){ this.update(); this.render(); }
 
 	update(data = {}){
-		//let modelFetch = ServerBrowser.db.servers[this.dataset.hostname];
 		if(data){
-			for(let i in this.dataset){
+			console.log("Updating Netgame...");
+			for(let i in data){
 				this.dataset[i] = data[i];
+				console.log(i, data[i]);
 			}
 		}
-		console.log("Updated Netgame: ",this);
+		console.log("Updated Netgame: ",this, data);
 	}
 
 	async render(){
@@ -30,6 +31,7 @@ export default class NetgameComponent extends HTMLElement{
 		for(let i in this.dataset){
 			let newNG = document.createElement('span');
 			newNG.slot = i;
+			newNG.innerHTML = this.dataset[i];
 			this.appendChild(newNG);
 		}
 		console.log("Rendered Netgame: ",this);
