@@ -1,24 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 :root{
-	--color-bg: teal;
-	--color-text: yellow;
-	--color-table-bg: #003;
-	--color-table-bg2: #005;
-	--color-table-bg-head: #007;
-	--color-table-bg-hover: #335;
-	--color-table-border: #444;
+	/* --color-bg: url('/browse/img/bg.svg'); */
+	--color-bg: url('/liquidms/browse/img/bg.svg');
+	/* --color-bg: teal; */
+	--color-text: black;
+	--netgame-bg: #35d1ff77;
+	--netgame-bg-hover: #335;
+	--netgame-border: 2pt solid #444;
 }
 
 @media screen and (prefers-color-scheme: dark){
-:root{
-	--color-bg: #000;
-	--color-text: yellow;
-	--color-table-bg: #003;
-	--color-table-bg2: #005;
-	--color-table-bg-head: #007;
-	--color-table-bg-hover: #335;
-	--color-table-border: #444;
-}
+	:root{
+		/* --color-bg: #000; */
+		--color-text: white;
+		--netgame-bg: #0039;
+	}
 }
 
 body{
@@ -27,8 +23,15 @@ background: var(--color-bg);
 font-family: 'Press Start 2P', sans-serif;
 }
 
-h1,p{
+h1,p, img{
 max-width: 60em;
+margin: 1em auto;
+display: block;
+width: max-content;
+}
+
+h1{
+	text-shadow: 0.07em 0.1em 0 #000;
 }
 
 table,tr,td{ border: none; }

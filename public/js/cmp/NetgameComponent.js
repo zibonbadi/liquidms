@@ -10,6 +10,10 @@ export default class NetgameComponent extends HTMLElement{
 		this.update(data);
 	}
 
+	init(){
+		customElements.define('sb-netgame', NetgameComponent);
+	}
+
 	connectedCallback(){ this.update(); this.render(); }
 	disconnectedCallback(){}
 	adoptedCallback(){ this.render(); }
@@ -17,13 +21,12 @@ export default class NetgameComponent extends HTMLElement{
 
 	update(data = {}){
 		if(data){
-			console.log("Updating Netgame...");
 			for(let i in data){
 				this.dataset[i] = data[i];
 				console.log(i, data[i]);
 			}
 		}
-		console.log("Updated Netgame: ",this, data);
+		console.log("Updated Netgame: ",this);
 	}
 
 	async render(){

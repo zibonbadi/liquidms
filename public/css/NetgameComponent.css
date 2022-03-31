@@ -1,4 +1,41 @@
-netgame{
-	flex-basis: 40em;
+sb-netgame{
+	padding: 1em;
+	flex: 1 3;
+	background-color: var(--netgame-bg);
+	border: var(--netgame-border);
+	margin: auto;
+}
+
+sb-netgame span[slot="name"]{
+	font-size: larger;
+	color: yellow;
+	text-shadow: 0.07em 0.1em 0 #000;
+}
+sb-netgame span[slot="origin"],
+sb-netgame span[slot="hostname"]{
+	font-style: italic;
+}
+sb-netgame span[slot="origin"],
+sb-netgame span[slot="roomname"]{
+	font-size: small;
+}
+
+sb-netgame span[slot="name"]{
+	display:block;
+	margin: 1em auto;
+}
+sb-netgame span[slot="origin"],
+sb-netgame span[slot="hostname"],
+sb-netgame span[slot="origin"],
+sb-netgame span[slot="roomname"]{
+	display:inline;
+}
+
+sb-netgame ul,
+sb-netgame ul > li,
+{
+	margin-left: 0;
+	padding-left: 0;
+	list-style: none;
 }
 

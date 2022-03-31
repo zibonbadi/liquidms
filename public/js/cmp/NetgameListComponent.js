@@ -16,6 +16,10 @@ export default class NetgameListComponent extends HTMLElement{
 		});
 	}
 
+	init(){
+		customElements.define('sb-netgamelist', NetgameListComponent);
+	}
+
 	connectedCallback(){ this.update(); this.render(); }
 	disconnectedCallback(){}
 	adoptedCallback(){ this.render(); }

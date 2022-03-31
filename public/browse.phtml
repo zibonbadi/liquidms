@@ -20,21 +20,27 @@
 <html>
 <head>
 <link rel="stylesheet" href="browse/css/main.css">
-<script src="browse/js/main.js" defer></script>
+<script src="browse/js/main.js" async defer></script>
 <!-- Custom element templates -->
 <link rel="stylesheet" href="browse/css/NetgameComponent.css">
 <template data-name="netgame">
 	<link rel="stylesheet" href="browse/css/NetgameComponent-shadow.css">
+	<slot name="name">Dummy server</slot>
 	<ul>
-	<li><slot name="hostname">0.0.0.0</slot></li>
-	<li><slot name="port">0000</slot></li>
-	<li><slot name="name">Dummy server</slot></li>
+	<li>
+		<slot name="hostname">0.0.0.0</slot>
+		<slot name="port">0000</slot>
+	</li>
+	<li><slot name="roomname">default</slot>@<slot name="origin">here</slot></li>
 	<li><slot name="version">1.0</slot></li>
-	<li><slot name="roomname">default</slot></li></li>
-	<li><slot name="origin">here</slot></li>
-	<li><slot name="players">1</slot></li>
-	<li><slot name="maxplayers">10</slot></li>
-	<li><slot name="ping">9001</slot></li>
+	</ul>
+	<hr>
+	<slot>Dummy netgame info (Map, mods, etc.)</slot>
+	<hr>
+	<slot name="players">1</slot>
+	/
+	<slot name="maxplayers">10</slot>
+	<slot name="ping">9001</slot>ms
 	</ul>
 </template>
 <link rel="stylesheet" href="browse/css/NetgameListComponent.css">
@@ -46,8 +52,9 @@
 </template>
 </head>
 <body>
-<h1>Sorry you gotta see us nude!</h1>
-<p>We're working on a better browser right as we write! Until then, have this table:</p>
+<img src="browse/img/logo.svg">
+<h1>Integrated server browser</h1>
+<p>Select a server to query. Use the buttons to manage them all.</p>
 <sb-netgamelist></sb-netgamelist>
 </body>
 </html>

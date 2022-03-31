@@ -1,0 +1,8 @@
+sb-netgamelist [slot="netgames"]{
+	display: flex;
+	flex-flow: row wrap;
+	gap: 1.5em;
+	margin: 1em;
+	padding: 1em;
+}
+

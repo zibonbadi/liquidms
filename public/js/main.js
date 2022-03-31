@@ -8,7 +8,7 @@ fetch('/liquidms/snitch')
 	}).catch( (error) => { console.log("Fetch error: ", error); });
 */
 
-let SBModules = {
+let SBClasses = {
 	Eventbus: './ctrl/Eventbus.js',
 	RequestController: './ctrl/RequestController.js',
 	NetgameModel: './mdl/NetgameModel.js',
@@ -21,21 +21,25 @@ let SBModules = {
 if(ServerBrowser == undefined){
 	var ServerBrowser = { };
 	// Class loader
-	for( const component in SBModules ){
-	  import(SBModules[component]).then( function(module){
-		  SBModules[component] = module.default;
+	for( const component in SBClasses ){
+	  import(SBClasses[component]).then( function(module){
+		  SBClasses[component] = module.default;
+		  //console.log(component,SBClasses[component].prototype.init);
+		  if(SBClasses[component].prototype.init != undefined){ SBClasses[component].prototype.init(); }
 	  });
 	};
 }
 
 window.onload = function(){
-	ServerBrowser.req = new SBModules.RequestController();
-	ServerBrowser.eventbus = new SBModules.Eventbus();
-	ServerBrowser.db = new SBModules.NetgameModel();
-	ServerBrowser.netgamecon = new SBModules.NetgameController();
+	ServerBrowser.req = new SBClasses.RequestController();
+	ServerBrowser.eventbus = new SBClasses.Eventbus();
+	ServerBrowser.db = new SBClasses.NetgameModel();
+	ServerBrowser.netgamecon = new SBClasses.NetgameController();
 
-	customElements.define('sb-netgame', SBModules.NetgameComponent);
-	customElements.define('sb-netgamelist', SBModules.NetgameListComponent);
+	/*
+	customElements.define('sb-netgamelist', SBClasses.NetgameListComponent);
+	customElements.define('sb-netgame', SBClasses.NetgameComponent);
+	*/
 
 	/*
 	ServerBrowser.req.get('/liquidms/snitch')

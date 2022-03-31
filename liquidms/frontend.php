@@ -34,6 +34,9 @@ $router->with('/liquidms/browse', function() use ($router){
 				}
 	});
 	// Three separate resource routes for capsuled security
+	$router->respond('GET', '/img/[**:path]', function($request, $response, $service){
+			$response->file(__DIR__."/../public/img/".$request->path);
+	});
 	$router->respond('GET', '/static/[**:path]', function($request, $response, $service){
 			$response->file(__DIR__."/../public/static/".$request->path);
 			$response->header('Content-type', 'text/html');
