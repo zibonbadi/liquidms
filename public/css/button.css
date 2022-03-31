@@ -1,0 +1,19 @@
+button, input[type="button"]{
+font-family: 'Press Start 2P', sans-serif;
+	background: saddlebrown;
+	border: 3pt solid chocolate;
+	color: yellow;
+	font-size: 16pt;
+	padding: 0.5ex 1ex;
+	display: inline-block;
+}
+button:active, input[type="button"]:active{ background: black; }
+button:hover, input[type="button"]:hover{ background: black; }
+iframe, img{ 
+	max-width:90%;
+	height: auto;
+	display: block;
+	margin: auto;
+}
+
+

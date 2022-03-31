@@ -1,6 +1,6 @@
 export default class NetgameController{
 	constructor(){
-			this.fetchServers();
+		this.fetchServers();
 	}
 
 	fetchServers(url = '/liquidms/snitch'){

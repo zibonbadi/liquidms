@@ -1,37 +1,41 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 :root{
 	/* --color-bg: url('/browse/img/bg.svg'); */
-	--color-bg: url('/liquidms/browse/img/bg.svg');
+	--main-bg: url('/liquidms/browse/img/bg.svg') yellow;
 	/* --color-bg: teal; */
 	--color-text: black;
 	--netgame-bg: #35d1ff77;
 	--netgame-bg-hover: #335;
-	--netgame-border: 2pt solid #444;
+	--netgame-text: white;
+	--netgame-title-text: yellow;
+	--netgame-border: 3pt solid #444;
 }
 
 @media screen and (prefers-color-scheme: dark){
 	:root{
-		/* --color-bg: #000; */
-		--color-text: white;
-		--netgame-bg: #0039;
+		/* --main-bg: #000; */
+		--netgame-bg: #003d;
+		--netgame-border: 3pt solid #444;
 	}
 }
 
 body{
 color: var(--color-text);
-background: var(--color-bg);
+background-size: auto;
+background: var(--main-bg);
 font-family: 'Press Start 2P', sans-serif;
 }
 
 h1,p, img{
-max-width: 60em;
+max-width: min(100%, 60em);
 margin: 1em auto;
 display: block;
 width: max-content;
 }
 
 h1{
-	text-shadow: 0.07em 0.1em 0 #000;
+	text-shadow: 0.07em 0.1em 0 black;
+	color: white;
 }
 
 table,tr,td{ border: none; }

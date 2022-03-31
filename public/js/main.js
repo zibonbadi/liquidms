@@ -10,11 +10,11 @@ fetch('/liquidms/snitch')
 
 let SBClasses = {
 	Eventbus: './ctrl/Eventbus.js',
-	RequestController: './ctrl/RequestController.js',
-	NetgameModel: './mdl/NetgameModel.js',
 	NetgameComponent: './cmp/NetgameComponent.js',
 	NetgameController: './ctrl/NetgameController.js',
 	NetgameListComponent: './cmp/NetgameListComponent.js',
+	NetgameModel: './mdl/NetgameModel.js',
+	RequestController: './ctrl/RequestController.js',
 };
 
 

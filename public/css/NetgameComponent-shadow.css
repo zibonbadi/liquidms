@@ -1,3 +1,13 @@
+@import url('/liquidms/browse/css/button.css');
+
+.buttonbox{
+	display: flex;
+	flex-flow: row wrap;
+	gap: 1.5em;
+	margin: 1em;
+	padding: 1em;
+}
+
 ul,
 ul > li,
 {
@@ -5,5 +15,4 @@ ul > li,
 	padding-left: 0;
 	list-style: none;
 }
-
 

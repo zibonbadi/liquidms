@@ -28,26 +28,27 @@
 	<slot name="name">Dummy server</slot>
 	<ul>
 	<li>
-		<slot name="hostname">0.0.0.0</slot>
-		<slot name="port">0000</slot>
+		<slot name="hostname">Dummy hostname</slot>
+		<slot name="port">Dummy port</slot>
 	</li>
-	<li><slot name="roomname">default</slot>@<slot name="origin">here</slot></li>
-	<li><slot name="version">1.0</slot></li>
+	<li><slot name="roomname">Dummy room</slot>@<slot name="origin">dummy.invalid</slot></li>
+	<li><slot name="version">DummyBuild</slot></li>
 	</ul>
 	<hr>
 	<slot>Dummy netgame info (Map, mods, etc.)</slot>
 	<hr>
-	<slot name="players">1</slot>
+	<slot name="players">x</slot>
 	/
-	<slot name="maxplayers">10</slot>
-	<slot name="ping">9001</slot>ms
+	<slot name="maxplayers">n</slot>
+	<slot name="ping">&infin;</slot>ms
 	</ul>
 </template>
 <link rel="stylesheet" href="browse/css/NetgameListComponent.css">
 <template data-name="netgamelist">
 	<link rel="stylesheet" href="browse/css/NetgameListComponent-shadow.css">
+	<div class="buttonbox"><input type="button" value="Update" name="update"></div>
 	<ul>
-	<slot name="netgames"></slot>
+	<slot name="netgames"><p>No servers available.</p></slot>
 	</ul>
 </template>
 </head>

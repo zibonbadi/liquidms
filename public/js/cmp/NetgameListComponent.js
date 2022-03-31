@@ -10,6 +10,8 @@ export default class NetgameListComponent extends HTMLElement{
 		const shadowRoot = this.attachShadow({mode: 'open'})
 		  .appendChild(templateContent.cloneNode(true));
 
+		this.shadowRoot.querySelector('input[name="update"]').addEventListener('click', ServerBrowser.netgamecon.fetchServers);
+
 		this.addEventListener('click', this.handleEvent);
 		ServerBrowser.eventbus.attach("refresh", (message, data) => {
 			this.handleBus(message, data);
