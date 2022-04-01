@@ -31,7 +31,7 @@
 		<slot name="hostname">Dummy hostname</slot>
 		<slot name="port">Dummy port</slot>
 	</li>
-	<li><slot name="roomname">Dummy room</slot>@<slot name="origin">dummy.invalid</slot></li>
+	<li><slot name="roomname">Dummy room</slot>@<slot name="origin">World</slot></li>
 	<li><slot name="version">DummyBuild</slot></li>
 	</ul>
 	<hr>
@@ -39,7 +39,6 @@
 	<summary>Netgame details</summary>
 		<slot>Dummy netgame info (Map, mods, etc.)</slot>
 	</details>
-	<div class="flex"><input type="button" value="Update" name="update"></div>
 	<hr>
 	<div class="flex">
 	<div class="block">
@@ -47,6 +46,7 @@
 	/
 	<slot name="maxplayers">n</slot>
 	</div>
+	<input type="button" value="Update" name="update">
 	<div><slot name="ping">&infin;</slot> ms</div>
 	</div>
 	</ul>

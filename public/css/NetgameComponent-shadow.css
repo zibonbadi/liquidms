@@ -1,13 +1,5 @@
 @import url('/liquidms/browse/css/button.css');
 
-.flex-right{
-	justify-content: right;
-}
-
-.flex-center{
-	justify-content: center;
-}
-
 .flex{
 	display: flex;
 	flex-flow: row wrap;
@@ -15,6 +7,14 @@
 	gap: 1.5em;
 	margin: 1em;
 	padding: 1em;
+}
+
+.flex-center{
+	justify-content: center;
+}
+
+.flex-right{
+	justify-content: right;
 }
 
 summary{
