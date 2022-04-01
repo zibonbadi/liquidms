@@ -10,8 +10,9 @@ button, input[type="button"]{
 	padding: 0.5em 1em;
 }
 button:hover, input[type="button"]:hover{
-	background: #bbbbbb;
-	box-shadow: 0 0.3em #888888;
+	background: #aaaaff;
+	box-shadow: 0 0.3em #88f;
+	color: #44f;
 }
 iframe, img{ 
 	max-width:90%;
