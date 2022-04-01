@@ -35,12 +35,20 @@
 	<li><slot name="version">DummyBuild</slot></li>
 	</ul>
 	<hr>
-	<slot>Dummy netgame info (Map, mods, etc.)</slot>
+	<details>
+	<summary>Netgame details</summary>
+		<slot>Dummy netgame info (Map, mods, etc.)</slot>
+	</details>
+	<div class="flex"><input type="button" value="Update" name="update"></div>
 	<hr>
+	<div class="flex">
+	<div class="block">
 	<slot name="players">x</slot>
 	/
 	<slot name="maxplayers">n</slot>
-	<slot name="ping">&infin;</slot>ms
+	</div>
+	<div><slot name="ping">&infin;</slot> ms</div>
+	</div>
 	</ul>
 </template>
 <link rel="stylesheet" href="browse/css/NetgameListComponent.css">

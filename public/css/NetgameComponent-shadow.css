@@ -1,18 +1,40 @@
 @import url('/liquidms/browse/css/button.css');
 
-.buttonbox{
+.flex-right{
+	justify-content: right;
+}
+
+.flex-center{
+	justify-content: center;
+}
+
+.flex{
 	display: flex;
 	flex-flow: row wrap;
+	justify-content: space-between;
 	gap: 1.5em;
 	margin: 1em;
 	padding: 1em;
 }
 
+summary{
+	font-size: larger;
+	color: var(--netgame-title-text);
+	text-shadow: 0.07em 0.1em 0 #000;
+	margin-bottom: 1em;
+}
+
 ul,
+ol,
 ul > li,
+ol > li
 {
 	margin-left: 0;
 	padding-left: 0;
-	list-style: none;
 }
 
+ul,
+ul > li
+{
+	list-style: none;
+}

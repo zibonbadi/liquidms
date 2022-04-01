@@ -33,6 +33,9 @@ export default class NetgameListComponent extends HTMLElement{
 			})
 			.then( this.notifyController );
 		}catch(error){
+			if(this.querySelector('[slot="netgames"]') != undefined){
+				this.removeChild(this.querySelector('[slot="netgames"]'));
+			}
 			console.error("Error connecting to Eventbus (will retry in 3s):", error);
 			setTimeout(this.connectToEventbus.bind(this), 3000);
 		}

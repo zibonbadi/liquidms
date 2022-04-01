@@ -6,7 +6,7 @@ sb-netgame{
 	border: var(--netgame-border);
 	margin: auto;
 }
-sb-netgame{
+sb-netgame:hover{
 	background-color: var(--netgame-bg-hover);
 }
 
