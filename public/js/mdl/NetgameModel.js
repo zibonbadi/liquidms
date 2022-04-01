@@ -40,7 +40,7 @@ export default class NetgameModel{
 				insert.name = subjects[sv].name;
 			}
 			insert.version = subjects[sv].version;
-			insert.roomname = subjects[sv].room;
+			insert.roomname = subjects[sv].roomname;
 			insert.origin = subjects[sv].origin;
 
 			// this.servers for all subjects, toRefresh for update culling
