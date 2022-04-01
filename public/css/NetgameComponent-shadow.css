@@ -22,6 +22,7 @@ summary{
 	color: var(--netgame-title-text);
 	text-shadow: 0.07em 0.1em 0 #000;
 	margin-bottom: 1em;
+	cursor: pointer;
 }
 
 ul,
