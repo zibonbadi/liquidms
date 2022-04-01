@@ -1,14 +1,18 @@
 button, input[type="button"]{
-font-family: 'Press Start 2P', sans-serif;
-	background: saddlebrown;
-	border: 3pt solid chocolate;
-	color: yellow;
-	font-size: 16pt;
-	padding: 0.5ex 1ex;
+	background: #3355ff;
+	border: 3pt solid #8888ff;
+	color: #88ccff;
+	box-shadow: 0 0.3em #000;
+	cursor: pointer;
 	display: inline-block;
+	font-family: 'Press Start 2P', sans-serif;
+	font-size: 16pt;
+	padding: 0.5em 1em;
 }
-button:active, input[type="button"]:active{ background: black; }
-button:hover, input[type="button"]:hover{ background: black; }
+button:hover, input[type="button"]:hover{
+	background: #bbbbbb;
+	box-shadow: 0 0.3em #888888;
+}
 iframe, img{ 
 	max-width:90%;
 	height: auto;
