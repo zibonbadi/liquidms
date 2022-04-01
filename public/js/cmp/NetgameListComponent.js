@@ -10,20 +10,46 @@ export default class NetgameListComponent extends HTMLElement{
 		const shadowRoot = this.attachShadow({mode: 'open'})
 		  .appendChild(templateContent.cloneNode(true));
 
-		this.shadowRoot.querySelector('input[name="update"]').addEventListener('click', ServerBrowser.netgamecon.fetchServers);
-
-		this.addEventListener('click', this.handleEvent);
-		ServerBrowser.eventbus.attach("refresh", (message, data) => {
-			this.handleBus(message, data);
-		});
+		this.eHdl_ngcon = function(){console.error("No event handler registered yet!", this);};
+		this.eb_conn = function(){console.error("No eventbus hook registered yet!", this);};
 	}
 
 	init(){
 		customElements.define('sb-netgamelist', NetgameListComponent);
 	}
 
-	connectedCallback(){ this.update(); this.render(); }
-	disconnectedCallback(){}
+	notifyController(){
+		try{
+			ServerBrowser.netgamecon.fetchServers();
+		}catch(error){
+			console.error("Error updating netgames(maybe just try again?):", error);
+		}
+	}
+
+	connectToEventbus(){
+		try{
+			this.eb_conn = ServerBrowser.eventbus.attach("refresh", (message, data) => {
+				this.handleBus(message, data);
+			})
+			.then( this.notifyController );
+		}catch(error){
+			console.error("Error connecting to Eventbus (will retry in 3s):", error);
+			setTimeout(this.connectToEventbus.bind(this), 3000);
+		}
+	}
+
+	connectedCallback(){
+		this.eHdl_ngcon = this.shadowRoot.querySelector('input[name="update"]').addEventListener('click', this.notifyController);
+		//this.eHdl_ngcon = setInterval(this.notifyController, 5000)
+		this.connectToEventbus();
+		this.update();
+		this.render();
+	}
+	disconnectedCallback(){
+		this.removeEventListener('click', this.notifyController);
+		//clearInterval(this.eHdl_ngcon);
+		ServerBrowser.eventbus.detach("refresh", this.eb_conn);
+	}
 	adoptedCallback(){ this.render(); }
 	attributesChangedCallback(){ this.update(); this.render(); }
 
@@ -37,7 +63,7 @@ export default class NetgameListComponent extends HTMLElement{
 			this.netgames[i].update(data[i]);
 			this.netgames[i].render();
 		}
-		console.log("Updated List: ",this);
+		//console.log("Updated List: ",this);
 	}
 
 	async render(){
@@ -49,7 +75,7 @@ export default class NetgameListComponent extends HTMLElement{
 		for(let i in this.netgames){
 			this.querySelector('[slot="netgames"]').appendChild(this.netgames[i]);
 		}
-		console.log("Rendered List: ",this);
+		//console.log("Rendered List: ",this);
 	}
 
 	handleBus(message, data){

@@ -23,10 +23,10 @@ export default class NetgameComponent extends HTMLElement{
 		if(data){
 			for(let i in data){
 				this.dataset[i] = data[i];
-				console.log(i, data[i]);
+				//console.log(i, data[i]);
 			}
 		}
-		console.log("Updated Netgame: ",this);
+		//console.log("Updated Netgame: ",this);
 	}
 
 	async render(){
@@ -37,7 +37,7 @@ export default class NetgameComponent extends HTMLElement{
 			newNG.innerHTML = this.dataset[i];
 			this.appendChild(newNG);
 		}
-		console.log("Rendered Netgame: ",this);
+		//console.log("Rendered Netgame: ",this);
 	}
 
 	handleBus(message, data = {}){
