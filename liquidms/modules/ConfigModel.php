@@ -69,6 +69,9 @@ class ConfigModel{
 					if( self::child_assertType("host", $peer_data, "string") ){
 						self::$config["fetch"][$peer_name]["host"] = $peer_data["host"];
 					}
+					if( self::child_assertType("api", $peer_data, "string") ){
+						self::$config["fetch"][$peer_name]["api"] = $peer_data["api"];
+					}
 					if(
 						self::child_assertType("minute", $peer_data, "integer") ){
 						self::$config["fetch"][$peer_name]["minute"] = $peer_data["minute"];

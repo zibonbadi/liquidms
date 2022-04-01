@@ -263,8 +263,19 @@ For more information, see the *liquidanacron* section in __CONFIGURATION__.
 fetch:
   vanilla:
     host: "http://mb.srb2.org/0/MS"
+    api: "v1" | "snitch"
     minute: 15
 ```
+
+#### Fetch-from-snitch
+
+The field `api` defines the API to be queried against during fetch
+requests. `v1` signifies the default HTTP Master Server API, whereas
+`snitch` is able to fetch servers from the Snitch API (see below).
+It is recommended to use the Snitch API whenever possible to avoid possible
+duplicates and network storms within a LiquidMS network; especially one
+consisting of independent databases.
+
 
 ### Snitching
 
