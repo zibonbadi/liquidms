@@ -196,8 +196,22 @@ so don't even attempt to set up a room in this range, it's not worth it.
 
 When enabled, LiquidMS nodes also offer an integrated web-based server
 browser over the route `/liquidms/browse`. This way players are able to
-check for the status of netgames known to the LiquidMS node without need
-of launching the game.
+check for the status of netgames known to the LiquidMS node without need of
+launching the game. This server browser can be altered or exchanged using
+the config option `sbpath`, requiring an absolute path to the directory
+containing the frontend. The exact structure required of a frontend to work
+as a LiquidMS-compatible server browser will be displayed down below in YAML.
+
+```YAML
+sbpath:
+- index.php # Entry point to your frontend.
+# More information on hooking your PHP scripts into LiquidMS in
+# the "Views" section at <https://github.com/klein/klein.php>
+- css/ # CSS data. Nested structure is permitted.
+- img/ # Image stock. Nested structure is permitted.
+- js/ # JavaScript resources. Nested structure is permitted.
+- static/ # Static resources. Nested structure is permitted.
+```
 
 
 ### Hosting a LiquidMS node

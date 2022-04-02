@@ -23,6 +23,7 @@ class ConfigModel{
 
 	private static $config = [
 		"modules" => [],
+		"sbpath" => __DIR__."/../../browser",
 		"db" => [
 			"dsn" => "liquidms",
 		"user" => "sonic",
@@ -63,6 +64,9 @@ class ConfigModel{
 				}
 			}
 
+			if( self::child_assertType("sbpath", $newconfig, "string") ){
+				self::$config["sbpath"] = $newconfig["sbpath"];
+			}
 			if( self::child_assertType("motd", $newconfig, "string") ){
 				self::$config["motd"] = $newconfig["motd"];
 			}

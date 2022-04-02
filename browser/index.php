@@ -58,7 +58,20 @@
 <link rel="stylesheet" href="browse/css/NetgameListComponent.css">
 <template data-name="netgamelist">
 	<link rel="stylesheet" href="browse/css/NetgameListComponent-shadow.css">
-	<div class="buttonbox"><input type="button" value="Update all" name="update"></div>
+	<div class="buttonbox">
+	<input type="button" value="Update all" name="update">
+	<a href="#" class="button" name="sort">Sort list</a>
+	<select value="Update all" name="update">
+		<option>Name A-Z</option>
+		<option>Ping</option>
+		<option>Max players</option>
+		<option>Min players</option>
+		<option>Latest update</option>
+		<option>Latest version</option>
+		<option>Room A-Z &rarr; Origin A-Z</option>
+		<option>Origin A-Z &rarr; Room A-Z</option>
+	</select>
+	</div>
 	<ul>
 	<slot name="netgames"><p>No servers available.</p></slot>
 	</ul>
@@ -68,6 +81,7 @@
 <img src="browse/img/logo.svg">
 <h1>Integrated server browser</h1>
 <pre><?php echo $this->sharedData()->get('motd'); ?></pre>
+<p>Update the list using the buttons below. Each netgame will be displayed in it's own dedicated card.</p>
 <sb-netgamelist></sb-netgamelist>
 </body>
 </html>

@@ -26,9 +26,9 @@ $router->with('/liquidms/browse', function() use ($router){
 			$servers = NetgameModel::getServers();
 			$rooms = NetgameModel::getRooms();
 			$config = ConfigModel::getConfig();
-
 				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){
-				$service->render(__DIR__."/../public/browse.phtml", ["motd" => $config["motd"]]);
+					#$service->render(__DIR__."/../public/browse.phtml", ["motd" => $config["motd"]]);
+					$service->render(rtrim($config["sbpath"], "/")."/index.php", ["motd" => $config["motd"]]);
 				}else{
 					$response->code(403);
 					if( ($servers["error"] != 0)){ $service->render(__DIR__."/modules/ErrorView.php", ["response" => $servers]); };
@@ -37,20 +37,24 @@ $router->with('/liquidms/browse', function() use ($router){
 	});
 	// Three separate resource routes for capsuled security
 	$router->respond('GET', '/img/[**:path]', function($request, $response, $service){
-			$response->file(__DIR__."/../public/img/".$request->path);
+			$config = ConfigModel::getConfig();
+			$response->file(rtrim($config["sbpath"], "/")."/img/".$request->path);
 	});
 	$router->respond('GET', '/static/[**:path]', function($request, $response, $service){
-			$response->file(__DIR__."/../public/static/".$request->path);
+			$config = ConfigModel::getConfig();
+			$response->file(rtrim($config["sbpath"], "/")."/static/".$request->path);
 			$response->header('Content-type', 'text/html');
 			$response->sendHeaders(true);
 	});
 	$router->respond('GET', '/css/[**:path]', function($request, $response, $service){
-			$response->file(__DIR__."/../public/css/".$request->path);
+			$config = ConfigModel::getConfig();
+			$response->file(rtrim($config["sbpath"], "/")."/css/".$request->path);
 			$response->header('Content-type', 'text/css');
 			$response->sendHeaders(true);
 	});
 	$router->respond('GET', '/js/[**:path]', function($request, $response, $service){
-			$response->file(__DIR__."/../public/js/".$request->path);
+			$config = ConfigModel::getConfig();
+			$response->file(rtrim($config["sbpath"], "/")."/js/".$request->path);
 			$response->header('Content-type', 'application/javascript');
 			$response->sendHeaders(true);
 	});

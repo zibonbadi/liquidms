@@ -19,6 +19,7 @@ modules: # Features to enable
 - v1 # v1 API
 - snitch # snitch API
 - browser # integrated server browser
+sbpath: "/path/to/indexfile"
 db: # liquidMS DB connection settings
    dsn: "DRIVER=liquidMS ODBC driver;SERVER=localhost" # ODBC DSN string.
    user: "alice"

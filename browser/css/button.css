@@ -1,4 +1,4 @@
-button, input[type="button"]{
+button, select, a.button, input[type="button"]{
 	background: #3355ff;
 	border: 3pt solid #8888ff;
 	color: #88ccff;
@@ -7,14 +7,15 @@ button, input[type="button"]{
 	display: inline-block;
 	font-family: 'Press Start 2P', sans-serif;
 	font-size: 16pt;
+	text-decoration: none;
 	padding: 0.5em 1em;
 }
-button:hover, input[type="button"]:hover{
+button:hover, a.button:hover, select:hover, input[type="button"]:hover{
 	background: #aaaaff;
 	box-shadow: 0 0.3em #88f;
 	color: #44f;
 }
-button.error, input[type="button"].error{
+button.error, a.button.error, input[type="button"].error{
 	background: #fc5b7c;
 	border-color: #fd9fa3;
 	color: #ffbae4;
