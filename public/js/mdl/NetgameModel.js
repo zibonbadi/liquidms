@@ -35,9 +35,18 @@ export default class NetgameModel{
 			insert.hostname = subjects[sv].hostname;
 			insert.port = subjects[sv].port;
 			try{
-				insert.name = decodeURIComponent(servers[sv].name);
+				//let sanitized = subjects[sv].name.replace(/[\x00-\x19\x7F-\xFF]/, '');
+				let sanitized = subjects[sv].name.replace(/\%[8-9a-fA-F][0-F]/g, '');
+				sanitized = sanitized.replace(/\%[0-1][0-F]/g, '');
+				insert.name = decodeURIComponent(sanitized);
 			}catch (error) {
-				insert.name = subjects[sv].name;
+				console.error(`URL decode error: `, subjects[sv].name, error);
+				let sanitized = subjects[sv].name.replace(/\%20/g, ' ');
+				sanitized = sanitized.replace(/\%2F/g, '/');
+				sanitized = sanitized.replace(/\%27/g, "'");
+				sanitized = sanitized.replace(/\%[0-9A-F][0-9A-F]/g, '.');
+				insert.name = sanitized.replace(/\%[0-9A-F][0-9A-F]/g, '+');
+				//insert.name = subjects[sv].name;
 			}
 			insert.version = subjects[sv].version;
 			insert.roomname = subjects[sv].roomname;

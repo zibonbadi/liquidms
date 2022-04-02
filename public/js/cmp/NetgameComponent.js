@@ -14,10 +14,19 @@ export default class NetgameComponent extends HTMLElement{
 		customElements.define('sb-netgame', NetgameComponent);
 	}
 
-	connectedCallback(){ this.update(); this.render(); }
-	disconnectedCallback(){}
-	adoptedCallback(){ this.render(); }
-	attributesChangedCallback(){ this.update(); this.render(); }
+	connectedCallback(){
+		this.update(); 
+		this.render();
+	}
+	disconnectedCallback(){
+	}
+	adoptedCallback(){
+		this.render();
+	}
+	attributesChangedCallback(){
+		this.update();
+		this.render();
+	}
 
 	update(data = {}){
 		if(data){
