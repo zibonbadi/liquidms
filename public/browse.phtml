@@ -34,6 +34,7 @@
 	</li>
 	<li><slot name="roomname">Dummy room</slot>@<slot name="origin">World</slot></li>
 	<li><slot name="version">DummyBuild</slot></li>
+	<li>Last updated: <slot name="updated_at">Never</slot></li>
 	</ul>
 	<hr>
 	<details>
@@ -57,7 +58,7 @@
 <link rel="stylesheet" href="browse/css/NetgameListComponent.css">
 <template data-name="netgamelist">
 	<link rel="stylesheet" href="browse/css/NetgameListComponent-shadow.css">
-	<div class="buttonbox"><input type="button" value="Update" name="update"></div>
+	<div class="buttonbox"><input type="button" value="Update all" name="update"></div>
 	<ul>
 	<slot name="netgames"><p>No servers available.</p></slot>
 	</ul>

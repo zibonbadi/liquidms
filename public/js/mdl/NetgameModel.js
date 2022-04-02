@@ -51,6 +51,7 @@ export default class NetgameModel{
 			insert.version = subjects[sv].version;
 			insert.roomname = subjects[sv].roomname;
 			insert.origin = subjects[sv].origin;
+			insert.updated_at = new Date().toLocaleString();
 
 			// this.servers for all subjects, toRefresh for update culling
 			this.servers[insert.hostname] = insert;
