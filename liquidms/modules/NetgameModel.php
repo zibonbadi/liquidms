@@ -109,16 +109,13 @@ class NetgameModel{
 				if($ip != NULL) {
 						if($op = 1) { //Create
 								$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`)
-								VALUES ('".self::map4to6($netgame["host"])."', '{$port}', '{$title}', '{$version}', '{$roomname}', 'localhost')";
+								VALUES ('".self::map4to6($ip)."', '{$port}', '{$title}', '{$version}', '{$roomname}', 'localhost')";
 						}
 						elseif($op = 2) { //Update
-								$query = "UPDATE `servers` SET `servername` = '{$title}'
-								WHERE `servers`.`host` = '".self::map4to6($netgame["host"])."' AND `servers`.`port` = '{$port}'";
+								$query = "UPDATE `servers` SET `servername` = '{$title}' WHERE `servers`.`host` = '".self::map4to6($ip)."' AND `servers`.`port` = '{$port}'";
 						}
 						else { //Remove
-								$query = "DELETE FROM `servers`
-								WHERE `servers`.`host` = '".self::map4to6($netgame["host"])."'
-								AND `servers`.`port` = '{$port}'";
+								$query = "DELETE FROM `servers` WHERE `servers`.`host` = '".self::map4to6($ip)."' AND `servers`.`port` = '{$port}'";
 						}
 				}
 				$serverdata = self::db_execute($query);
@@ -160,8 +157,9 @@ class NetgameModel{
 				//   - "[version]"
 
 				$rVal = [];
-				$query = "SELECT _id AS roomid, roomname, origin, description FROM rooms ORDER BY _id";
-				if($room != NULL){ $query .= " WHERE _id = {$room}"; }
+				$filter = "";
+				if($room != NULL){ $filter = " WHERE _id = {$room}"; }
+				$query = "SELECT _id AS roomid, roomname, origin, description FROM rooms {$filter} ORDER BY _id;";
 				#echo $query."\n";
 				$serverdata = self::db_execute($query);
 
@@ -195,6 +193,7 @@ class NetgameModel{
 				$connection = odbc_connect( self::$dsn, self::$username, self::$password );
 
 				if($connection){
+						#file_put_contents('php://stderr', "$query");
 						$result = odbc_exec($connection, $query);
 						if($result == false){ 
 								return [
