@@ -20,9 +20,18 @@ export default class NetgameListComponent extends HTMLElement{
 
 	notifyController(){
 		try{
-			ServerBrowser.netgamecon.fetchServers();
+			console.log(this);
+			ServerBrowser.netgamecon.fetchServers().then( (response) => {
+				this.shadowRoot.querySelector('input[name="update"]').classList.remove("error");
+				this.shadowRoot.querySelector('input[name="update"]').value = "Update all";
+			}).catch( (error) => {
+				this.shadowRoot.querySelector('input[name="update"]').classList.add("error");
+				this.shadowRoot.querySelector('input[name="update"]').value = "Update failed!";
+			});
 		}catch(error){
 			console.error("Error updating netgames(maybe just try again?):", error);
+			this.shadowRoot.querySelector('input[name="update"]').classList.add("error");
+			this.shadowRoot.querySelector('input[name="update"]').value = "Update failed!";
 		}
 	}
 
@@ -31,18 +40,18 @@ export default class NetgameListComponent extends HTMLElement{
 			this.eb_conn = ServerBrowser.eventbus.attach("refresh", (message, data) => {
 				this.handleBus(message, data);
 			})
-			.then( this.notifyController );
+			.then( this.notifyController.bind(this) );
 		}catch(error){
 			if(this.querySelector('[slot="netgames"]') != undefined){
 				this.removeChild(this.querySelector('[slot="netgames"]'));
 			}
-			console.error("Error connecting to Eventbus (will retry in 3s):", error);
-			setTimeout(this.connectToEventbus.bind(this), 3000);
+			console.error("Error connecting to Eventbus (will retry in 2s):", error);
+			setTimeout(this.connectToEventbus.bind(this), 2000);
 		}
 	}
 
 	connectedCallback(){
-		this.eHdl_ngcon = this.shadowRoot.querySelector('input[name="update"]').addEventListener('click', this.notifyController);
+		this.eHdl_ngcon = this.shadowRoot.querySelector('input[name="update"]').addEventListener('click', this.notifyController.bind(this));
 		//this.eHdl_ngcon = setInterval(this.notifyController, 5000)
 		this.connectToEventbus();
 		this.update();

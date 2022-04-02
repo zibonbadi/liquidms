@@ -3,7 +3,7 @@ export default class NetgameController{
 		this.fetchServers();
 	}
 
-	fetchServers(url = '/liquidms/snitch'){
+	async fetchServers(url = '/liquidms/snitch'){
 		ServerBrowser.req.get(url)
 			.then( (response) => {
 				let toModel = [];
@@ -19,9 +19,9 @@ export default class NetgameController{
 					toModel[insert.hostname] = insert;
 				}
 				ServerBrowser.db.insert(toModel);
-			})
-			.catch( (error) => {
-				console.error('Failed to update NetgameModel: ', error);
+			}).catch( (error) => {
+				console.error('Failed to update NetgameModel: ', error, this);
+				throw error;
 			});
 	}
 

@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 :root{
 	/* --color-bg: url('/browse/img/bg.svg'); */
-	--main-bg: url('/liquidms/browse/img/bg.svg') yellow;
+	--main-bg: url('/liquidms/browse/img/bg.svg') rgba(255, 220, 21, 1);
 	/* --color-bg: teal; */
 	--color-text: black;
 	--netgame-bg: #003d;
@@ -27,7 +27,9 @@ background-attachment: fixed;
 font-family: 'Press Start 2P', sans-serif;
 }
 
-h1,p, img{
+pre{ font-family: 'Press Start 2P', monospace; }
+
+h1,p,pre,img{
 max-width: min(100%, 60em);
 margin: 1em auto;
 display: block;

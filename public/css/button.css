@@ -14,6 +14,11 @@ button:hover, input[type="button"]:hover{
 	box-shadow: 0 0.3em #88f;
 	color: #44f;
 }
+button.error, input[type="button"].error{
+	background: #fc5b7c;
+	border-color: #fd9fa3;
+	color: #ffbae4;
+}
 iframe, img{ 
 	max-width:90%;
 	height: auto;

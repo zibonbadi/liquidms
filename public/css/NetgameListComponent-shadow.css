@@ -5,7 +5,8 @@
 	flex-flow: row wrap;
 	justify-content: center;
 	gap: 1.5em;
-	margin: 1em;
-	padding: 1em;
+	margin: auto;
+	position: sticky;
+	top: 2em;
 }
 

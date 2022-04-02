@@ -67,7 +67,7 @@
 <body>
 <img src="browse/img/logo.svg">
 <h1>Integrated server browser</h1>
-<p>Select a server to query. Use the buttons to manage them all.</p>
+<pre><?php echo $this->sharedData()->get('motd'); ?></pre>
 <sb-netgamelist></sb-netgamelist>
 </body>
 </html>
