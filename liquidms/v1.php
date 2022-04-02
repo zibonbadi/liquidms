@@ -49,7 +49,7 @@ $router->with('/v1/servers', function() use ($router){
 	$router->respond('POST', '/[:serverid]?/unlist', function($request, $response){
 			parse_str($request->body(), $info);
 			$request->ip();
-			NetgameModel::changeServer(0, $request->ip(), $request->serverid, null, null, null);
+			$rooms = NetgameModel::changeServer(0, $request->ip(), $request->serverid, null, null, null);
 			if( $rooms["rows"] > 0 ){
 				// No Response body
 				return;
