@@ -26,11 +26,19 @@
 <link rel="stylesheet" href="browse/css/NetgameComponent.css">
 <template data-name="netgame">
 	<link rel="stylesheet" href="browse/css/NetgameComponent-shadow.css">
+
+	<i class="fa-solid fa-alien-8bit"></i>
+	<i class="fa-solid fa-cards"></i>
+	<i class="fa-solid fa-signal"></i>
+	<i class="fa-solid fa-user"></i>
+	<i class="fa-solid fa-user-group"></i>
+	<i class="fa-solid fa-wrench"></i>
+
 	<slot name="name">Dummy server</slot>
 	<ul>
 	<li>
-		<slot name="hostname">Dummy hostname</slot>
-		<slot name="port">Dummy port</slot>
+	<slot name="hostname">Dummy hostname</slot>
+	<slot name="port">Dummy port</slot>
 	</li>
 	<li><slot name="roomname">Dummy room</slot>@<slot name="origin">World</slot></li>
 	<li><slot name="version">DummyBuild</slot></li>
@@ -51,25 +59,28 @@
 	<div><slot name="ping">&infin;</slot> ms</div>
 	</div>
 	<div class="flex flex-center">
-	<input type="button" value="Update" name="update">
+	<!-- <input type="button" value="Update" name="update"> -->
+	<a href="#" class="button" name="update">Update</a>
 	</div>
-	</ul>
 </template>
 <link rel="stylesheet" href="browse/css/NetgameListComponent.css">
 <template data-name="netgamelist">
 	<link rel="stylesheet" href="browse/css/NetgameListComponent-shadow.css">
 	<div class="buttonbox">
+	<a href="#" class="button" name="update">Update all</a>
+	<!--
 	<input type="button" value="Update all" name="update">
-	<a href="#" class="button" name="sort">Sort list</a>
-	<select value="Update all" name="update">
-		<option>Name A-Z</option>
-		<option>Ping</option>
-		<option>Max players</option>
-		<option>Min players</option>
-		<option>Latest update</option>
-		<option>Latest version</option>
-		<option>Room A-Z &rarr; Origin A-Z</option>
-		<option>Origin A-Z &rarr; Room A-Z</option>
+	<a href="#" class="button" name="sortbutton">Sort list</a>
+	-->
+	<select value="Update all" name="sort">
+		<option value="maxplayers">Max players</option>
+		<option value="minplayers">Min players</option>
+		<option value="name">Name A-Z</option>
+		<option value="origin">Origin A-Z &rarr; Room A-Z</option>
+		<option value="ping">Ping</option>
+		<option value="roomname">Room A-Z &rarr; Origin A-Z</option>
+		<option value="updated_at">Latest update</option>
+		<option value="version">Latest version</option>
 	</select>
 	</div>
 	<ul>
@@ -81,7 +92,6 @@
 <img src="browse/img/logo.svg">
 <h1>Integrated server browser</h1>
 <pre><?php echo $this->sharedData()->get('motd'); ?></pre>
-<p>Update the list using the buttons below. Each netgame will be displayed in it's own dedicated card.</p>
 <sb-netgamelist></sb-netgamelist>
 </body>
 </html>

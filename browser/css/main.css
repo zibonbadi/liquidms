@@ -22,7 +22,7 @@
 body{
 color: var(--color-text);
 background: var(--main-bg);
-background-size: auto;
+background-size: cover;
 background-attachment: fixed;
 font-family: 'Press Start 2P', sans-serif;
 }

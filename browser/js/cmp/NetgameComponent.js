@@ -7,6 +7,8 @@ export default class NetgameComponent extends HTMLElement{
 
 		const shadowRoot = this.attachShadow({mode: 'open'})
 		  .appendChild(templateContent.cloneNode(true));
+
+		this.updateListener = null;
 		this.update(data);
 	}
 
@@ -15,10 +17,12 @@ export default class NetgameComponent extends HTMLElement{
 	}
 
 	connectedCallback(){
+		this.updateListener = this.shadowRoot.querySelector('[name="update"]').addEventListener("click", this.notifyController.bind(this));
 		this.update(); 
 		this.render();
 	}
 	disconnectedCallback(){
+		this.shadowRoot.querySelector('[name="update"]').removeEventListener("click", this.updateListener);
 	}
 	adoptedCallback(){
 		this.render();
@@ -29,7 +33,7 @@ export default class NetgameComponent extends HTMLElement{
 	}
 
 	update(data = {}){
-		if(data){
+		if(Object.entries(data).length > 0){
 			for(let i in data){
 				this.dataset[i] = data[i];
 				//console.log(i, data[i]);
@@ -47,6 +51,11 @@ export default class NetgameComponent extends HTMLElement{
 			this.appendChild(newNG);
 		}
 		//console.log("Rendered Netgame: ",this);
+	}
+
+	notifyController(event){
+		ServerBrowser.netgamecon.updateOne(this.dataset);
+		event.preventDefault();
 	}
 
 	handleBus(message, data = {}){

@@ -93,6 +93,10 @@ export default class NetgameController{
 		return arrData;
 	}
 
+	async updateOne(hostname){
+		console.log("Dummy update:", hostname);
+	}
+
 }
 
 
