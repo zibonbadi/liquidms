@@ -10,8 +10,8 @@ export default class NetgameListComponent extends HTMLElement{
 		const shadowRoot = this.attachShadow({mode: 'open'})
 		  .appendChild(templateContent.cloneNode(true));
 
-		this.eHdl_ngcon = function(){console.error("No event handler registered yet!", this);};
-		this.eHdl_sort = function(){console.error("No event handler registered yet!", this);};
+		this.eHdl_ngcon = this.notifyController.bind(this);
+		this.eHdl_sort = this.render.bind(this);
 		this.eb_conn = function(){console.error("No eventbus hook registered yet!", this);};
 	}
 
@@ -19,7 +19,7 @@ export default class NetgameListComponent extends HTMLElement{
 		customElements.define('sb-netgamelist', NetgameListComponent);
 	}
 
-	notifyController(){
+	notifyController(event){
 		try{
 			ServerBrowser.netgamecon.fetchServers().then( (response) => {
 				this.shadowRoot.querySelector('[name="update"]').classList.remove("error");
@@ -33,6 +33,7 @@ export default class NetgameListComponent extends HTMLElement{
 			this.shadowRoot.querySelector('[name="update"]').classList.add("error");
 			this.shadowRoot.querySelector('[name="update"]').value = "Update failed!";
 		}
+		event.preventDefault();
 	}
 
 	connectToEventbus(){
@@ -51,7 +52,7 @@ export default class NetgameListComponent extends HTMLElement{
 	}
 
 	sort(netgames, sort){
-		console.log(`Sort by: ${sort} (${typeof netgames})`, netgames);
+		//console.log(`Sort by: ${sort} (${typeof netgames})`, netgames);
 		switch(sort){
 		case "maxplayers":
 		case "minplayers":{
@@ -86,8 +87,8 @@ export default class NetgameListComponent extends HTMLElement{
 	}
 
 	connectedCallback(){
-		this.eHdl_ngcon = this.shadowRoot.querySelector('[name="update"]').addEventListener('click', this.notifyController.bind(this));
-		this.eHdl_sort = this.shadowRoot.querySelector('[name="sort"]').addEventListener('change', this.render.bind(this));
+		this.shadowRoot.querySelector('[name="update"]').addEventListener('click', this.eHdl_ngcon);
+		this.shadowRoot.querySelector('[name="sort"]').addEventListener('change', this.eHdl_sort );
 		//this.eHdl_ngcon = setInterval(this.notifyController, 5000)
 		this.connectToEventbus();
 		this.update();

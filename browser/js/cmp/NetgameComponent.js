@@ -8,7 +8,8 @@ export default class NetgameComponent extends HTMLElement{
 		const shadowRoot = this.attachShadow({mode: 'open'})
 		  .appendChild(templateContent.cloneNode(true));
 
-		this.updateListener = null;
+		this.updateListener =  this.notifyController.bind(this);
+		//this.updateListener = this.shadowRoot.querySelector('[name="update"]').addEventListener("click",));
 		this.update(data);
 	}
 
@@ -17,7 +18,7 @@ export default class NetgameComponent extends HTMLElement{
 	}
 
 	connectedCallback(){
-		this.updateListener = this.shadowRoot.querySelector('[name="update"]').addEventListener("click", this.notifyController.bind(this));
+		this.shadowRoot.querySelector('[name="update"]').addEventListener("click", this.updateListener);
 		this.update(); 
 		this.render();
 	}
