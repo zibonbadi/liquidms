@@ -103,21 +103,28 @@ class NetgameModel{
 			return $serverdata;
 		}
 
-		public static function changeServer($op = 1, $ip = null, $port = '5029', $title = 'SRB2 server', $version = '2.2.9', $roomname = null) { //Operation, Host, port, servername, version, roomname.
+		public static function changeServer($op = 1, $ip = null, $port = '5029', $title = 'SRB2 server', $version = '2.2.10', $roomname = null) { //Operation, Host, port, servername, version, roomname.
 				//Creates an SQL query based of all the info we provided.
 				//Really dirty, could possibly get cleaned.
 				if($ip != NULL) {
-						if($op = 1) { //Create
-								$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`)
-								VALUES ('".self::map4to6($ip)."', '{$port}', '{$title}', '{$version}', '{$roomname}', 'localhost')";
+						switch($op){
+						case 1:{ //Create
+							$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`) ".
+							"VALUES ('".self::map4to6($ip)."', '{$port}', '".str_replace("'","\'", $title)."', '{$version}', '{$roomname}', 'localhost')";
+							break;
 						}
-						elseif($op = 2) { //Update
-								$query = "UPDATE `servers` SET `servername` = '{$title}' WHERE `servers`.`host` = '".self::map4to6($ip)."' AND `servers`.`port` = '{$port}'";
+						case 2:{ //Update
+							$query = "UPDATE `servers` SET `servername` = '".str_replace("'","\'", $title)."' WHERE `servers`.`host` = '"
+										.self::map4to6($ip)."' AND `servers`.`port` = '{$port}'";
+							 break;
 						}
-						else { //Remove
-								$query = "DELETE FROM `servers` WHERE `servers`.`host` = '".self::map4to6($ip)."' AND `servers`.`port` = '{$port}'";
+						default:{ //Remove
+							$query = "DELETE FROM `servers` WHERE `servers`.`host` = '".self::map4to6($ip)."' AND `servers`.`port` = '{$port}'";
+							break;
+						}
 						}
 				}
+				error_log("OP: $op;\n$query");
 				$serverdata = self::db_execute($query);
 				return $serverdata;
 		}
