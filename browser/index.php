@@ -59,7 +59,7 @@
 	</details>
 	<details>
 	<summary>Players</summary>
-	<slot name="players_list"></slot>
+	<slot name="players_list">No players available.</slot>
 	</details>
 	<hr>
 	<div class="flex">
