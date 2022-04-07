@@ -22,6 +22,8 @@ require_once __DIR__.'/../../vendor/autoload.php';
 class ConfigModel{
 
 	private static $config = [
+		"modules" => [],
+		"sbpath" => __DIR__."/../../browser",
 		"db" => [
 			"dsn" => "liquidms",
 		"user" => "sonic",
@@ -54,6 +56,17 @@ class ConfigModel{
 
 		static function setConfig(Array $newconfig){
 			// Cleanup config block
+			if( self::child_assertType("modules", $newconfig, "array") ){
+				foreach($newconfig["modules"] as $field_index=> $field_val){
+					if( self::child_assertType($field_index, $newconfig["modules"], "string") ){
+						self::$config["modules"][$field_index] = $field_val;
+					}
+				}
+			}
+
+			if( self::child_assertType("sbpath", $newconfig, "string") ){
+				self::$config["sbpath"] = $newconfig["sbpath"];
+			}
 			if( self::child_assertType("motd", $newconfig, "string") ){
 				self::$config["motd"] = $newconfig["motd"];
 			}

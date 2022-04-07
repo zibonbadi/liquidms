@@ -3,3 +3,4 @@ tables.sql
 config.yaml
 timestamps.yaml
 local/
+**/*.swp

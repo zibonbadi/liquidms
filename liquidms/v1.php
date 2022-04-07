@@ -37,8 +37,8 @@ $router->with('/v1/servers', function() use ($router){
 	$router->respond('POST', '/[:serverid]?/update', function($request, $response){
 			parse_str($request->body(), $info);
 			$request->ip();
-			NetgameModel::changeServer(2, $request->ip(), $request->serverid, $info['title'], null, null);
-			if( $rooms["rows"] > 0 ){
+			$response = NetgameModel::changeServer(2, $request->ip(), $request->serverid, $info['title'], null, null);
+			if( $response["rows"] > 0 ){
 				// No Response body
 				return;
 			}else{

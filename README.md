@@ -29,6 +29,12 @@ served as a reference to this project.
 [v1spec]: <https://web.archive.org/web/20220205110841/https://mb.srb2.org/MS/tools/api/v1/>
 [gnuaffero]: <https://www.gnu.org/licenses/agpl-3.0.en.html>
 
+### External resources
+
+- [SRB2Query] by James R. (exposed to the integrated server browser).
+
+[SRB2Query]: <https://git.do.srb2.org/Golden/SRB2-Query>
+
 INSTALLATION
 ------------
 
@@ -196,8 +202,25 @@ so don't even attempt to set up a room in this range, it's not worth it.
 
 When enabled, LiquidMS nodes also offer an integrated web-based server
 browser over the route `/liquidms/browse`. This way players are able to
-check for the status of netgames known to the LiquidMS node without need
-of launching the game.
+check for the status of netgames known to the LiquidMS node without need of
+launching the game. This server browser can be altered or exchanged using
+the config option `sbpath`, requiring an absolute path to the directory
+containing the frontend. The exact structure required of a frontend to work
+as a LiquidMS-compatible server browser will be displayed down below in YAML.
+
+```YAML
+sbpath:
+- index.php # Entry point to your frontend.
+# More information on hooking your PHP scripts into LiquidMS in
+# the "Views" section at <https://github.com/klein/klein.php>
+- css/ # CSS data. Nested structure is permitted.
+- img/ # Image stock. Nested structure is permitted.
+- js/ # JavaScript resources. Nested structure is permitted.
+- static/ # Static resources. Nested structure is permitted.
+```
+
+Furthermore the path `/liquidms/SRB2Query` offers live query information
+about the state of the netgame, based on [SRB2Query] by James R.
 
 
 ### Hosting a LiquidMS node
@@ -315,7 +338,7 @@ DEVELOPMENT
 
 Simply Launch a server with PHP:
 
-	$ php -S 127.0.0.1:8080
+	$ php -S 127.0.0.1:8080 public/index.php
 
 NOTE: The game has been reported to have difficulties around the local DNS
       name `localhost`. Also note that the URL must not end in a slash as

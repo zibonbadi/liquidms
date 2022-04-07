@@ -38,19 +38,6 @@ $router->with('/liquidms', function() use ($router){
 		return file_get_contents(__DIR__."/../LICENSE.md");
 	});
 
-	$router->respond('GET', '/browse', function($request, $response, $service){
-			// Server test kludge. The game seems to ping every listed server and
-			// filter by response. Listing dummy servers is thus not possible.
-			$servers = NetgameModel::getServers();
-			$rooms = NetgameModel::getRooms();
-				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){ $service->render(__DIR__."/modules/HtmlView.php", ["data" => $servers, "rooms" => $rooms]);
-				}else{
-					$response->code(403);
-					if( ($servers["error"] != 0)){ $service->render(__DIR__."/modules/ErrorView.php", ["response" => $servers]); };
-					if( ($rooms["error"] != 0)){ $service->render(__DIR__."/modules/ErrorView.php", ["response" => $rooms]); };
-				}
-	});
-
 	$router->respond('PUT', '/?', function($request, $response){
 		// Dumb JSON mirror for no reason
 		// PUT is idempotent; Screw POST
@@ -129,6 +116,8 @@ $router->with('/liquidms', function() use ($router){
 			if(
 				($netgame["host"] == "localhost") ||
 				($netgame["host"] == "127.0.0.1") ||
+				($netgame["host"] == $_SERVER["SERVER_ADDR"]) ||
+				($netgame["origin"] == $_SERVER["SERVER_ADDR"]) ||
 				($netgame["origin"] == "localhost") ||
 				($netgame["origin"] == "127.0.0.1")
 			){
@@ -175,3 +164,5 @@ $router->with('/liquidms', function() use ($router){
 
 	});
 });
+
+?>

@@ -15,6 +15,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ---
 # This is an example config.yaml for a liquidMS node environment
+modules: # Features to enable
+- v1 # v1 API
+- snitch # snitch API
+- browser # integrated server browser
+sbpath: "/path/to/indexfile"
 db: # liquidMS DB connection settings
    dsn: "DRIVER=liquidMS ODBC driver;SERVER=localhost" # ODBC DSN string.
    user: "alice"
@@ -26,6 +31,9 @@ motd: |
 fetch: # Master servers to leech off of
   vanilla:
     host: "https://mb.srb2.org/MS/0"
+    api: # One of the following
+	- v1
+	- snitch
     minute: 5
 snitch: # Servers to snitch to
 - "localhost:8080"
