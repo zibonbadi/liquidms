@@ -36,6 +36,10 @@ export default class NetgameComponent extends HTMLElement{
 	update(data = {}){
 		if(Object.entries(data).length > 0){
 			for(let i in data){
+				if(i == "players_list"){
+					this.playerlist = data[i];
+					continue;
+				}
 				this.dataset[i] = data[i];
 				//console.log(i, data[i]);
 			}
@@ -46,10 +50,27 @@ export default class NetgameComponent extends HTMLElement{
 	async render(){
 		this.innerHTML = ''
 		for(let i in this.dataset){
+			if(i == "players_list"){continue;}
 			let newNG = document.createElement('span');
 			newNG.slot = i;
 			newNG.innerHTML = this.dataset[i];
 			this.appendChild(newNG);
+		}
+
+		for(let i in this.playerlist){
+			if(i == "players_list"){continue;}
+			let player = document.createElement('details');
+
+			player.slot = "players_list";
+			let timespan = new Date(this.playerlist[i].seconds * 1000).toISOString().substr(11, 8);
+			player.innerHTML = `
+			<summary>${this.playerlist[i].name}</summary>
+			<ul>
+			<li>Team: ${this.playerlist[i].team}</li>
+			<li>Score: ${this.playerlist[i].score}</li>
+			<li>Online: ${timespan}</li>
+			</ul>`;
+			this.appendChild(player);
 		}
 		//console.log("Rendered Netgame: ",this);
 	}

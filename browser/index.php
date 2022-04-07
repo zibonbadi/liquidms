@@ -40,14 +40,26 @@
 	<slot name="hostname">Dummy hostname</slot>
 	<slot name="port">Dummy port</slot>
 	</li>
+	<li>Stage: <slot name="level_name">Earless Netless Zone</slot> (md5: <slot name="level_md5">xxxxx</slot>)</li>
+	<li>Game type: <slot name="gametype">unknown</slot></li>
+	</ul>
+	<ul>
 	<li><slot name="roomname">Dummy room</slot>@<slot name="origin">World</slot></li>
-	<li><slot name="version">DummyBuild</slot></li>
+	<li><slot name="version">DummyBuild</slot> (<slot name="version_name">SRB2</slot> <slot name="version_major">X</slot> <slot name="version_minor">Y</slot> <slot name="version_patch">Z</slot>)</li>
 	<li>Last updated: <slot name="updated_at">Never</slot></li>
 	</ul>
 	<hr>
 	<details>
 	<summary>Netgame details</summary>
-		<slot>Dummy netgame info (Map, mods, etc.)</slot>
+		<ul>
+		<li>Dedicated server: <slot name="dedicated">unknown</slot></li>
+		<li>Modified: <slot name="modified">unknown</slot></li>
+		<li>Cheats: <slot name="cheats">unknown</slot></li>
+		</ul>
+	</details>
+	<details>
+	<summary>Players</summary>
+	<slot name="players_list"></slot>
 	</details>
 	<hr>
 	<div class="flex">

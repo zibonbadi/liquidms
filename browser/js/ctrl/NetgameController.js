@@ -93,8 +93,16 @@ export default class NetgameController{
 		return arrData;
 	}
 
-	async updateOne(hostname){
-		console.log("Dummy update:", hostname);
+	async updateOne(server){
+		console.log("Update target:", server);
+		ServerBrowser.req.get(`/liquidms/SRB2Query/?hostname=${server.hostname}&port=${server.port}`)
+			.then( (response) => {
+				let query = JSON.parse(response, ',');
+				ServerBrowser.db.populateOne(server.hostname, query);
+			}).catch( (error) => {
+				console.error('Failed to update NetgameModel: ', server.dataset.hostname, error);
+				throw error;
+			});
 	}
 
 }

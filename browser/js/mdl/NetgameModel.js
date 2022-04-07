@@ -62,5 +62,29 @@ export default class NetgameModel{
 		//ServerBrowser.eventbus.send("refresh");
 	}
 
+	async populateOne(hostname, data = {}){
+			console.log("Database populateOne:", hostname, data);
+
+			// Sanitization & flattener block
+			this.servers[hostname].cheats = data.cheats;
+			this.servers[hostname].dedicated = data.dedicated;
+			this.servers[hostname].gametype = data.gametype;
+			this.servers[hostname].level_md5 = data.level.md5sum;
+			this.servers[hostname].level_name = data.level.title;
+			this.servers[hostname].maxplayers = data.players.max;
+			this.servers[hostname].modified = data.mods;
+			this.servers[hostname].players = data.players.count;
+			this.servers[hostname].players_list = data.players.list;
+			this.servers[hostname].version_major = data.version.major;
+			this.servers[hostname].version_minor = data.version.minor;
+			this.servers[hostname].version_name = data.version.name;
+			this.servers[hostname].version_patch = data.version.patch;
+
+			
+			let toRefresh = {};
+			toRefresh[hostname] = this.servers[hostname];
+			ServerBrowser.eventbus.send("refresh", toRefresh);
+	}
+
 }
 

@@ -124,7 +124,7 @@ class NetgameModel{
 						}
 						}
 				}
-				error_log("OP: $op;\n$query");
+				#error_log("OP: $op;\n$query");
 				$serverdata = self::db_execute($query);
 				return $serverdata;
 		}
@@ -200,7 +200,7 @@ class NetgameModel{
 				$connection = odbc_connect( self::$dsn, self::$username, self::$password );
 
 				if($connection){
-						#file_put_contents('php://stderr', "$query");
+						file_put_contents('php://stderr', "$query");
 						$result = odbc_exec($connection, $query);
 						if($result == false){ 
 								return [

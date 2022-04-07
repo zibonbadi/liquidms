@@ -60,4 +60,41 @@ $router->with('/liquidms/browse', function() use ($router){
 	});
 });
 
+/* SRB2Query routes */
+$router->with('/liquidms/SRB2Query', function() use ($router){
+	$router->respond('GET', '/?', function($request, $response){
+		if( $request->hostname != NULL &&
+			$request->port != NULL){
+
+			// Set up SRB2Query
+			require_once __DIR__.'/modules_vendor/srb2query.php';
+
+			$srb2conn = new SRB2Query;
+			$srb2conn->Ask($request->hostname, $request->port);
+			$netgame = $srb2conn->Info($addr);
+
+			function utf8sanitize($input) {
+				if(is_array($input)) {
+					foreach($input as $i => $value) { $input[$i] = utf8sanitize($value); }
+				}else if (is_string($input)) {
+					return utf8_encode($input);
+				}
+				return $input;
+			}
+
+			// Add hostname to data, just in case
+			$netgame["hostname"] = $addr;
+			$response->json(utf8sanitize($netgame));
+		}else{
+			$response->code(400);
+			$response->json([
+				"?" => [
+					"hostname" => $request->hostname,
+					"port" => $request->port,
+					],
+				]);
+		}
+	});
+});
+
 ?>

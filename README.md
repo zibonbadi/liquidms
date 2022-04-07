@@ -29,6 +29,12 @@ served as a reference to this project.
 [v1spec]: <https://web.archive.org/web/20220205110841/https://mb.srb2.org/MS/tools/api/v1/>
 [gnuaffero]: <https://www.gnu.org/licenses/agpl-3.0.en.html>
 
+### External resources
+
+- [SRB2Query] by James R. (exposed to the integrated server browser).
+
+[SRB2Query]: <https://git.do.srb2.org/Golden/SRB2-Query>
+
 INSTALLATION
 ------------
 
@@ -212,6 +218,9 @@ sbpath:
 - js/ # JavaScript resources. Nested structure is permitted.
 - static/ # Static resources. Nested structure is permitted.
 ```
+
+Furthermore the path `/liquidms/SRB2Query` offers live query information
+about the state of the netgame, based on [SRB2Query] by James R.
 
 
 ### Hosting a LiquidMS node
