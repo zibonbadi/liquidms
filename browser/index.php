@@ -97,9 +97,7 @@
 		<option value="version">Latest version</option>
 	</select>
 	</div>
-	<ul>
 	<slot name="netgames"><p>No servers available.</p></slot>
-	</ul>
 </template>
 </head>
 <body>

@@ -9,11 +9,14 @@ button, select, a.button, input[type="button"]{
 	font-size: 16pt;
 	text-decoration: none;
 	padding: 0.5em 1em;
+	max-width: 100%;
 }
-button:hover, a.button:hover, select:hover, input[type="button"]:hover{
-	background: #aaaaff;
-	box-shadow: 0 0.3em #88f;
-	color: #44f;
+@media(any-hover: hover) and (pointer: fine){
+	button:hover, a.button:hover, select:hover, input[type="button"]:hover{
+		background: #aaaaff;
+		box-shadow: 0 0.3em #88f;
+		color: #44f;
+	}
 }
 button.error, a.button.error, input[type="button"].error{
 	background: #fc5b7c;

@@ -53,5 +53,7 @@ table{
 td,th{ padding: 0.75em; }
 tr:first-child{ background: var(--color-table-bg-head); }
 tr:nth-child(2n){ background: var(--color-table-bg2); }
-tr:hover{ background: var(--color-table-bg-hover); }
+@media(any-hover: hover) and (pointer: fine){
+	tr:hover{ background: var(--color-table-bg-hover); }
+}
 
