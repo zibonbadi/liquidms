@@ -74,7 +74,7 @@ export default class NetgameModel{
 			this.servers[hostname].level_name = data.level.title;
 			this.servers[hostname].maxplayers = data.players.max;
 			this.servers[hostname].modified = data.mods;
-			this.servers[hostname].players = data.players.count;
+			this.servers[hostname].players = data.players.list.length;
 			this.servers[hostname].players_list = data.players.list;
 			this.servers[hostname].version_major = data.version.major;
 			this.servers[hostname].version_minor = data.version.minor;
