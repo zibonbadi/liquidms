@@ -67,7 +67,7 @@ $router->with('/liquidms', function() use ($router){
 				}
 				//$response->json($servers["data"]);
 			}else{
-				$response->code(404);
+				#$response->code(404);
 				return "";
 			}
 		}else{

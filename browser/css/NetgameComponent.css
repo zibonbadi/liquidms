@@ -45,3 +45,36 @@ sb-netgame ul > li,
 	font-size: small;
 }
 
+sb-netgame .player
+{
+	border: 2pt solid;
+	padding: 1em;
+	display: block;
+	width: fit-content;
+	height: fit-content;
+	flex: 1 3 max-content;
+}
+sb-netgame .player:hover{
+	box-shadow: 0 0.3em #000;
+}
+
+sb-netgame .player.Blue
+{
+	background: #3355ff;
+	border-color: #8888ff;
+	color: #88ccff;
+}
+
+sb-netgame .player.Red
+{
+	background: #fc5b7c;
+	border-color: #fd9fa3;
+	color: #ffbae4;
+}
+
+sb-netgame .player.Spectator
+{
+	color: gray;
+	border-color: gray;
+}
+

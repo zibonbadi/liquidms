@@ -60,6 +60,8 @@ export default class NetgameComponent extends HTMLElement{
 		for(let i in this.playerlist){
 			if(i == "players_list"){continue;}
 			let player = document.createElement('details');
+			player.classList.add('player');
+			player.classList.add(this.playerlist[i].team);
 
 			player.slot = "players_list";
 			let timespan = new Date(this.playerlist[i].seconds * 1000).toISOString().substr(11, 8);

@@ -37,7 +37,7 @@ export default class NetgameModel{
 			try{
 				//let sanitized = subjects[sv].name.replace(/[\x00-\x19\x7F-\xFF]/, '');
 				let sanitized = subjects[sv].name.replace(/\%[8-9a-fA-F][0-F]/g, '');
-				sanitized = sanitized.replace(/\%[0-1][0-F]/g, '');
+				sanitized = sanitized.replace(/\%[0-1][0-F]/g, '').replace(/\+/g,' ');
 				insert.name = decodeURIComponent(sanitized);
 			}catch (error) {
 				console.error(`URL decode error: `, subjects[sv].name, error);
@@ -51,14 +51,15 @@ export default class NetgameModel{
 			insert.version = subjects[sv].version;
 			insert.roomname = subjects[sv].roomname;
 			insert.origin = subjects[sv].origin;
-			insert.updated_at = new Date().toLocaleString();
+			//insert.updated_at = new Date().toLocaleString();
 
 			// this.servers for all subjects, toRefresh for update culling
 			this.servers[insert.hostname] = insert;
 			toRefresh[insert.hostname] = insert;
 					
+			ServerBrowser.netgamecon.updateOne(this.servers[insert.hostname]);
 		}
-		ServerBrowser.eventbus.send("refresh", toRefresh);
+		//ServerBrowser.eventbus.send("refresh", toRefresh);
 		//ServerBrowser.eventbus.send("refresh");
 	}
 
@@ -79,6 +80,7 @@ export default class NetgameModel{
 			this.servers[hostname].version_minor = data.version.minor;
 			this.servers[hostname].version_name = data.version.name;
 			this.servers[hostname].version_patch = data.version.patch;
+			this.servers[hostname].updated_at = new Date().toLocaleString();
 
 			
 			let toRefresh = {};
