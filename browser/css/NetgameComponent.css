@@ -2,7 +2,7 @@ sb-netgame{
 	color: var(--netgame-text);
 	padding: 1em;
 	flex: 1 3;
-	flex-basis: fit-content;
+	flex-basis: 7cm;
 	background-color: var(--netgame-bg);
 	border: var(--netgame-border);
 	margin: auto;
@@ -60,6 +60,7 @@ sb-netgame .player
 	width: fit-content;
 	height: fit-content;
 	flex: 1 3 max-content;
+	cursor: pointer;
 }
 sb-netgame .player.Blue
 {

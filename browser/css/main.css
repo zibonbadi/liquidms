@@ -25,6 +25,7 @@ background: var(--main-bg);
 background-size: cover;
 background-attachment: fixed;
 font-family: 'Press Start 2P', sans-serif;
+font-size: 10pt;
 }
 
 pre{ font-family: 'Press Start 2P', monospace; }
