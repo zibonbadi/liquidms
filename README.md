@@ -225,6 +225,8 @@ about the state of the netgame, based on [SRB2Query] by James R.
 
 ### Hosting a LiquidMS node
 
+![LiquidMS layer model](doc/fig-layers.svg)
+
 LiquidMS is able to mirror server listings of any API-compliant SRB2 HTTP
 V1 master server within it's own server database. This is called the
 "superset mirror" concept and needs to be kept in mind when hosting a
@@ -232,16 +234,16 @@ LiquidMS node. Furthermore, to allow for load balanced network
 architectures and maximum possible uptime, LiquidMS was designed with three
 layers of operation in mind:
 
-1. The *ODBC Database* at the core. Think of it as the model to LiquidMS,
-   being responsible for managing all hosted data. For security, we
-   deliberately left management of world rooms and banned servers to the
+1. The ODBC Database or *World* at the core. Think of it as the model to
+   LiquidMS, being responsible for managing all hosted data. For security,
+   we deliberately left management of world rooms and banned servers to the
    database server administrator as to guarantee consistency across a
    LiquidMS network in terms of authorization and API I/O.
-2. *LiquidMS nodes* provide a V1 compatible API for registering worldwide
-   netgames and supplying the universewide netgames. These nodes can also
-   be used for fetching universe netgames into the ODBC database, due to
-   their need for an authorized database access. More on the concept of
-   fetching down below.
+2. LiquidMS nodes, otherwise known as *sattelites* provide an HTTP API for
+   supplying and managing the master server service. These nodes can also
+   be used for fetching universe netgames into the ODBC database, although
+   database access authorization is needed for operation. More on the
+   concept of fetching down below.
 3. *Universe servers* and *snitches* provide LiquidMS nodes and by
    extension the database with external universewide netgame data to be
    mirrored. More on the concept of snitching down below.
