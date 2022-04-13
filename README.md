@@ -48,6 +48,18 @@ appropriate ODBC connectors and the following PHP extensions enabled:
 - EXT_PDO
 - EXT_YAML
 
+If you have trouble installing PHP extensions, here's a few links for help,
+depending on your operating system. :
+
+- [Windows](https://www.php.net/manual/en/install.pecl.windows.php)
+- [Gentoo Linux](https://wiki.gentoo.org/wiki/PHP)
+- [Arch Linux](https://wiki.archlinux.org/title/PHP)
+- [Generic Linux](https://serverfault.com/questions/436634/installing-php-extensions-on-linux)
+
+If you can't find yours, feel free to contribute whatever solution you
+found. Additionally, if you're not sure whether your base PHP installation
+already ships with a certain extensions, try running `php --modules`.
+
 [Composer]: <https://getcomposer.org/doc/00-intro.md>
 [MariaDB]: <https://mariadb.com/>
 [MySQL]: <https://mysql.com/>
@@ -94,7 +106,7 @@ For data source definition, we recommend a configuration
 [liquidms]
 Description = LiquidMS database
 Driver = <your driver>
-Database = <your database>
+Database = <your database ("liquidms" by default)>
 Server = <your database server>
 Port = <your database's server port>
 Socket = /var/run/mysqld/mysqld.sock
@@ -267,7 +279,7 @@ servers defined in `config.yaml` and upserts them into it's defined ODBC
 database.  For recurring execution, this script can be used either through
 the supplied daemon script `liquidanacron.php` or independently as a
 system-managed regular occurrence, such as a scheduled task on Windows or a
-(ana)cronjob on POSIX.
+(ana)cronjob on POSIX. We recommend the latter for added flexibility.
 
 To query individual servers, specify their job names as arguments to the
 script like below. If unspecified, all servers will be fetched at once:

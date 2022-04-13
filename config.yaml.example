@@ -31,9 +31,7 @@ motd: |
 fetch: # Master servers to leech off of
   vanilla:
     host: "https://mb.srb2.org/MS/0"
-    api: # One of the following
-	- v1
-	- snitch
+    api: # "v1" or "snitch"
     minute: 5
 snitch: # Servers to snitch to
 - "localhost:8080"
