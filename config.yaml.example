@@ -24,8 +24,7 @@ db: # liquidMS DB connection settings
    dsn: "DRIVER=liquidMS ODBC driver;SERVER=localhost" # ODBC DSN string.
    user: "alice"
    password: "password" #Keep this secret
-   database: "servers"
-fetch_mode: "fetch" # "fetch" to hook into ODBC; "snitch" to snitch to your peers
+fetchmode: "fetch" # "fetch" to hook into ODBC; "snitch" to snitch to your peers
 motd: |
   liquidMS is an AGPL-licensed, API-compatible reimplementation of the SRB2 master server. By fetching other servers, it can be used as a decentralized node network.
 fetch: # Master servers to leech off of
