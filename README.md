@@ -40,7 +40,7 @@ INSTALLATION
 
 
 First, download the source code and install all dependencies. You'll need
-[PHP] 8.0+, [Composer] and either [MariaDB] or [MySQL] with for this with
+[PHP] 8.0.x, [Composer] and either [MariaDB] or [MySQL] with for this with
 appropriate ODBC connectors and the following PHP extensions enabled:
 
 - EXT_MBSTRING
