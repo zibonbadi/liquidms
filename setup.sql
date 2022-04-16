@@ -15,6 +15,8 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+-- Enabling event scheduler
+SET GLOBAL event_scheduler = ON
 
 CREATE DATABASE IF NOT EXISTS `liquidms`;
 USE `liquidms`;
@@ -167,6 +169,4 @@ DELIMITER ;
 
 -- Launching the server
 INSERT INTO `rooms` (`_id`, `roomname`, `description`) VALUES (2, 'liquid', 'Default liquidMS room');
--- Enabling event scheduler
-SET GLOBAL event_scheduler = ON
 
