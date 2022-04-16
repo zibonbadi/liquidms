@@ -197,6 +197,7 @@ class NetgameModel{
 				if( self::$username == null ){ echo "No user name string given in config.\n"; return false; }
 				if( self::$password == null ){ echo "No password string given in config.\n"; return false; }
 
+				#error_log("Connecting to ODBC: ".self::$username.":".self::$password."@".self::$dsn);
 				$connection = odbc_connect( self::$dsn, self::$username, self::$password );
 
 				if($connection){
