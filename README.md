@@ -79,10 +79,23 @@ __CONFIGURATION__ for more info.
 
 [ODBC]: <https://en.wikipedia.org/w/index.php?title=Open_Database_Connectivity&oldid=1044732966> "ODBC - Wikipedia"
 
+### Basic database setup
+
+**UPDATE:** Thanks to [JF-049](https://twitter.com/jf049), you can run the
+setup script `contrib/install.sh` for a quick MariaDB/ODBC setup on UNIX.
+
 Each running instance of a LiquidMS SRB2 master server is called a *node*.
 Nodes may be run independently from their corresponding database and thus
 may be used as read-only database mirrors in case you attempt to run a
 distributed LiquidMS node network.
+
+In order to set up your database (*world*), run `setup.sql` for a basic
+setup and a modified version of `tables.sql.example` for your individual
+configuration, like this:
+
+```
+user$ cat setup.sql tables.sql | isql liquidms
+```
 
 ### Setting up ODBC on Unix-like systems (Linux, *BSD, macOS)
 
