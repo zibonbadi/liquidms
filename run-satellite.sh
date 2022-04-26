@@ -23,6 +23,30 @@ EOF
 odbcinst -i -f /docker-entrypoint-initdb.d/odbcinst.ini -d -n "MariaDB ODBC Connector"
 odbcinst -i -f /docker-entrypoint-initdb.d/odbc.ini -s -l
 
+cat << EOF > /var/www/liquidms/config.yaml
+---
+modules: # Features to enable
+- v1 # v1 API
+- snitch # snitch API
+- browser # integrated server browser
+sbpath: "/var/www/liquidms/browser/"
+db: # liquidMS DB connection settings
+   dsn: "liquidms" # ODBC DSN string; by name
+   user: "${MYSQL_USER:-""}"
+   password: "${MYSQL_PASSWORD:-""}" #Keep this secret
+fetchmode: "snitch" # self-snitch for security
+motd: |
+  liquidMS is licensed under AGPLv3
+fetch: # Master servers to leech off of
+  vanilla:
+    host: "https://mb.srb2.org/MS/0"
+    api: v1 # "v1" or "snitch"
+    minute: 5
+snitch: # Servers to snitch to
+- "localhost:8080"
+...
+EOF
+
 # Returns true once mysql can connect.
     mysql_ready() {
         mysqladmin ping --host=localhost --user=root --password=${MYSQL_ROOT_PASSWORD:-""} > /dev/null 2>&1
