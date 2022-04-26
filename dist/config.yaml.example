@@ -19,9 +19,10 @@ modules: # Features to enable
 - v1 # v1 API
 - snitch # snitch API
 - browser # integrated server browser
-sbpath: "/path/to/indexfile"
+sbpath: "/var/www/liquidms/browser/"
 db: # liquidMS DB connection settings
-   dsn: "DRIVER=liquidMS ODBC driver;SERVER=localhost" # ODBC DSN string.
+   dsn: "liquidms" # ODBC DSN string; by name
+   #dsn: "DRIVER=liquidMS ODBC driver;SERVER=localhost" # ODBC DSN string; by syntax
    user: "alice"
    password: "password" #Keep this secret
 fetchmode: "fetch" # "fetch" to hook into ODBC; "snitch" to snitch to your peers
@@ -30,7 +31,7 @@ motd: |
 fetch: # Master servers to leech off of
   vanilla:
     host: "https://mb.srb2.org/MS/0"
-    api: # "v1" or "snitch"
+    api: v1 # "v1" or "snitch"
     minute: 5
 snitch: # Servers to snitch to
 - "localhost:8080"

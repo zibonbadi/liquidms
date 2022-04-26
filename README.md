@@ -79,6 +79,17 @@ __CONFIGURATION__ for more info.
 
 [ODBC]: <https://en.wikipedia.org/w/index.php?title=Open_Database_Connectivity&oldid=1044732966> "ODBC - Wikipedia"
 
+
+### Host LiquidMS using Docker(-Compose)
+
+Thanks to [JF-049](https://twitter.com/jf049), you can easily run a working LiquidMS
+node as a set of Docker containers:
+
+l. Navigate your terminal to this repository
+2. Create your customized `odbc.ini`, `odbcinst.ini`, `tables.sql` and `config.yaml`
+   configuration files based on the corresponding `*.example` files provided.
+3. Run `docker-compose build && docker-compose up`
+
 ### Basic database setup
 
 **UPDATE:** Thanks to [JF-049](https://twitter.com/jf049), you can run the

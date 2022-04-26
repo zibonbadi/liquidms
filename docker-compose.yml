@@ -1,0 +1,46 @@
+# either port forward/allow 16000 port so you can connect to it over IP directly
+# or use reverse proxy such as nginx or caddy to map localhost:16000 or liquidms:16000 to your URI
+version: "3.8"
+services:
+  satellite: #has php-fpm with extensions and composer, check Dockerfile!
+    hostname: liquidms
+    build: 
+      context: .
+      dockerfile: Dockerfile_satellite #also installs ODBC driver
+    environment:
+      TZ: $TZ
+      PHP_MEMORY_LIMIT: 1024M
+      ODBC_HOST: $ODBC_HOST
+      ODBC_PORT: $ODBC_PORT
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+    ports:
+      - "16000:8080" #exposes liquidMS's 8080 port to 16000 on the host machine
+    depends_on:
+      - db #installs and runs database first before starting liquidms
+    networks:
+      - liquidms-net
+      - external
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile_mariadb #also installs ODBC driver
+    environment:
+      TZ: $TZ
+      ODBC_HOST: $ODBC_HOST
+      ODBC_PORT: $ODBC_PORT
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+    volumes:
+      - /liquidms/db:/var/lib/mysql
+    networks:
+      - liquidms-net
+
+networks:
+  liquidms-net:
+    internal: true
+  external:

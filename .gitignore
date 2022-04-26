@@ -1,5 +1,6 @@
 vendor/
 tables.sql
+.env
 config.yaml
 timestamps.yaml
 local/
