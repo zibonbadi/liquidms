@@ -182,15 +182,6 @@ class SRB2Query
 	private const TICRATE            = 35;
 
 	// doomstat.h
-	private const GT_COOP            = 0;
-	private const GT_COMPETITION     = 1;
-	private const GT_RACE            = 2;
-	private const GT_MATCH           = 3;
-	private const GT_TEAMMATCH       = 4;
-	private const GT_TAG             = 5;
-	private const GT_HIDEANDSEEK     = 6;
-	private const GT_CTF             = 7;
-
 	private const GF_REDFLAG         = 1;
 	private const GF_BLUEFLAG        = 2;
 
@@ -214,16 +205,19 @@ class SRB2Query
 	private const pkformats = [
 		self::PT_SERVERINFO => [
 			'format' =>
+			'C_255/'           .
+			'Cpacketversion/'  .
+			'a16application/'  .
 			'Cversion/'        .
 			'Csubversion/'     .
 			'Cnumberofplayer/' .
 			'Cmaxplayer/'      .
-			'Cgametype/'       .
+			'Crefusereason/'   .
+			'a24gametypename/' .
 			'Cmodifiedgame/'   .
 			'Ccheatsenabled/'  .
 			'Cisdedicated/'    .
 			'Cfileneedednum/'  .
-			'cadminplayer/'    .
 			'Vtime/'           .
 			'Vleveltime/'      .
 			'a32servername/'   .
@@ -235,12 +229,14 @@ class SRB2Query
 			'a*fileneeded',
 
 			'strings' => [
+				'application',
+				'gametypename',
 				'servername',
 				'mapname',
 				'maptitle',
 			],
 
-			'minimum' => 109,
+			'minimum' => 151,
 		],
 		self::PT_PLAYERINFO => [
 			'format' =>
@@ -285,43 +281,6 @@ class SRB2Query
 	private $lotsofaddons;
 	private $fileneedednum;
 	private $fileneeded;
-
-	private function Versionname ($pk)
-	{
-		switch ($pk['version'])
-		{
-		case 100:
-		case 110:
-			return 'SRB2Kart';
-		default:
-			return 'SRB2';
-		}
-	}
-
-	private function Gametype ($pk)
-	{
-		// SRB2Kart
-		if ($pk['version'] == 100 || $pk['version'] == 110)
-		{
-			$kartnames = [
-				self::GT_COMPETITION => 'Battle',
-			];
-			if (isset($kartnames[$pk['gametype']]))
-				return $kartnames[$pk['gametype']];
-		}
-		$names = [
-			self::GT_COOP        => 'Co-op',
-			self::GT_COMPETITION => 'Competition',
-			self::GT_RACE        => 'Race',
-			self::GT_MATCH       => 'Match',
-			self::GT_TEAMMATCH   => 'Team Match',
-			self::GT_TAG         => 'Tag',
-			self::GT_HIDEANDSEEK => 'Hide and Seek',
-			self::GT_CTF         => 'CTF',
-		];
-		$name = $names[$pk['gametype']];
-		return ( ($name) ? $name : 'Unknown' );
-	}
 
 	private function Zonetitle ($pk)
 	{
@@ -545,11 +504,11 @@ class SRB2Query
 		}
 
 		$t['version'] = [
-			'major' => $version / 100,
+			'major' => intval($version / 100),
 			'minor' => $version % 100,
 			'patch' => $subversion,
 		];
-		$t['version']['name'] = self::Versionname($pk);
+		$t['version']['name'] = $pk['application'];
 
 		$t['servername'] = $pk['servername'];
 
@@ -558,7 +517,7 @@ class SRB2Query
 			'max'   => $pk['maxplayer'],
 		];
 
-		$t['gametype'] = self::Gametype($pk);
+		$t['gametype'] = $pk['gametypename'];
 
 		copy_bool($t['mods'],   $pk['modifiedgame']);
 		copy_bool($t['cheats'], $pk['cheatsenabled']);
@@ -609,6 +568,7 @@ class SRB2Query
 	function Fileinfo () : array
 	{
 		self::Unfileneeded($fileinfo, $this->fileneedednum, $this->fileneeded);
+
 		if ($this->lotsofaddons)
 		{
 			$start = $this->fileneedednum;

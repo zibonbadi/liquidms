@@ -42,7 +42,7 @@ export default class NetgameController{
 				let query = JSON.parse(response, ',');
 				ServerBrowser.db.populateOne(server.hostname, query);
 			}).catch( (error) => {
-				console.error('Failed to update NetgameModel: ', server.dataset.hostname, error);
+				console.error('Failed to update NetgameModel: ', server.hostname, error);
 				throw error;
 			});
 	}

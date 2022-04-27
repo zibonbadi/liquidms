@@ -3,12 +3,13 @@
 	"description": "Custom V1-compliant HTTP master server for Sonic Robo Blast 2",
 	"type": "project",
 	"require": {
-	    "php": ">=8.0",
 	    "ext-mbstring": "*",
-	    "ext-yaml": "*",
-	    "ext-pdo": "*",
 	    "ext-odbc": "*",
-	    "klein/klein": "^2.1"
+	    "ext-pdo": "*",
+	    "ext-sockets": "*",
+	    "ext-yaml": "*",
+	    "klein/klein": "^2.1",
+	    "php": ">=8.0"
 	},
 	"license": "AGPL-3.0-or-later",
 	"authors": [

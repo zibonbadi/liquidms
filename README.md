@@ -46,10 +46,11 @@ appropriate ODBC connectors and the following PHP extensions enabled:
 - EXT_MBSTRING
 - EXT_ODBC
 - EXT_PDO
+- EXT_SOCKETS (for hosting the server browser)
 - EXT_YAML
 
 If you have trouble installing PHP extensions, here's a few links for help,
-depending on your operating system. :
+depending on your operating system:
 
 - [Windows](https://www.php.net/manual/en/install.pecl.windows.php)
 - [Gentoo Linux](https://wiki.gentoo.org/wiki/PHP)
@@ -82,18 +83,14 @@ __CONFIGURATION__ for more info.
 
 ### Host LiquidMS using Docker(-Compose)
 
-Thanks to [JF-049](https://twitter.com/jf049), you can easily run a working LiquidMS
-node as a set of Docker containers:
+You can easily run a working LiquidMS node as a set of Docker containers:
 
-l. Navigate your terminal to this repository
+1. Navigate your terminal to this repository
 2. Create your customized `odbc.ini`, `odbcinst.ini`, `tables.sql` and `config.yaml`
    configuration files based on the corresponding `*.example` files provided.
 3. Run `docker-compose build && docker-compose up`
 
 ### Basic database setup
-
-**UPDATE:** Thanks to [JF-049](https://twitter.com/jf049), you can run the
-setup script `contrib/install.sh` for a quick MariaDB/ODBC setup on UNIX.
 
 Each running instance of a LiquidMS SRB2 master server is called a *node*.
 Nodes may be run independently from their corresponding database and thus

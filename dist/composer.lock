@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dffee9c49b784f56e6529d2630ebe360",
+    "content-hash": "155bc64af1e92cd54b9d3b9006ab8fcc",
     "packages": [
         {
             "name": "klein/klein",
@@ -2173,11 +2173,12 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.0",
         "ext-mbstring": "*",
-        "ext-yaml": "*",
+        "ext-odbc": "*",
         "ext-pdo": "*",
-        "ext-odbc": "*"
+        "ext-sockets": "*",
+        "ext-yaml": "*",
+        "php": ">=8.0"
     },
     "platform-dev": [],
     "plugin-api-version": "2.0.0"

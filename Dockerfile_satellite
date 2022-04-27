@@ -16,6 +16,10 @@ FROM php:8.0-fpm-alpine AS php_fpm_with_addons_install
 RUN echo "https://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 RUN apk -U add --no-cache oniguruma oniguruma-dev unixodbc unixodbc-dev autoconf gcc libc-dev yaml yaml-dev make mariadb-connector-odbc
 
+# install sockets extension
+RUN docker-php-ext-install sockets
+RUN docker-php-ext-enable sockets
+
 # install mbstring extension
 # Note: Script docker-php-ext-configure executed automatically in docker-php-ext-install!
 # So no need to run it directly unless you want to pass through specific flags for ./configure
