@@ -84,25 +84,28 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 #install liquidMS as an app
 #it must be already cloned from "https://github.com/zibonbadi/liquidms.git"
 COPY dist/ /var/www/liquidms
-COPY satellite.config.yaml /var/www/liquidms/config.yaml
+COPY fetch.config.yaml /var/www/liquidms/config.yaml
+COPY fetch.crontab /etc/crontabs/liquidms_fetch
+RUN cat /etc/crontabs/liquidms_fetch >> /etc/crontabs/root
 #RUN chown -R www-data:www-data /var/www
 WORKDIR /var/www/liquidms
 # should be redundant given the dir copy
 RUN composer install
 #RUN composer update
 #RUN composer dump-autoload
-EXPOSE 8080
+#EXPOSE 8080
 
 RUN apk -U add --no-cache mariadb-connector-odbc
 #ADD odbcinst.ini /etc/odbcinst.ini
 RUN mkdir /docker-entrypoint-initdb.d && \
 	mkdir /scripts
-ADD run-satellite.sh /scripts/run.sh
+ADD run-snitch.sh /scripts/run.sh
 ADD install_odbc.sh /scripts/install_odbc.sh
 RUN chmod +x /scripts/install_odbc.sh
 #ADD odbc.ini /etc/odbc.ini
 
 RUN adduser -H -D liquidms_user
+RUN chown -R liquidms_user:liquidms_user /var/www/liquidms
 
 RUN apk -U add --no-cache mysql-client
 
@@ -117,6 +120,7 @@ RUN /scripts/install_odbc.sh
 
 #develpoment web-server
 #ENTRYPOINT ["su", "liquidms_user", "-c", "php", "-S", "0.0.0.0:8080", "/var/www/liquidms/public/index.php"]
+
 
 ENTRYPOINT ["/scripts/run.sh"]
 #ENTRYPOINT ["su", "liquidms_user", "-c", "php -S 0.0.0.0:8080 /var/www/liquidms/public/index.php"]

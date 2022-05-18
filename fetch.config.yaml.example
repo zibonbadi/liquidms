@@ -1,0 +1,16 @@
+---
+fetchmode: "snitch" # self-snitch for security
+motd: |
+  liquidMS is licensed under AGPLv3
+fetch: # Master servers to leech off of
+  vanilla:
+    host: "https://mb.srb2.org/MS/0"
+    api: v1 # "v1" or "snitch"
+    minute: 5
+  self:
+    host: "http://satellite:8080"
+    api: snitch # "v1" or "snitch"
+    minute: 10
+snitch: # Servers to snitch to
+- "http://satellite:8080"
+...

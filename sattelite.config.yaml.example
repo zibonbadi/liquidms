@@ -1,0 +1,9 @@
+---
+modules: # Features to enable
+- v1 # v1 API
+- snitch # snitch API
+- browser # integrated server browser
+sbpath: "/var/www/liquidms/browser/"
+motd: |
+  liquidMS is licensed under AGPLv3
+...

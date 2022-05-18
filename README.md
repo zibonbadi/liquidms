@@ -13,14 +13,15 @@ SYNOPSIS
 SUMMARY
 -------
 
-*LiquidMS* is an API-compatible clean room implementation of the Sonic Robo
-Blast 2 [HTTP Master Server API][v1spec]. It is capable of mirroring data
-from any API Compatible master server, thus being capable to be operated as
-a node within a distributed master server network.
+*LiquidMS* is a clean room implementation of the Sonic Robo Blast 2 [HTTP
+Master Server API][v1spec]. It can mirror netgame data from any API
+Compatible master server, and due to the ability to synchronize with other
+instances of itself, it is capable of being operated as a node within a
+distributed master server network.
 
 The project is licensed under the [GNU AFFERO GENERAL PUBLIC LICENSE Version 3][gnuaffero],
-which is accessible via this link, the included `LICENSE.md` file
-or via the HTTP endpoint `/liquidms/license`.
+which is also accessible via the included `LICENSE.md` file
+or the HTTP endpoint `/liquidms/license`.
 
 Special thanks to GoldenTails whose reverse engineered HTTP master server
 served as a reference to this project.  
@@ -142,81 +143,10 @@ If you have trouble the [ArchWiki] has a helpful article on unixODBC.
 [ArchWiki]: <https://wiki.archlinux.org/title/Open_Database_Connectivity>
 
 
-CONFIGURATION
--------------
-
-All server configuration will be stored in the *config file*
-`config.yaml`. For security, this Git repository will **not** include this
-file within its commit history. Use the example file `config.yaml.example` for
-reference as to what configuration options LiquidMS will accept. 
-
-Also keep in mind that YAML is very sensitive about the indentation of
-fields. Each indentation level is defined by *two whitespaces, not tabs*.
-This shouldn't be too news to a regular GitHub user, but it's still noted
-here for Linus-proofing.
-
-```YAML
----
-# This is an example config.yaml for a LiquidMS node environment
-db: # LiquidMS DB connection settings
-   dsn: "DRIVER=LiquidMS ODBC driver;SERVER=localhost" # ODBC DSN string.
-   user: "alice"
-   password: "password" # KEEP THIS SECRET!
-fetch: # Master servers to leech off of
-  vanilla:
-    host: "http://mb.srb2.org/0/MS"
-    minute: 15
-  development:
-    host: "http://localhost:8080"
-    minute: 3
-...
-```
-
-The attribute `dsn` stands for *Data Source Name*. It provides the ODBC system
-with information about database and connection and its details may vary
-depending on the database implementation. For a quick reference on how to write
-DSN connection strings for most commonly used database implementations, we
-recommend <https://www.connectionstrings.com/>. Otherwise we are not able to
-take accountability for how you decide to run or connect to your database
-using this interface; it is simply impossible for us to help you with that.
-
-
-### MariaDB
-
-As MariaDB currently remains our testing and design database (both due to
-lack of database feature standardization as well as it's libre
-software-induced ubiquity), here's a few tips on how to configure MariaDB
-for a smooth, painless LiquidMS experience:
-
-#### Enabling the event scheduler
-
-LiquidMS relies on programmable database events to allow for live server
-updates in a secure manner. In order to keep the necessary event scheduler
-persistently enabled across reboots of the MariaDB daemon, add the
-following line to your MariaDB config file (usually `my.cnf` or `my.ini`):
-
-    event_scheduler=ON
-
-
-
-### liquidanacron
-
-Should you choose to use `liquidanacron.php` for your fetch queries, the
-execution of master server queries will be determined by the field
-`minute`. Much like anacron on POSIX systems, this script will keep track
-of when a query has been executed last using timestamps documented in the
-automatically generated file `timestamps.yaml` and automatically query a
-master server once a specified amount of time has passed since last
-execution.
-
-Each number above 0 entered into a time field will be interpreted as a
-multiplier to be understood as "every x minutes"; other values will equate
-to 1. To ignore a specific temporal requirement, simply omit it's time
-field from the job.
-
-
 USAGE
 -----
+
+### LiquidMS hosting model
 
 The room *Universe* is defined as all servers stored within a LiquidMS
 node's corresponding database, both internal and remote fetched.
@@ -292,6 +222,8 @@ extension duration of the ban after which the entry will be automatically
 removed from the database. The default value is the time of entry plus 24
 hours. A timestamp of `NULL` defines a permanent ban.
 
+**NOTE:** Due to missing functionality on behalf of MariaDB/MySQL, banning
+is currently only implemented for singular IPs.
 
 ### Fetching
 
@@ -366,6 +298,79 @@ snitch:
   "http://localhost:8080"
   "http://my-fav-liquidms.node"
 ```
+
+
+CONFIGURATION
+-------------
+
+All server configuration will be stored in the *config file*
+`config.yaml`. For security, this Git repository will **not** include this
+file within its commit history. Use the example file `config.yaml.example` for
+reference as to what configuration options LiquidMS will accept. 
+
+Also keep in mind that YAML is very sensitive about the indentation of
+fields. Each indentation level is defined by *two whitespaces, not tabs*.
+This shouldn't be too news to a regular GitHub user, but it's still noted
+here for Linus-proofing.
+
+```YAML
+---
+# This is an example config.yaml for a LiquidMS node environment
+db: # LiquidMS DB connection settings
+   dsn: "DRIVER=LiquidMS ODBC driver;SERVER=localhost" # ODBC DSN string.
+   user: "alice"
+   password: "password" # KEEP THIS SECRET!
+fetch: # Master servers to leech off of
+  vanilla:
+    host: "http://mb.srb2.org/0/MS"
+    minute: 15
+  development:
+    host: "http://localhost:8080"
+    minute: 3
+...
+```
+
+The attribute `dsn` stands for *Data Source Name*. It provides the ODBC system
+with information about database and connection and its details may vary
+depending on the database implementation. For a quick reference on how to write
+DSN connection strings for most commonly used database implementations, we
+recommend <https://www.connectionstrings.com/>. Otherwise we are not able to
+take accountability for how you decide to run or connect to your database
+using this interface; it is simply impossible for us to help you with that.
+
+
+### MariaDB
+
+As MariaDB currently remains our testing and design database (both due to
+lack of database feature standardization as well as it's libre
+software-induced ubiquity), here's a few tips on how to configure MariaDB
+for a smooth, painless LiquidMS experience:
+
+#### Enabling the event scheduler
+
+LiquidMS relies on programmable database events to allow for live server
+updates in a secure manner. In order to keep the necessary event scheduler
+persistently enabled across reboots of the MariaDB daemon, add the
+following line to your MariaDB config file (usually `my.cnf` or `my.ini`):
+
+    event_scheduler=ON
+
+
+
+### liquidanacron
+
+Should you choose to use `liquidanacron.php` for your fetch queries, the
+execution of master server queries will be determined by the field
+`minute`. Much like anacron on POSIX systems, this script will keep track
+of when a query has been executed last using timestamps documented in the
+automatically generated file `timestamps.yaml` and automatically query a
+master server once a specified amount of time has passed since last
+execution.
+
+Each number above 0 entered into a time field will be interpreted as a
+multiplier to be understood as "every x minutes"; other values will equate
+to 1. To ignore a specific temporal requirement, simply omit it's time
+field from the job.
 
 
 DEVELOPMENT
