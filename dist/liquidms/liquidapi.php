@@ -33,11 +33,6 @@ $router->with('/liquidms', function() use ($router){
 		]);
 	});
 
-	$router->respond('GET', '/license/?', function($request, $response, $service){
-		$response->header('Content-Type','text/plain;syntax=markdown');
-		return file_get_contents(__DIR__."/../LICENSE.md");
-	});
-
 	$router->respond('PUT', '/?', function($request, $response){
 		// Dumb JSON mirror for no reason
 		// PUT is idempotent; Screw POST
@@ -116,8 +111,12 @@ $router->with('/liquidms', function() use ($router){
 			if(
 				($netgame["host"] == "localhost") ||
 				($netgame["host"] == "127.0.0.1") ||
-				($netgame["host"] == $_SERVER["SERVER_ADDR"]) ||
-				($netgame["origin"] == $_SERVER["SERVER_ADDR"]) ||
+				($netgame["host"] == $_SERVER["HTTP_HOST"]) ||
+				($netgame["origin"] == $_SERVER["HTTP_HOST"]) ||
+				($netgame["host"] == $_SERVER["SERVER_NAME"]) ||
+				($netgame["origin"] == $_SERVER["SERVER_NAME"]) ||
+				($netgame["host"] == "0.0.0.0") ||
+				($netgame["origin"] == "0.0.0.0") ||
 				($netgame["origin"] == "localhost") ||
 				($netgame["origin"] == "127.0.0.1")
 			){
