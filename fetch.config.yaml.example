@@ -1,16 +1,20 @@
+## This file is documents a minimal example configuration
+## for the provided snitch container.
+## Simply adjust the values to your liking and save it as
+## fetch.config.yaml
 ---
 fetchmode: "snitch" # self-snitch for security
 motd: |
   liquidMS is licensed under AGPLv3
 fetch: # Master servers to leech off of
-  vanilla:
+  vanilla: # Example v1 master server
     host: "https://mb.srb2.org/MS/0"
-    api: v1 # "v1" or "snitch"
-    minute: 5
-  self:
+    api: v1 # "v1" to fetch from /servers
+    minute: 5 # Should be unused due to crontab
+  self: # Example LiquidMS (snitch API) server
     host: "http://satellite:8080"
-    api: snitch # "v1" or "snitch"
-    minute: 10
+    api: snitch # "snitch" to fetch from /liquidms/snitch
+    minute: 10 # Should be unused due to crontab
 snitch: # Servers to snitch to
-- "http://satellite:8080"
+- "http://satellite:8080" # Satellite container
 ...

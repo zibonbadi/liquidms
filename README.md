@@ -87,8 +87,9 @@ __CONFIGURATION__ for more info.
 You can easily run a working LiquidMS node as a set of Docker containers:
 
 1. Navigate your terminal to this repository
-2. Create your customized `odbc.ini`, `odbcinst.ini`, `tables.sql` and `config.yaml`
-   configuration files based on the corresponding `*.example` files provided.
+2. Create your customized `fetch.config.yaml`, `fetch.crontab`,
+   `satellite.config.yaml` and `tables.sql` configuration files based on
+   the corresponding `*.example` files provided.
 3. Run `docker-compose build && docker-compose up`
 
 ### Basic database setup

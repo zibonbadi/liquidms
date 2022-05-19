@@ -1,4 +1,6 @@
-## LiquidMS cron scheduler for Docker containers
+## LiquidMS example schedule for Docker containers (crontab)
+## simply save your changes into "fetch".crontab
+## 
 ##	min		hour	day	month	weekday	command
 	*/5		*		*	*		*		/usr/bin/env php /var/www/liquidms/liquidms/fetch.php
 #	*/10	*		*	*  		*		/usr/bin/env php /var/www/liquidms/liquidms/fetch.php "self"
