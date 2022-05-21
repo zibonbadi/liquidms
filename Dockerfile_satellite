@@ -118,7 +118,7 @@ RUN /scripts/install_odbc.sh
 #develpoment web-server
 #ENTRYPOINT ["su", "liquidms_user", "-c", "php", "-S", "0.0.0.0:8080", "/var/www/liquidms/public/index.php"]
 
-ENTRYPOINT ["/scripts/run.sh"]
+#ENTRYPOINT ["/scripts/run.sh"]
 #ENTRYPOINT ["su", "liquidms_user", "-c", "php -S 0.0.0.0:8080 /var/www/liquidms/public/index.php"]
 
 

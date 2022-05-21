@@ -1,0 +1,22 @@
+# syntax=docker/dockerfile:1
+# Using multi-stage builds! https://docs.docker.com/develop/develop-images/multistage-build/
+
+FROM caddy:2.5.1-alpine
+
+COPY caddy.conf /etc/caddy/Caddyfile
+
+#RUN echo "https://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+#RUN apk -U add --no-cache oniguruma oniguruma-dev unixodbc unixodbc-dev autoconf gcc libc-dev yaml yaml-dev make mariadb-connector-odbc php-fpm
+
+#install liquidMS as an app (dist/)
+COPY dist/ /var/www/liquidms
+#COPY dist/ /srv
+#COPY frontend.config.yaml /var/www/liquidms/config.yaml
+COPY satellite.config.yaml /srv/config.yaml
+#RUN chown -R www-data:www-data /var/www
+WORKDIR /var/www/liquidms
+# should be redundant given the dir copy
+EXPOSE 80
+EXPOSE 443
+EXPOSE 8080
+

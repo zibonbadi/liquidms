@@ -29,6 +29,10 @@ class ConfigModel{
 		"user" => "sonic",
 		"password" => "gottagofast",
 		],
+		"netgame_query_limit" => [
+			"n" => 20,
+			"seconds" => 1,
+		],
 		"motd" => "liquidMS is an AGPL-licensed, API-compatible reimplementation of the SRB2 master server. By fetching other master servers, it can be used as a decentralized node network.",
 		"fetchmode" => "fetch", // Either "fetch" or "snitch"
 		"fetch" => [],
@@ -112,6 +116,16 @@ class ConfigModel{
 					self::$config["db"]["password"] = $newconfig["db"]["password"];
 				}
 			}
+
+			if( self::child_assertType("netgame_query_limit", $newconfig, "array") ){
+				if( self::child_assertType("n", $newconfig["netgame_query_limit"], "integer") ){
+					self::$config["netgame_query_limit"]["n"] = $newconfig["netgame_query_limit"]["n"];
+				}
+				if( self::child_assertType("seconds", $newconfig["netgame_query_limit"], "integer") ){
+					self::$config["netgame_query_limit"]["seconds"] = $newconfig["netgame_query_limit"]["seconds"];
+				}
+			}
+			//error_log("Server config: ".yaml_emit(self::$config));
 		}
 
 		static function dumpConfig(){
