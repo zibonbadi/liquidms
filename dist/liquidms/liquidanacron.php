@@ -16,10 +16,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 require_once __DIR__.'/modules/ConfigModel.php';
+require_once __DIR__."/modules/NetgameModel.php";
 require_once __DIR__.'/modules/TimestampModel.php';
 include_once(__DIR__.'/modules/fetch_common.php');
 
 use LiquidMS\ConfigModel;
+use LiquidMS\NetgameModel;
 use LiquidMS\TimestampModel;
 
 // Get job list
@@ -92,14 +94,19 @@ while(true){
 	switch($config["fetchmode"]){
 		case "fetch":{
 			// Generate insert values
+			// Reserved upsert for when MySQL actually supports MERGE from SQL:2003
+			/*
 			$fetchsql = "";
 			foreach( $fetchdata as $serv_index => $serv_val){
 				$fetchsql .= "(\"{$serv_val["host"]}\", \"{$serv_val["port"]}\", \"{$serv_val["servername"]}\", \"{$serv_val["version"]}\", \"{$serv_val["roomname"]}\", \"{$serv_val["origin"]}\"),";
 			}
 			$fetchsql = rtrim($fetchsql,", \n\r\t");
+			*/
 
 			if( !empty($fetchdata) ){
 				// Upsert database (yes that's a real word)
+				if(NetgameModel::init($config)){ $dbresponse = NetgameModel::pushServers($fetchdata); }
+				/*
 				$dbresponse = db_execute(
 						"INSERT INTO servers (host, port, servername, version, roomname, origin)
 						VALUES {$fetchsql}
@@ -109,6 +116,7 @@ while(true){
 						roomname=VALUES(roomname), origin=VALUES(origin),
 						updated_at=CURRENT_TIMESTAMP",
 						$config);
+				*/
 
 				// Only report failures
 				if($dbresponse["error"] != 0){ echo yaml_emit( $dbresponse ); }

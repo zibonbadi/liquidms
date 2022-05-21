@@ -21,6 +21,8 @@ require_once __DIR__.'/modules/NetgameModel.php';
 use LiquidMS\ConfigModel;
 use LiquidMS\NetgameModel;
 
+LiquidMS\NetgameModel::init(ConfigModel::getConfig());
+
 $router->with('/v1/servers', function() use ($router){
 	$router->respond('GET', '/?', function($request, $response, $service){
 			// Server test kludge. The game seems to ping every listed server and

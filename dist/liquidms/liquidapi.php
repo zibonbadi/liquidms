@@ -21,6 +21,8 @@ require_once __DIR__.'/modules/NetgameModel.php';
 use LiquidMS\ConfigModel;
 use LiquidMS\NetgameModel;
 
+LiquidMS\NetgameModel::init(ConfigModel::getConfig());
+
 // Namespace for extended 
 $router->with('/liquidms', function() use ($router){
 	$router->respond('GET', '/?', function($request, $response, $service){

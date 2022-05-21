@@ -27,25 +27,32 @@ class NetgameModel{
 		private static $password = null;
 
 		public static function init(Array $settings){
-				// The following YAML structure will be used from `config.yaml`.
-				//
-				// db: # liquidMS DB connection settings
-				//    dsn: # ODBC data source name
-				//    user: # database user
-				//    password: # database password
+			// The following YAML structure will be used from `config.yaml`.
+			//
+			// db: # liquidMS DB connection settings
+			//    dsn: # ODBC data source name
+			//    user: # database user
+			//    password: # database password
+			if( array_key_exists("db", $settings) &&
+					gettype($settings["db"]) == "array"){
 
-			if( array_key_exists("dsn", $settings) &&
-					gettype($settings["dsn"]) == "string"){
-				self::$dsn = $settings["dsn"];
+				if( array_key_exists("dsn", $settings["db"]) &&
+						gettype($settings["db"]["dsn"]) == "string"){
+					self::$dsn = $settings["db"]["dsn"];
+				}
+				if( array_key_exists("user", $settings["db"]) &&
+						gettype($settings["db"]["user"]) == "string"){
+					self::$username = $settings["db"]["user"];
+				}
+				if( array_key_exists("password", $settings["db"]) &&
+						gettype($settings["db"]["password"]) == "string"){
+					self::$password = $settings["db"]["password"];
+				}
+			}else{
+				error_log("No DB structure string given in config.\n");
+				return false;
 			}
-			if( array_key_exists("user", $settings) &&
-					gettype($settings["user"]) == "string"){
-				self::$username = $settings["user"];
-			}
-			if( array_key_exists("password", $settings) &&
-					gettype($settings["password"]) == "string"){
-				self::$password = $settings["password"];
-			}
+			return true;
 		}
 
 		private static function map4to6(string $address){
