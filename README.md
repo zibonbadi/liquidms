@@ -36,9 +36,40 @@ served as a reference to this project.
 
 [SRB2Query]: <https://git.do.srb2.org/Golden/SRB2-Query>
 
+
+FREQUENTLY ASKED QUESTIONS (FAQ)
+--------------------------------
+
+> So... I can host my own Master Server now?
+
+Yes you can and much, much more.
+
+> Do I need Docker (Compose) to run LiquidMS?
+
+No. The Docker integration has been included to provide an easy way to host
+an exemplary multi-node setup. All you need to host LiquidMS is a web
+server, a MySQL/MariaDB database and a sufficiently configured PHP
+environment. See `INSTALLATION` for more details.
+
+> Do I need to forward ports/buy a server? 
+
+Yes and no. If you simply want to snitch, all you need is an HTTP-capable
+internet connection and a PHP environment to run `fetch.php` or
+`liquidanacron.php`. If you decide to run a dedicated LiquidMS node
+however, you will need to provide access to your server. Port
+forwarding, registering domains and such will naturally be necessary.
+
+> Why do you keep insisting to fetch-from-snitch?
+
+[The original API][v1spec] was never designed with indirection or mirroring
+in mind. As such LiquidMS can only supply tags to inform users of non-world
+data. Should a node fetch from another node's v1 API, all information about
+netgames' origins are substituted for the fetched v1 server, accumulating
+tagged data in the mirrored database.
+
+
 INSTALLATION
 ------------
-
 
 First, download the source code and install all dependencies. You'll need
 [PHP] 8.0.x, [Composer] and either [MariaDB] or [MySQL] with for this with
