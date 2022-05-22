@@ -64,20 +64,20 @@ export default class NetgameListComponent extends HTMLElement{
 		//case "minplayers":{
 			//sort = "players";
 			return netgames.sort( (a,b) => {
-				return( Number(b.dataset[sort]) - Number(a.dataset[sort]) );
+				return( Number(b.getAttribute(sort)) - Number(a.getAttribute(sort)) );
 			});
 		}
 		case "ping":{
 			// Numeric sort
 			return netgames.sort( (a,b) => {
-				return( Number(a.dataset[sort]) - Number(b.dataset[sort]) );
+				return( Number(a.getAttribute(sort)) - Number(b.getAttribute(sort)) );
 			});
 			break;
 		}
 		case "updated_at":{
 			// Timestamp sort
 			return netgames.sort( (a,b) => {
-				return ( Date.parse(b.dataset[sort]) - Date.parse(a.dataset[sort]) );
+				return ( Date.parse(b.getAttribute(sort)) - Date.parse(a.getAttribute(sort)) );
 			});
 			break;
 		}
@@ -88,7 +88,7 @@ export default class NetgameListComponent extends HTMLElement{
 		default:{
 			// Lexical sort
 			return netgames.sort( (a,b) => {
-				return a.dataset[sort].localeCompare(b.dataset[sort] );
+				return a.getAttribute(sort).localeCompare(b.getAttribute(sort) );
 			});
 			break;
 		}
