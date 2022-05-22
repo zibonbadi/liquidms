@@ -26,36 +26,35 @@
 <link rel="stylesheet" href="browse/css/NetgameComponent.css">
 <template data-name="netgame">
 	<link rel="stylesheet" href="browse/css/NetgameComponent-shadow.css">
-
-	<i class="fa-solid fa-alien-8bit"></i>
-	<i class="fa-solid fa-cards"></i>
-	<i class="fa-solid fa-signal"></i>
-	<i class="fa-solid fa-user"></i>
-	<i class="fa-solid fa-user-group"></i>
-	<i class="fa-solid fa-wrench"></i>
-
 	<slot name="name">Dummy server</slot>
+	<div class="flex">
 	<ul>
 	<li>
 	<slot name="hostname">Dummy hostname</slot>
 	<slot name="port">Dummy port</slot>
 	</li>
-	<li>Stage: <slot name="level_name">Earless Netless Zone</slot> (md5: <slot name="level_md5">xxxxx</slot>)</li>
 	<li>Game type: <slot name="gametype">unknown</slot></li>
 	</ul>
 	<ul>
-	<li><slot name="roomname">Dummy room</slot>@<slot name="origin">World</slot></li>
 	<li><slot name="version">DummyBuild</slot> (<slot name="version_name">SRB2</slot> <slot name="version_major">X</slot> <slot name="version_minor">Y</slot> <slot name="version_patch">Z</slot>)</li>
-	<li>Last updated: <slot name="updated_at">Never</slot></li>
+	<li>Update: <slot name="updated_at">Never</slot></li>
 	</ul>
+	</div>
 	<hr>
 	<details>
 	<summary>Netgame details</summary>
-		<ul>
+		<div class="flex">
+		<ul class="flex-left">
+		<li>Stage: <slot name="level_name">Earless Netless Zone</slot></li>
+		<li>Stage hash: <slot name="level_md5">xxxxx</slot></li>
+		</ul>
+		<ul class="flex-right">
 		<li>Dedicated server: <slot name="dedicated">unknown</slot></li>
 		<li>Modified: <slot name="modified">unknown</slot></li>
 		<li>Cheats: <slot name="cheats">unknown</slot></li>
+		<li>Origin: <slot name="roomname">Dummy room</slot>@<slot name="origin">World</slot></li>
 		</ul>
+		</div>
 	</details>
 	<details>
 	<summary>Players</summary>
@@ -96,6 +95,7 @@
 		<option value="updated_at">Latest update</option>
 		<option value="version">Latest version</option>
 	</select>
+	<a href="#" class="button checkbox">Reverse</a>
 	</div>
 	<slot name="netgames"><p>No servers available.</p></slot>
 </template>

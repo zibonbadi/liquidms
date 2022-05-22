@@ -8,9 +8,16 @@ sb-netgame{
 	margin: auto;
 	max-width: 100%;
 }
+sb-netgame.locked{
+	background-color: var(--netgame-locked-bg);
+}
 @media(any-hover: hover) and (pointer: fine){
+	sb-netgame.locked{
+		opacity: 25%
+	}
 	sb-netgame:hover{
 		background-color: var(--netgame-bg-hover);
+		opacity: 100%
 	}
 	sb-netgame .player:hover{
 		box-shadow: 0 0.3em #000;

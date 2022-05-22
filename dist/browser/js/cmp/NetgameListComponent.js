@@ -13,17 +13,24 @@ export default class NetgameListComponent extends HTMLElement{
 		this.eHdl_ngcon = this.notifyController.bind(this);
 		this.eHdl_sort = this.render.bind(this);
 		this.eb_conn = function(){console.error("No eventbus hook registered yet!", this);};
+		this.shadowRoot.querySelector('a.checkbox').addEventListener( "click", (event) => {
+			this.classList.toggle("reverse");
+		});
 	}
 
 	init(){
 		customElements.define('sb-netgamelist', NetgameListComponent);
 	}
 
-	notifyController(event){
+	notifyController(){
 		try{
 			ServerBrowser.netgamecon.fetchServers().then( (response) => {
 				this.shadowRoot.querySelector('[name="update"]').classList.remove("error");
 				this.shadowRoot.querySelector('[name="update"]').value = "Update all";
+				for(let i in response){
+					this.netgames[i].classList.add("locked");
+					this.netgames[i].updateListener().then();
+				}
 			}).catch( (error) => {
 				this.shadowRoot.querySelector('[name="update"]').classList.add("error");
 				this.shadowRoot.querySelector('[name="update"]').value = "Update failed!";
@@ -33,15 +40,14 @@ export default class NetgameListComponent extends HTMLElement{
 			this.shadowRoot.querySelector('[name="update"]').classList.add("error");
 			this.shadowRoot.querySelector('[name="update"]').value = "Update failed!";
 		}
-		event.preventDefault();
+		//event.preventDefault();
 	}
 
-	connectToEventbus(){
+	async connectToEventbus(){
 		try{
-			this.eb_conn = ServerBrowser.eventbus.attach("refresh", (message, data) => {
-				this.handleBus(message, data);
-			})
-			.then( this.notifyController.bind(this) );
+			this.eb_conn = await ServerBrowser.eventbus.attach("refresh", this.handleBus.bind(this));
+			//.then( this.notifyController.bind(this) );
+			this.notifyController();
 		}catch(error){
 			if(this.querySelector('[slot="netgames"]') != undefined){
 				this.removeChild(this.querySelector('[slot="netgames"]'));
@@ -54,9 +60,12 @@ export default class NetgameListComponent extends HTMLElement{
 	sort(netgames, sort){
 		//console.log(`Sort by: ${sort} (${typeof netgames})`, netgames);
 		switch(sort){
-		case "maxplayers":
-		case "minplayers":{
-			sort = "players";
+		case "maxplayers":{
+		//case "minplayers":{
+			//sort = "players";
+			return netgames.sort( (a,b) => {
+				return( Number(b.dataset[sort]) - Number(a.dataset[sort]) );
+			});
 		}
 		case "ping":{
 			// Numeric sort
@@ -68,7 +77,7 @@ export default class NetgameListComponent extends HTMLElement{
 		case "updated_at":{
 			// Timestamp sort
 			return netgames.sort( (a,b) => {
-				return ( Date.parse(a.dataset[sort]) - Date.parse(b.dataset[sort]) );
+				return ( Date.parse(b.dataset[sort]) - Date.parse(a.dataset[sort]) );
 			});
 			break;
 		}
@@ -110,6 +119,8 @@ export default class NetgameListComponent extends HTMLElement{
 				let newNG = new NetgameComponent(data[i]);
 				this.netgames[i] = newNG;
 			}
+			//this.netgames[i].classList.add("locked");
+			//this.netgames[i].updateListener();
 			this.netgames[i].update(data[i]);
 			this.netgames[i].render();
 		}
@@ -136,19 +147,10 @@ export default class NetgameListComponent extends HTMLElement{
 		//console.log("Rendered List: ",this);
 	}
 
-	handleBus(message, data){
+	async handleBus(message, data){
 		switch(message){
 			case "refresh":{
-				//console.log("Caught refresh", this);
 				this.update(data);
-				//this.render(data);
-				/*
-				for(let sv in data){
-					console.log(sv);
-					this.netgames[sv].update(data[sv]);
-					this.netgames[sv].render(data[sv]);
-				}
-				*/
 				break;
 			}
 			default:{

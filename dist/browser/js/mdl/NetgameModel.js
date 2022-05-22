@@ -4,6 +4,8 @@ export default class NetgameModel{
 	}
 
 	async insert(data = []){
+		async function sleep(ms){ return new Promise((res) => setTimeout(res, ms)); };
+
 		let subjects = [];
 		let toRefresh = [];
 		switch(typeof(data)){
@@ -22,56 +24,60 @@ export default class NetgameModel{
 			break;
 		}
 		};
-		for(let sv in subjects){
+		for(let sv of subjects){
 			let valid = true;
-			for(let field in subjects[sv]){
-				if(typeof(subjects[sv][field]) == "undefined"){valid = false;}
+			for(let field in sv){
+				if(typeof(sv[field]) == "undefined"){valid = false;}
 			}
 			if(!valid){
 				continue;
 			}
 
 			let insert = {};
-			insert.hostname = subjects[sv].hostname;
-			insert.port = subjects[sv].port;
+			insert.hostname = sv.hostname;
+			insert.port = sv.port;
 			try{
-				//let sanitized = subjects[sv].name.replace(/[\x00-\x19\x7F-\xFF]/, '');
-				let sanitized = subjects[sv].name.replace(/\%[8-9a-fA-F][0-F]/g, '');
+				//let sanitized = sv.name.replace(/[\x00-\x19\x7F-\xFF]/, '');
+				let sanitized = sv.name.replace(/\%[8-9a-fA-F][0-F]/g, '');
 				sanitized = sanitized.replace(/\%[0-1][0-F]/g, '').replace(/\+/g,' ');
 				insert.name = decodeURIComponent(sanitized);
 			}catch (error) {
-				console.error(`URL decode error: `, subjects[sv].name, error);
-				let sanitized = subjects[sv].name.replace(/\%20/g, ' ');
+				console.error(`URL decode error: `, sv.name, error);
+				let sanitized = sv.name.replace(/\%20/g, ' ');
 				sanitized = sanitized.replace(/\%2F/g, '/');
 				sanitized = sanitized.replace(/\%27/g, "'");
 				sanitized = sanitized.replace(/\%[0-9A-F][0-9A-F]/g, '.');
 				insert.name = sanitized.replace(/\%[0-9A-F][0-9A-F]/g, '+');
-				//insert.name = subjects[sv].name;
+				//insert.name = sv.name;
 			}
-			insert.version = subjects[sv].version;
-			insert.roomname = subjects[sv].roomname;
-			insert.origin = subjects[sv].origin;
+			insert.version = sv.version;
+			insert.roomname = sv.roomname;
+			insert.origin = sv.origin;
 			//insert.updated_at = new Date().toLocaleString();
 
-			// this.servers for all subjects, toRefresh for update culling
+			// this.servers for all , toRefresh for update culling
 			this.servers[insert.hostname] = insert;
 			toRefresh[insert.hostname] = insert;
 					
-			ServerBrowser.netgamecon.updateOne(this.servers[insert.hostname]);
+			// Offset request flood
+			let passthru = [];
+			passthru[insert.hostname] = insert;
+			ServerBrowser.eventbus.send("refresh", passthru);
+			await sleep(250);
 		}
 		//ServerBrowser.eventbus.send("refresh", toRefresh);
-		//ServerBrowser.eventbus.send("refresh");
 	}
 
 	async populateOne(hostname, data = {}){
-			console.log("Database populateOne:", hostname, data);
 
 			// Sanitization & flattener block
 			this.servers[hostname].cheats = data.cheats;
 			this.servers[hostname].dedicated = data.dedicated;
 			this.servers[hostname].gametype = data.gametype;
-			this.servers[hostname].level_md5 = data.level.md5sum;
-			this.servers[hostname].level_name = data.level.title;
+			if(data.level){
+				this.servers[hostname].level_md5 = data.level.md5sum;
+				this.servers[hostname].level_name = data.level.title;
+			}
 			this.servers[hostname].maxplayers = data.players.max;
 			this.servers[hostname].modified = data.mods;
 			this.servers[hostname].players = data.players.list.length;
@@ -85,6 +91,7 @@ export default class NetgameModel{
 			
 			let toRefresh = {};
 			toRefresh[hostname] = this.servers[hostname];
+			console.info("Populated entry:", toRefresh[hostname]);
 			ServerBrowser.eventbus.send("refresh", toRefresh);
 	}
 

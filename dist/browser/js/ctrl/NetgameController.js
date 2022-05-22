@@ -1,24 +1,27 @@
 export default class NetgameController{
 	constructor(){
-		this.fetchServers();
+		//this.fetchServers();
 	}
 
 	async fetchServers(url = '/liquidms/snitch'){
 		ServerBrowser.req.get(url)
-			.then( (response) => {
+			.then( async (response) => {
 				let toModel = [];
 				let servers = this.CSVToArray(response, ',');
-				for(let sv in servers){
+				for(let sv of servers){
 					let insert = {};
-					insert.hostname = servers[sv][0];
-					insert.port = servers[sv][1];
-					insert.name = servers[sv][2];
-					insert.version = servers[sv][3];
-					insert.roomname = servers[sv][4];
-					insert.origin = servers[sv][5];
-					toModel[insert.hostname] = insert;
+					insert.hostname = sv[0];
+					insert.port = sv[1];
+					insert.name = sv[2];
+					insert.version = sv[3];
+					insert.roomname = sv[4];
+					insert.origin = sv[5];
+					//toModel[insert.hostname] = insert;
+					toModel.push(insert);
+					//ServerBrowser.db.insert([insert]);
 				}
 				ServerBrowser.db.insert(toModel);
+				return toModel;
 			}).catch( (error) => {
 				console.error('Failed to update NetgameModel: ', error, this);
 				throw error;
@@ -31,13 +34,11 @@ export default class NetgameController{
 		for( let i in rows ){
 			vals.push(rows[i].split(delim));
 		}
-		console.log(vals);
 		return vals;
 	}
 
 	async updateOne(server){
-		console.log("Update target:", server);
-		ServerBrowser.req.get(`/liquidms/SRB2Query/?hostname=${server.hostname}&port=${server.port}`)
+		return ServerBrowser.req.get(`/liquidms/SRB2Query/?hostname=${server.hostname}&port=${server.port}`)
 			.then( (response) => {
 				let query = JSON.parse(response, ',');
 				ServerBrowser.db.populateOne(server.hostname, query);

@@ -1,6 +1,19 @@
 export default class NetgameComponent extends HTMLElement{
+	static get observedAttributes(){
+		return [
+			'hostname',
+			'port',
+			'name',
+			'version',
+			'roomname',
+			'origin',
+		];
+	}
+
 	constructor(data = {}){
 		super();
+
+		this.api = this.observedAttributes
 
 		let template = document.querySelector('template[data-name="netgame"]');
 		let templateContent = template.content;
@@ -11,6 +24,8 @@ export default class NetgameComponent extends HTMLElement{
 		this.updateListener =  this.notifyController.bind(this);
 		//this.updateListener = this.shadowRoot.querySelector('[name="update"]').addEventListener("click",));
 		this.update(data);
+		this.classList.add('locked');
+		this.updateListener();
 	}
 
 	init(){
@@ -19,6 +34,7 @@ export default class NetgameComponent extends HTMLElement{
 
 	connectedCallback(){
 		this.shadowRoot.querySelector('[name="update"]').addEventListener("click", this.updateListener);
+		//this.updateListener();
 		this.update(); 
 		this.render();
 	}
@@ -28,19 +44,25 @@ export default class NetgameComponent extends HTMLElement{
 	adoptedCallback(){
 		this.render();
 	}
-	attributesChangedCallback(){
-		this.update();
-		this.render();
+	attributeChangedCallback(name, oldVal, newVal){
+		if( this.isConnected && oldVal != newVal){
+			console.info(`NETGAME UPDATE ${name}: ${oldVal} -> ${newVal}`, this);
+			//let tmp_o = {};
+			//tmp_o[name] = newVal;
+			//this.update(tmp_o);
+			this.render();
+		}
 	}
 
 	update(data = {}){
 		if(Object.entries(data).length > 0){
 			for(let i in data){
+				//console.log("Update attrib", i);
 				if(i == "players_list"){
 					this.playerlist = data[i];
 					continue;
 				}
-				this.dataset[i] = data[i];
+				this.setAttribute(i, data[i]);
 				//console.log(i, data[i]);
 			}
 		}
@@ -49,16 +71,16 @@ export default class NetgameComponent extends HTMLElement{
 
 	async render(){
 		this.innerHTML = ''
-		for(let i in this.dataset){
+		for(let i of this.getAttributeNames()){
 			if(i == "players_list"){continue;}
 			let newNG = document.createElement('span');
 			newNG.slot = i;
-			newNG.innerHTML = this.dataset[i];
+			newNG.innerHTML = this.getAttribute(`${i}`);
 			this.appendChild(newNG);
 		}
 
 		for(let i in this.playerlist){
-			if(i == "players_list"){continue;}
+			//if(i == "players_list"){continue;}
 			let player = document.createElement('details');
 			player.classList.add('player');
 			player.classList.add(this.playerlist[i].team);
@@ -77,17 +99,27 @@ export default class NetgameComponent extends HTMLElement{
 		//console.log("Rendered Netgame: ",this);
 	}
 
-	notifyController(event){
-		ServerBrowser.netgamecon.updateOne(this.dataset);
-		event.preventDefault();
+	notifyController(e = undefined){
+		if( this.getAttribute("hostname") &&
+			this.getAttribute("port") ){
+			let attrs = {};
+			for(var i = this.attributes.length - 1; i >= 0; i--) {
+				attrs[this.attributes[i].name] = this.attributes[i].value;
+			}
+			if(this.classList.contains("locked")){
+				ServerBrowser.netgamecon.updateOne(attrs)
+				  .then( () => { this.classList.remove("locked") });
+			}
+			//this.classList.add("locked");
+		}
+		if(e){ e.preventDefault(); }
 	}
 
 	handleBus(message, data = {}){
 		switch(message){
 			case "refresh":{
-				console.log("Caught refresh");
 				for(let sv in data){
-					if(data[sv].hostname == this.dataset.hostname){ console.log("Caught refresh on: ", this.dataset.hostname); }
+					if(data[sv].hostname == this.getAttribute("hostname")){ console.log("Caught refresh on: ", this.getAttribute("hostname")); }
 				}
 				break;
 			}

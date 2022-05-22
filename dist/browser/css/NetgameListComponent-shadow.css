@@ -9,4 +9,7 @@
 	position: sticky;
 	top: 2em;
 }
+:root.reverse a.checkbox{
+	border-radius: 2em;
+}
 

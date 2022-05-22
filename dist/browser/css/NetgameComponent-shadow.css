@@ -21,6 +21,9 @@
 	justify-content: right;
 }
 
+details{
+	width: fit-content;
+}
 summary{
 	font-size: larger;
 	color: var(--netgame-title-text);

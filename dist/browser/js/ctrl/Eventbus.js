@@ -7,7 +7,7 @@ export default class Eventbus{
 			if(typeof(message) != "string"){ throw "Invalid message!"; }
 			if(typeof(data) != "object" && typeof(data) != "array"){ throw "Invalid Payload!"; }
 
-			console.log("Received message: ", message, data);
+			//console.log("Received message: ", message, data);
 
 			for(let msg in this.subscribers){
 				if(msg == message){
