@@ -23,11 +23,3 @@ EOF
 odbcinst -i -f /docker-entrypoint-initdb.d/odbcinst.ini -d -n "MariaDB ODBC Connector"
 odbcinst -i -f /docker-entrypoint-initdb.d/odbc.ini -s -l
 
-cat << EOF >> /var/www/liquidms/config.yaml
----
-db: # liquidMS DB connection settings
-   dsn: "${MYSQL_DATABASE:-""}" # ODBC DSN string; by name
-   user: "${MYSQL_USER:-""}"
-   password: "${MYSQL_PASSWORD:-""}" #Keep this secret
-...
-EOF

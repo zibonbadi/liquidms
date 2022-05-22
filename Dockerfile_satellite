@@ -99,7 +99,8 @@ RUN mkdir /docker-entrypoint-initdb.d && \
 	mkdir /scripts
 #ADD run-satellite.sh /scripts/run.sh
 ADD install_odbc.sh /scripts/install_odbc.sh
-RUN chmod +x /scripts/install_odbc.sh
+ADD install_config.sh /scripts/install_config.sh
+RUN chmod +x /scripts/install_odbc.sh /scripts/install_config.sh
 #ADD odbc.ini /etc/odbc.ini
 
 RUN adduser -H -D liquidms_user
@@ -114,13 +115,13 @@ ARG MYSQL_PASSWORD=$MYSQL_PASSWORD
 ARG MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
 
 RUN /scripts/install_odbc.sh
+RUN /scripts/install_config.sh
 
 #develpoment web-server
-#ENTRYPOINT ["su", "liquidms_user", "-c", "php", "-S", "0.0.0.0:8080", "/var/www/liquidms/public/index.php"]
-
 #ENTRYPOINT ["/scripts/run.sh"]
+#ENTRYPOINT ["su", "liquidms_user", "-c", "php", "-S", "0.0.0.0:8080", "/var/www/liquidms/public/index.php"]
 #ENTRYPOINT ["su", "liquidms_user", "-c", "php -S 0.0.0.0:8080 /var/www/liquidms/public/index.php"]
-
 
 #production php-fashcgi
 #ENTRYPOINT ["php-fpm" ]
+
