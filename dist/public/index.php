@@ -31,7 +31,7 @@ $router = new Klein();
 $configmodel = ConfigModel::init();
 $config = ConfigModel::getConfig();
 
-NetgameModel::init($config["db"]);
+NetgameModel::init($config);
 
 set_time_limit(5);
 

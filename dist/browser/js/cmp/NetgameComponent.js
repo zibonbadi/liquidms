@@ -112,7 +112,7 @@ export default class NetgameComponent extends HTMLElement{
 			}
 			//this.classList.add("locked");
 		}
-		if(e){ e.preventDefault(); }
+		if(e != undefined){ e.preventDefault(); }
 	}
 
 	handleBus(message, data = {}){

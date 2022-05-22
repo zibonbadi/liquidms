@@ -16,10 +16,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 require_once __DIR__.'/modules/ConfigModel.php';
-require_once __DIR__.'/modules/NetgameModel.php';
 
 use LiquidMS\ConfigModel;
-use LiquidMS\NetgameModel;
 
 $router->with('/liquidms/browse', function() use ($router){
 	$router->respond('GET', '/?', function($request, $response, $service){
@@ -65,7 +63,6 @@ $router->with('/liquidms/SRB2Query', function() use ($router){
 			require_once __DIR__.'/modules_vendor/srb2query.php';
 
 			$config = ConfigModel::getConfig();
-			error_log("Query settings: ".$config["netgame_query_limit"]["n"].'@'.$config["netgame_query_limit"]["seconds"]);
 
 			$srb2conn = new SRB2Query;
 			$ng_hdl = null;
@@ -82,7 +79,7 @@ $router->with('/liquidms/SRB2Query', function() use ($router){
 			$srb2conn->Ask($request->hostname, intval($request->port));
 			$netgame = $srb2conn->Info($ng_hdl);
 
-			error_log("SRB2QUERY: ".$request->hostname.':'.$request->port.' -> '.yaml_emit($netgame).':'.yaml_emit($ng_hdl));
+			error_log("SRB2QUERY: ".$request->hostname.' '.$request->port."\n".yaml_emit($netgame)."\n".yaml_emit($ng_hdl));
 
 			// Add hostname to data, just in case
 			#$netgame["hostname"] = $ng_hdl;
