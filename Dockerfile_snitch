@@ -1,0 +1,108 @@
+# syntax=docker/dockerfile:1
+# Using multi-stage builds! https://docs.docker.com/develop/develop-images/multistage-build/
+FROM php:8.0-fpm-alpine AS php_fpm_with_addons_install
+
+#of course we can use this installer https://github.com/mlocati/docker-php-extension-installer
+#but let's keep our docker images minimal
+#and not use any packages provided by alpine linux to increase portability
+
+#copy default config
+#RUN docker-php-source extract
+#RUN cp /usr/src/php/php.ini-production "${PHP_INI_DIR}/php.ini"
+
+# You have to install all of these packages. look if your linux distro has these in their repos
+#RUN apk -U upgrade
+#autoconf gcc
+RUN echo "https://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+RUN apk -U add --no-cache oniguruma oniguruma-dev unixodbc unixodbc-dev autoconf gcc libc-dev yaml yaml-dev make mariadb-connector-odbc
+
+# install mbstring extension
+# Note: Script docker-php-ext-configure executed automatically in docker-php-ext-install!
+# So no need to run it directly unless you want to pass through specific flags for ./configure
+#RUN docker-php-ext-configure --enable-mbstring
+RUN docker-php-ext-install mbstring
+RUN docker-php-ext-enable mbstring
+
+# install EXT_PDO and EXT_ODBC (unixODBC) (we don't use something like pdo_mysql extension, we use ODBC!)
+# ODBC is used by many databases such as MariaDB and MySQL
+RUN docker-php-ext-install pdo
+
+# "WINDOWS.H does not exist error" drives me crazy
+#HACK
+RUN set -ex; \
+	docker-php-source extract; \
+	{ \
+		echo '# https://github.com/docker-library/php/issues/103#issuecomment-271413933'; \
+		echo 'AC_DEFUN([PHP_ALWAYS_SHARED],[])dnl'; \
+		echo; \
+		cat /usr/src/php/ext/odbc/config.m4; \
+	} > temp.m4; \
+	mv temp.m4 /usr/src/php/ext/odbc/config.m4; \
+	docker-php-ext-configure odbc --with-unixODBC=shared,/usr; \
+	docker-php-ext-install odbc; \
+	docker-php-source delete
+#HACK
+
+#RUN apk -U add --no-cache php81-odbc
+#RUN docker-php-ext-configure odbc --with-unixODBC=shared,/usr/
+#RUN docker-php-ext-install odbc
+RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr/
+RUN docker-php-ext-install pdo_odbc
+RUN docker-php-ext-enable pdo odbc pdo_odbc
+
+# install PECL extensions
+# install EXT_YAML
+#RUN apk add autoconf gcc libc-dev yaml yaml-dev make
+RUN pecl install yaml
+RUN docker-php-ext-enable yaml
+
+# check that everything was indeed installed
+RUN php -i|grep pdo \
+  && php -i | grep mbstring \
+  && php -i | grep odbc \
+  && php -i | grep yaml
+
+#delete sources and cache as we don't need them anymore
+RUN rm -f /var/cache/apk/*
+
+# install composer to our image from Docker image
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+
+#install liquidMS as an app
+#it must be already cloned from "https://github.com/zibonbadi/liquidms.git"
+COPY dist/ /var/www/liquidms
+COPY fetch.config.yaml /var/www/liquidms/config.yaml
+COPY fetch.crontab /etc/crontabs/liquidms_fetch
+RUN cat /etc/crontabs/liquidms_fetch >> /etc/crontabs/root
+#RUN chown -R www-data:www-data /var/www
+WORKDIR /var/www/liquidms
+
+# should be redundant given the dir copy
+#RUN composer install
+
+RUN apk -U add --no-cache mariadb-connector-odbc
+RUN mkdir /docker-entrypoint-initdb.d && \
+	mkdir /scripts
+ADD run-snitch.sh /scripts/run.sh
+ADD install_odbc.sh /scripts/install_odbc.sh
+ADD install_config.sh /scripts/install_config.sh
+RUN chmod +x /scripts/install_odbc.sh /scripts/install_config.sh
+
+RUN adduser -H -D liquidms_user
+RUN chown -R liquidms_user:liquidms_user /var/www/liquidms
+
+RUN apk -U add --no-cache mysql-client
+
+ARG ODBC_HOST=$ODBC_HOST
+ARG ODBC_PORT=$ODBC_PORT
+ARG MYSQL_DATABASE=$MYSQL_DATABASE
+ARG MYSQL_USER=$MYSQL_USER
+ARG MYSQL_PASSWORD=$MYSQL_PASSWORD
+ARG MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+
+RUN /scripts/install_odbc.sh
+RUN /scripts/install_config.sh
+
+#launch init fetch with cronjob
+ENTRYPOINT ["/scripts/run.sh"]
+

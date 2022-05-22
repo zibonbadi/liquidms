@@ -1,6 +1,11 @@
 vendor/
-tables.sql
-config.yaml
-timestamps.yaml
+.env
+**/config.yaml
+**/timestamps.yaml
 local/
 **/*.swp
+
+tables.sql
+fetch.crontab
+**/*.yaml
+!**/*.example

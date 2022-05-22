@@ -16,7 +16,7 @@
 
 
 -- Enabling event scheduler
-SET GLOBAL event_scheduler = ON
+SET GLOBAL event_scheduler = ON;
 
 CREATE DATABASE IF NOT EXISTS `liquidms`;
 USE `liquidms`;

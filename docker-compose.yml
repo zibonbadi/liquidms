@@ -1,0 +1,87 @@
+# either port forward/allow 16000 port so you can connect to it over IP directly
+# or use reverse proxy such as nginx or caddy to map localhost:16000 or liquidms:16000 to your URI
+version: "3.8"
+services:
+  caddy: #caddy reverse-proxy for the FastCGI-sattelite
+    hostname: liquidms
+    restart: unless-stopped
+    build: 
+      context: .
+      dockerfile: Dockerfile_caddy # hook Caddy into sattelite
+    environment:
+      TZ: $TZ
+    ports:
+      #- "16000:8080" #exposes liquidMS's 8080 port to 16000 on the host machine
+      - "443:443" #exposes liquidMS's 8080 port to 16000 on the host machine
+      - "80:80" #exposes liquidMS's 8080 port to 16000 on the host machine
+    depends_on:
+      - satellite # connect up
+    networks:
+      - liquidms-net
+      - external
+  satellite: #has php-fpm with extensions and composer, check Dockerfile!
+    hostname: liquidms
+    restart: unless-stopped
+    build: 
+      context: .
+      dockerfile: Dockerfile_satellite #also installs ODBC driver
+      args:
+        ODBC_HOST: $ODBC_HOST
+        ODBC_PORT: $ODBC_PORT
+        MYSQL_DATABASE: $MYSQL_DATABASE
+        MYSQL_USER: $MYSQL_USER
+        MYSQL_PASSWORD: $MYSQL_PASSWORD
+        MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+    environment:
+      TZ: $TZ
+      PHP_MEMORY_LIMIT: 1024M
+    #ports:
+      #- "16000:8080" #exposes liquidMS's 8080 port to 16000 on the host machine
+      #- "9000:9000" #exposes liquidMS's 8080 port to 16000 on the host machine
+    depends_on:
+      - db #installs and runs database first before starting liquidms
+    networks:
+      - liquidms-net
+      #- external
+  snitch: #has php-fpm with extensions and composer, check Dockerfile!
+    hostname: liquidms
+    build: 
+      context: .
+      dockerfile: Dockerfile_snitch #also installs ODBC driver
+      args:
+        ODBC_HOST: $ODBC_HOST
+        ODBC_PORT: $ODBC_PORT
+        MYSQL_DATABASE: $MYSQL_DATABASE
+        MYSQL_USER: $MYSQL_USER
+        MYSQL_PASSWORD: $MYSQL_PASSWORD
+        MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+    environment:
+      TZ: $TZ
+      PHP_MEMORY_LIMIT: 1024M
+    #ports:
+      #- "16000:8080" #exposes liquidMS's 8080 port to 16000 on the host machine
+    #depends_on:
+      #- satellite #only start snitch with satellite running
+    networks:
+      - liquidms-net
+      - external # Access external nodes
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile_mariadb #also installs ODBC driver
+      args:
+        ODBC_HOST: $ODBC_HOST
+        ODBC_PORT: $ODBC_PORT
+        MYSQL_DATABASE: $MYSQL_DATABASE
+        MYSQL_USER: $MYSQL_USER
+        MYSQL_PASSWORD: $MYSQL_PASSWORD
+        MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+    environment:
+      TZ: $TZ
+    networks:
+      - liquidms-net
+
+networks:
+  liquidms-net:
+    internal: true
+  external:
