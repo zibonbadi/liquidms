@@ -12,9 +12,9 @@ fetch: # Master servers to leech off of
     api: v1 # "v1" to fetch from /servers
     minute: 5 # Should be unused due to crontab
   self: # Example LiquidMS (snitch API) server
-    host: "http://satellite:8080"
+    host: "http://caddy"
     api: snitch # "snitch" to fetch from /liquidms/snitch
     minute: 10 # Should be unused due to crontab
 snitch: # Servers to snitch to
-- "http://satellite:8080" # Satellite container
+- "http://caddy" # Caddy container
 ...
