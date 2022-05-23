@@ -15,6 +15,7 @@ export default class NetgameListComponent extends HTMLElement{
 		this.eb_conn = function(){console.error("No eventbus hook registered yet!", this);};
 		this.shadowRoot.querySelector('a.checkbox').addEventListener( "click", (event) => {
 			this.classList.toggle("reverse");
+			event.preventDefault();
 		});
 	}
 
