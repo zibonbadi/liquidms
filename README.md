@@ -206,6 +206,7 @@ as a LiquidMS-compatible server browser will be displayed down below in YAML.
 ```YAML
 sbpath:
 - index.php # Entry point to your frontend.
+- favicon.svg # Favicon
 # More information on hooking your PHP scripts into LiquidMS in
 # the "Views" section at <https://github.com/klein/klein.php>
 - css/ # CSS data. Nested structure is permitted.

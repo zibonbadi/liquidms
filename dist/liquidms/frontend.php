@@ -19,6 +19,11 @@ require_once __DIR__.'/modules/ConfigModel.php';
 
 use LiquidMS\ConfigModel;
 
+$router->respond('GET', '/favicon.ico', function($request, $response, $service){
+		$config = ConfigModel::getConfig();
+		$response->file(rtrim($config["sbpath"], "/")."/favicon.svg");
+});
+
 $router->with('/liquidms/browse', function() use ($router){
 	$router->respond('GET', '/?', function($request, $response, $service){
 			$config = ConfigModel::getConfig();
