@@ -8,6 +8,7 @@
 	margin: auto;
 	position: sticky;
 	top: 2em;
+	z-index: 999;
 }
 :root.reverse a.checkbox{
 	border-radius: 2em;
