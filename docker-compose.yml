@@ -66,6 +66,7 @@ services:
       - liquidms-net
       - external # Access external nodes
   db:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile_mariadb #also installs ODBC driver
@@ -78,6 +79,10 @@ services:
         MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
     environment:
       TZ: $TZ
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
     networks:
       - liquidms-net
 

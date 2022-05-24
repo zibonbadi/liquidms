@@ -18,8 +18,8 @@
 -- Enabling event scheduler
 SET GLOBAL event_scheduler = ON;
 
-CREATE DATABASE IF NOT EXISTS `liquidms`;
-USE `liquidms`;
+--CREATE DATABASE IF NOT EXISTS `liquidms`;
+--USE `liquidms`;
 
 -- server list with all automations
 CREATE TABLE IF NOT EXISTS `servers` (

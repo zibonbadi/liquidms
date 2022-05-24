@@ -1,5 +1,7 @@
 #!/bin/sh
 
+mkdir /docker-entrypoint-initdb.d/
+
 # odbc data source, same info used for creating the db
 cat << EOF > /docker-entrypoint-initdb.d/odbc.ini
 [liquidms]

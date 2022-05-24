@@ -5,6 +5,8 @@
         mysqladmin ping --host=localhost --user=root --password=${MYSQL_ROOT_PASSWORD:-""} > /dev/null 2>&1
     }
 
+echo "[i] Access data: $MYSQL_ROOT_PASSWORD MYSQL_DATABASE=${MYSQL_DATABASE:-""} MYSQL_USER=${MYSQL_USER:-""} MYSQL_PASSWORD=${MYSQL_PASSWORD:-""}"
+
 # execute any pre-init scripts
 for i in /scripts/pre-init.d/*sh
 do
@@ -40,10 +42,7 @@ else
 		MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-""}
 	fi
 
-	echo "[i] Root password is: $MYSQL_ROOT_PASSWORD"
-	MYSQL_DATABASE=${MYSQL_DATABASE:-""}
-	MYSQL_USER=${MYSQL_USER:-""}
-	MYSQL_PASSWORD=${MYSQL_PASSWORD:-""}
+	echo "[i] Access data: $MYSQL_ROOT_PASSWORD MYSQL_DATABASE=${MYSQL_DATABASE:-""} MYSQL_USER=${MYSQL_USER:-""} MYSQL_PASSWORD=${MYSQL_PASSWORD:-""}"
 
 	tfile=`mktemp`
 	if [ ! -f "$tfile" ]; then
