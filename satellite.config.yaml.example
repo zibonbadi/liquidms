@@ -7,7 +7,7 @@ modules: # Features to enable
 - v1 # v1 API
 - snitch # snitch API
 - browser # integrated server browser
-sbpath: "/var/www/liquidms/browser/"
+sbpath: "/var/www/liquidms/browser/fancy"
 motd: |
   liquidMS is licensed under AGPLv3
 ...
