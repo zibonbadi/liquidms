@@ -219,6 +219,17 @@ sbpath:
 - static/ # Static resources. Nested structure is permitted.
 ```
 
+Currently LiquidMS ships with two server browsers by default,
+only one of which can be hosted per satellite:
+
+`dist/browser/fancy`
+: An dynamic, modern server browser with the ability
+  to query netgames right from within the UI.
+
+`dist/browser/fast`
+: A non-interactive, lightweight static browser faturing server-side
+  rendering aimed at low usage of resources and bandwidth.
+
 Furthermore the path `/liquidms/SRB2Query` offers live query information
 about the state of the netgame, based on [SRB2Query] by James R.
 

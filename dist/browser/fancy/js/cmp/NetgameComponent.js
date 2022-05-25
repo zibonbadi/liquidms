@@ -57,7 +57,7 @@ export default class NetgameComponent extends HTMLElement{
 	update(data = {}){
 		if(Object.entries(data).length > 0){
 			for(let i in data){
-				console.log("Update attrib", i);
+				//console.log("Update attrib", i);
 				if(i == "players_list"){
 					this.playerlist = data[i];
 					continue;
