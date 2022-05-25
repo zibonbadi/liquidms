@@ -104,7 +104,6 @@ export default class NetgameListComponent extends HTMLElement{
 		//this.eHdl_ngcon = setInterval(this.notifyController, 5000)
 		this.connectToEventbus();
 		this.update();
-		this.render();
 	}
 	disconnectedCallback(){
 		this.shadowRoot.querySelector('[name="update"]').removeEventListener('click', eHdl_ngcon);
@@ -114,7 +113,7 @@ export default class NetgameListComponent extends HTMLElement{
 		ServerBrowser.eventbus.detach("refresh", this.eb_conn);
 	}
 	adoptedCallback(){ this.render(); }
-	attributesChangedCallback(){ this.update(); this.render(); }
+	attributesChangedCallback(){ this.update(); }
 
 	update(data = {}){
 		//let modelFetch = ServerBrowser.db.servers;
@@ -132,7 +131,14 @@ export default class NetgameListComponent extends HTMLElement{
 		console.log("new viewtype: ", this.shadowRoot.querySelector('[name="view"]').value);
 		this.setAttribute("view", this.shadowRoot.querySelector('[name="view"]').value);
 		//console.log("Updated List: ",this);
-		this.render();
+
+		// Accumulate 1s of updates into one render call
+		if(this.nextUpdate == undefined){
+			this.nextUpdate = setTimeout(() => {
+				this.render();
+				this.nextUpdate = undefined;
+			}, 1000);
+		}
 	}
 
 	async render(){

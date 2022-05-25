@@ -15,6 +15,7 @@ sb-netgamelist[view="gallery"] sb-netgame{
 sb-netgamelist[view="list"] sb-netgame{
 	/* List view */
 	flex-basis: 100%;
+	flex-flow: row wrap;
 	display: flex;
 	align-items: center;
 }
