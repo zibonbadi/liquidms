@@ -1,12 +1,22 @@
 sb-netgame{
+	/* General */
 	color: var(--netgame-text);
 	padding: 1em;
-	flex: 1 3;
-	flex-basis: 7cm;
 	background-color: var(--netgame-bg);
 	border: var(--netgame-border);
 	margin: auto;
 	max-width: 100%;
+}
+sb-netgamelist[view="gallery"] sb-netgame{
+	/* Gallery view */
+	flex-basis: 7cm;
+	flex: 1 3;
+}
+sb-netgamelist[view="list"] sb-netgame{
+	/* List view */
+	flex-basis: 100%;
+	display: flex;
+	align-items: center;
 }
 sb-netgame.locked{
 	background-color: var(--netgame-locked-bg);

@@ -16,6 +16,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ?>
 
+<?php
+$netgames = $this->sharedData()->get('netgames');
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -102,9 +105,36 @@
 </head>
 <body>
 <img src="browse/img/logo.svg">
+
 <h1>Integrated server browser</h1>
 <pre><?php echo $this->sharedData()->get('motd'); ?></pre>
 <sb-netgamelist></sb-netgamelist>
+<table>
+<thead>
+		<tr>
+		<td>Title</td>
+		<td>Host</td>
+		<td>Port</td>
+		<td>version</td>
+		<td>Room name</td>
+		<td>Origin</td>
+		</tr>
+</thead>
+<tbody>
+<?php
+foreach($netgames["data"] as $server){
+	echo "<tr>
+		<td>".urldecode($server["servername"])."</td>
+		<td>{$server["host"]}</td>
+		<td>{$server["port"]}</td>
+		<td>{$server["version"]}</td>
+		<td>{$server["roomname"]}</td>
+		<td>{$server["origin"]}</td>
+		</tr>\n";
+}
+?>
+</tbody>
+</table>
 </body>
 </html>
 

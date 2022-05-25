@@ -5,6 +5,10 @@ sb-netgamelist [slot="netgames"]{
 	margin-top: 5mm;
 }
 
+sb-netgamelist[view="list"]{
+	flex-basis: 100%;
+}
+
 sb-netgamelist.reverse [slot="netgames"]{
 	flex-flow: row-reverse wrap-reverse;
 }

@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+:root{
+	/* --color-bg: url('/browse/img/bg.svg'); */
+	--main-bg: url('/liquidms/browse/img/bg.svg') rgba(255, 220, 21, 1);
+	/* --color-bg: teal; */
+	--color-text: black;
+	--table-text: #ccc;
+	--table-head-text: yellow;
+	--table-bg: #003d;
+	--table-bg2: #114d;
+	--table-bg-head: #002f;
+	--table-locked-bg: #447d;
+	--table-bg-hover: #335;
+	--netgame-bg: #003d;
+	--netgame-locked-bg: #447d;
+	/* --netgame-bg: #35d1ff77; */
+	--netgame-bg-hover: #335;
+	--netgame-text: white;
+	--netgame-title-text: yellow;
+	--netgame-border: 3pt solid #444;
+}
+
+@media screen and (prefers-color-scheme: dark){
+	:root{
+		/* --main-bg: #000; */
+		--netgame-border: 3pt solid #444;
+	}
+}
+
+body{
+color: var(--color-text);
+background: var(--main-bg);
+background-size: cover;
+background-attachment: fixed;
+font-family: 'Press Start 2P', sans-serif;
+font-size: 10pt;
+}
+
+pre{ font-family: 'Press Start 2P', monospace; }
+
+h1,p,pre,img{
+max-width: min(100%, 60em);
+margin: 1em auto;
+display: block;
+width: max-content;
+}
+
+h1{
+	text-shadow: 0.07em 0.1em 0 black;
+	color: white;
+}
+
+table,tr,td{ border: none; }
+
+table,tbody{
+	background: var(--table-bg);
+	border-color: var(--table-border);
+	margin-left: auto;
+	margin-right: auto;
+	color: var(--table-text);
+	max-width: fit-content;
+}
+
+th,thead{
+	color: var(--table-head-text);
+	background: var(--table-bg-head); 
+}
+td,th{ 
+	padding: 0.75em;
+	max-width: fit-content;
+}
+tr:nth-child(2n){ background: var(--table-bg2); }
+@media(any-hover: hover) and (pointer: fine){
+	tr:hover{ background: var(--table-bg-hover); }
+}
+

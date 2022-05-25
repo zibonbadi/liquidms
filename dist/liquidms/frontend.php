@@ -18,6 +18,7 @@
 require_once __DIR__.'/modules/ConfigModel.php';
 
 use LiquidMS\ConfigModel;
+use LiquidMS\NetgameModel;
 
 $router->respond('GET', '/favicon.ico', function($request, $response, $service){
 		$config = ConfigModel::getConfig();
@@ -27,7 +28,8 @@ $router->respond('GET', '/favicon.ico', function($request, $response, $service){
 $router->with('/liquidms/browse', function() use ($router){
 	$router->respond('GET', '/?', function($request, $response, $service){
 			$config = ConfigModel::getConfig();
-			$service->render(rtrim($config["sbpath"], "/")."/index.php", ["motd" => $config["motd"]]);
+			$netgames = NetgameModel::getServers();
+			$service->render(rtrim($config["sbpath"], "/")."/index.php", ["motd" => $config["motd"], "netgames" => $netgames]);
 	});
 	// Three separate resource routes for capsuled security
 	$router->respond('GET', '/img/[**:path]/?', function($request, $response, $service){
