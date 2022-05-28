@@ -69,8 +69,12 @@ td,th{
 	padding: 0.75em;
 	max-width: fit-content;
 }
+th{
+	cursor: pointer;
+}
 tr:nth-child(2n){ background: var(--table-bg2); }
 @media(any-hover: hover) and (pointer: fine){
-	tr:hover{ background: var(--table-bg-hover); }
+	tbody>tr:hover{ background: var(--table-bg-hover); }
+	th:hover{ background: var(--table-bg-hover); }
 }
 
