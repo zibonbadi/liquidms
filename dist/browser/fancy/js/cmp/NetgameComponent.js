@@ -108,7 +108,11 @@ export default class NetgameComponent extends HTMLElement{
 			}
 			if(this.classList.contains("locked")){
 				ServerBrowser.netgamecon.updateOne(attrs)
-				  .then( () => { this.classList.remove("locked") });
+				  .then( () => {
+					  this.classList.remove("locked");
+					  this.classList.remove("error");
+				  })
+				  .catch( () => { this.classList.add("error") });
 			}
 			//this.classList.add("locked");
 		}

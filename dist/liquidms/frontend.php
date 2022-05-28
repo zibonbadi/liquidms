@@ -116,6 +116,7 @@ $router->with('/liquidms/SRB2Query', function() use ($router){
 				],
 				];
 			if($netgame){ $out = $netgame; }
+			else{ $response->code(404); }
 
 			$response->json(utf8sanitize($out));
 		}else{

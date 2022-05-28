@@ -22,6 +22,12 @@ sb-netgamelist[view="list"] sb-netgame{
 sb-netgame.locked{
 	background-color: var(--netgame-locked-bg);
 }
+sb-netgame.error{
+	background: #fc5b7c;
+	border-color: #fd9fa3;
+	color: #ffbae4;
+	opacity: 66%;
+}
 @media(any-hover: hover) and (pointer: fine){
 	sb-netgame.locked{
 		opacity: 25%
