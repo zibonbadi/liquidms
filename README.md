@@ -67,6 +67,18 @@ data. Should a node fetch from another node's v1 API, all information about
 netgames' origins are substituted for the fetched v1 server, accumulating
 tagged data in the mirrored database.
 
+> My node is running but no one can connect to it!
+
+In order for your server to be accessible from the outside, you need to
+[forward] some ports though your network (usually your router). LiquidMS
+requires the following ports:
+
+- 80: HTTP
+- 443: HTTPS (SSL encrypted)
+- 5029: UDP connection to query SRB2 Netgames (only for querying server browsers)
+
+[forward]: <https://en.wikipedia.org/w/index.php?title=Port_forwarding&oldid=1085088256>
+
 
 INSTALLATION
 ------------
