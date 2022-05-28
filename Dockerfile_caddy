@@ -10,8 +10,6 @@ COPY caddy.conf /etc/caddy/Caddyfile
 
 #install liquidMS as an app (dist/)
 COPY dist/ /var/www/liquidms
-#COPY dist/ /srv
-#COPY frontend.config.yaml /var/www/liquidms/config.yaml
 COPY satellite.config.yaml /var/www/liquidms/config.yaml
 ADD install_config.sh /scripts/install_config.sh
 RUN chmod +x /scripts/install_config.sh
@@ -21,5 +19,4 @@ WORKDIR /var/www/liquidms
 
 EXPOSE 80
 EXPOSE 443
-EXPOSE 8080
 

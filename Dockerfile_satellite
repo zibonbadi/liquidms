@@ -91,7 +91,7 @@ WORKDIR /var/www/liquidms
 RUN composer install
 #RUN composer update
 #RUN composer dump-autoload
-EXPOSE 8080
+EXPOSE 5029
 
 RUN apk -U add --no-cache mariadb-connector-odbc
 #ADD odbcinst.ini /etc/odbcinst.ini
@@ -108,11 +108,11 @@ RUN adduser -H -D liquidms_user
 RUN apk -U add --no-cache mysql-client
 
 ARG ODBC_HOST=$ODBC_HOST \
-    ODBC_PORT=$ODBC_PORT \
-    MYSQL_DATABASE=$MYSQL_DATABASE \
-    MYSQL_USER=$MYSQL_USER \
-    MYSQL_PASSWORD=$MYSQL_PASSWORD \
-    MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+ODBC_PORT=$ODBC_PORT \
+MYSQL_DATABASE=$MYSQL_DATABASE \
+MYSQL_USER=$MYSQL_USER \
+MYSQL_PASSWORD=$MYSQL_PASSWORD \
+MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
 
 RUN /scripts/install_odbc.sh
 RUN /scripts/install_config.sh

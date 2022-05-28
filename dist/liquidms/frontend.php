@@ -86,7 +86,7 @@ $router->with('/liquidms/SRB2Query', function() use ($router){
 			$srb2conn->Ask($request->hostname, intval($request->port));
 			$netgame = $srb2conn->Info($ng_hdl);
 
-			error_log("SRB2QUERY: ".$request->hostname.' '.$request->port."\n".yaml_emit($netgame)."\n".yaml_emit($ng_hdl));
+			#error_log("SRB2QUERY: ".$request->hostname.' '.$request->port."\n".yaml_emit($netgame)."\n".yaml_emit($ng_hdl));
 
 			// Add hostname to data, just in case
 			#$netgame["hostname"] = $ng_hdl;
