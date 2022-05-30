@@ -35,26 +35,32 @@ background-attachment: fixed;
 font-family: 'Press Start 2P', sans-serif;
 font-size: 10pt;
 }
-
 pre{ font-family: 'Press Start 2P', monospace; }
-
 h1,p,pre,img{
 max-width: min(100%, 60em);
 margin: 1em auto;
 display: block;
 width: max-content;
 }
-
 h1{
 	text-shadow: 0.07em 0.1em 0 black;
 	color: white;
 }
+a{
+	color: #3355ff;
+	text-decoration: none;
+}
+a:hover{
+	color: #88ccff;
+}
 
 table,tr,td{ border: none; }
 
+table{
+	border: var(--netgame-border);
+}
 table,tbody{
 	background: var(--table-bg);
-	border-color: var(--table-border);
 	margin-left: auto;
 	margin-right: auto;
 	color: var(--table-text);
@@ -64,6 +70,9 @@ table,tbody{
 th,thead{
 	color: var(--table-head-text);
 	background: var(--table-bg-head); 
+	position: sticky;
+	top: 0;
+	border-bottom: 1pt solid var(--table-text);
 }
 td,th{ 
 	padding: 0.75em;
