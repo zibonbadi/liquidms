@@ -59,14 +59,6 @@ internet connection and a PHP environment to run `fetch.php` or
 however, you will need to provide access to your server. Port
 forwarding, registering domains and such will naturally be necessary.
 
-> Why do you keep insisting to fetch-from-snitch?
-
-[The original API][v1spec] was never designed with indirection or mirroring
-in mind. As such LiquidMS can only supply tags to inform users of non-world
-data. Should a node fetch from another node's v1 API, all information about
-netgames' origins are substituted for the fetched v1 server, accumulating
-tagged data in the mirrored database.
-
 > My node is running but no one can connect to it!
 
 In order for your server to be accessible from the outside, you need to
@@ -75,13 +67,54 @@ requires the following ports:
 
 - 80: HTTP
 - 443: HTTPS (SSL encrypted)
-- 5029: UDP connection to query SRB2 Netgames (only for querying server browsers)
 
 [forward]: <https://en.wikipedia.org/w/index.php?title=Port_forwarding&oldid=1085088256>
+
+> My world rooms aren't acessible in-game! Help!
+
+[The original V1 API used by SRB2][v1spec] interprets the
+definition of rooms using the following schema. Take care to make your room
+names, descriptions and MOTD to match closely:
+
+```
+[START OF ROOM]
+<room number>
+<room name>
+
+<description with max 1 consecutive blank line>
+
+
+[END OF ROOM]
+```
+
+> Why do you keep insisting to fetch-from-snitch?
+
+[The original API][v1spec] was never designed with indirection or mirroring
+in mind. As such LiquidMS can only supply tags to inform users of non-world
+data. Should a node fetch from another node's v1 API, all information about
+netgames' origins are substituted for the fetched v1 server, accumulating
+tagged data in the mirrored database.
 
 
 INSTALLATION
 ------------
+
+### Host LiquidMS using Docker(-Compose)
+
+You can easily run a working LiquidMS node as a set of Docker containers:
+
+1. Navigate your terminal to this repository
+2. Create the following files based on your customizations.
+   For reference, use the provided `*.example` files:
+   - `.env`
+   - `fetch.config.yaml`
+   - `fetch.crontab`,
+   - `satellite.config.yaml`
+   - `tables.sql` 
+3. Run `docker-compose build && docker-compose up`
+
+
+### Natively installing LiquidMS
 
 First, download the source code and install all dependencies. You'll need
 [PHP] 8.0.x, [Composer] and either [MariaDB] or [MySQL] with for this with
@@ -124,20 +157,6 @@ __CONFIGURATION__ for more info.
 
 [ODBC]: <https://en.wikipedia.org/w/index.php?title=Open_Database_Connectivity&oldid=1044732966> "ODBC - Wikipedia"
 
-
-### Host LiquidMS using Docker(-Compose)
-
-You can easily run a working LiquidMS node as a set of Docker containers:
-
-1. Navigate your terminal to this repository
-2. Create the following files based on your customizations.
-   For reference, use the provided `*.example` files:
-   - `.env`
-   - `fetch.config.yaml`
-   - `fetch.crontab`,
-   - `satellite.config.yaml
-   - `tables.sql` 
-3. Run `docker-compose build && docker-compose up`
 
 ### Basic database setup
 
@@ -248,8 +267,6 @@ about the state of the netgame, based on [SRB2Query] by James R.
 
 ### Hosting a LiquidMS node
 
-![LiquidMS layer model](doc/fig-layers.svg)
-
 LiquidMS is able to mirror server listings of any API-compliant SRB2 HTTP
 V1 master server within it's own server database. This is called the
 "superset mirror" concept and needs to be kept in mind when hosting a
@@ -270,6 +287,8 @@ layers of operation in mind:
 3. *Universe servers* and *snitches* provide LiquidMS nodes and by
    extension the database with external universewide netgame data to be
    mirrored. More on the concept of snitching down below.
+
+![LiquidMS layer model](doc/fig-layers.svg)
 
 LiquidMS supports banning of servers through use of the database table
 `bans`, consisting of the fields `host`, `subnetmask` and `expire`. As the
