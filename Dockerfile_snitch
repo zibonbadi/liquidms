@@ -49,10 +49,13 @@ RUN set -ex; \
 RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr/
 RUN docker-php-ext-install pdo_odbc
 RUN docker-php-ext-enable pdo odbc pdo_odbc
+RUN docker-php-ext-install sockets
+RUN docker-php-ext-enable sockets
 
 # install PECL extensions
 # install EXT_YAML
 #RUN apk add autoconf gcc libc-dev yaml yaml-dev make
+
 RUN pecl install yaml
 RUN docker-php-ext-enable yaml
 
@@ -77,8 +80,7 @@ RUN cat /etc/crontabs/liquidms_fetch >> /etc/crontabs/root
 #RUN chown -R www-data:www-data /var/www
 WORKDIR /var/www/liquidms
 
-# should be redundant given the dir copy
-#RUN composer install
+RUN composer install
 
 RUN apk -U add --no-cache mariadb-connector-odbc
 RUN mkdir /docker-entrypoint-initdb.d && \
@@ -93,12 +95,12 @@ RUN chown -R liquidms_user:liquidms_user /var/www/liquidms
 
 RUN apk -U add --no-cache mysql-client
 
-ARG ODBC_HOST=$ODBC_HOST
-ARG ODBC_PORT=$ODBC_PORT
-ARG MYSQL_DATABASE=$MYSQL_DATABASE
-ARG MYSQL_USER=$MYSQL_USER
-ARG MYSQL_PASSWORD=$MYSQL_PASSWORD
-ARG MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+ARG ODBC_HOST=$ODBC_HOST \
+ODBC_PORT=$ODBC_PORT \
+MYSQL_DATABASE=$MYSQL_DATABASE \
+MYSQL_USER=$MYSQL_USER \
+MYSQL_PASSWORD=$MYSQL_PASSWORD \
+MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
 
 RUN /scripts/install_odbc.sh
 RUN /scripts/install_config.sh

@@ -11,9 +11,8 @@ services:
     environment:
       TZ: $TZ
     ports:
-      #- "16000:8080" #exposes liquidMS's 8080 port to 16000 on the host machine
-      - "443:443" #exposes liquidMS's 8080 port to 16000 on the host machine
-      - "80:80" #exposes liquidMS's 8080 port to 16000 on the host machine
+      - "443:443" # Provide SSL port
+      - "${LIQUIDMS_PORT}:80" #exposes LiquidMS's 80 port to .env port on the host machine
     depends_on:
       - satellite # connect up
     networks:
@@ -35,14 +34,13 @@ services:
     environment:
       TZ: $TZ
       PHP_MEMORY_LIMIT: 1024M
-    #ports:
-      #- "16000:8080" #exposes liquidMS's 8080 port to 16000 on the host machine
-      #- "9000:9000" #exposes liquidMS's 8080 port to 16000 on the host machine
+    ports:
+      - "5029:5029" # make SRB2Query work
     depends_on:
       - db #installs and runs database first before starting liquidms
     networks:
       - liquidms-net
-      #- external
+      - external
   snitch: #has php-fpm with extensions and composer, check Dockerfile!
     hostname: liquidms
     build: 
@@ -58,14 +56,11 @@ services:
     environment:
       TZ: $TZ
       PHP_MEMORY_LIMIT: 1024M
-    #ports:
-      #- "16000:8080" #exposes liquidMS's 8080 port to 16000 on the host machine
-    #depends_on:
-      #- satellite #only start snitch with satellite running
     networks:
       - liquidms-net
       - external # Access external nodes
   db:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile_mariadb #also installs ODBC driver
@@ -78,6 +73,10 @@ services:
         MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
     environment:
       TZ: $TZ
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
     networks:
       - liquidms-net
 

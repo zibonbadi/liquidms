@@ -63,7 +63,7 @@ export default class NetgameModel{
 			let passthru = [];
 			passthru[insert.hostname] = insert;
 			ServerBrowser.eventbus.send("refresh", passthru);
-			await sleep(250);
+			await sleep(25);
 		}
 		//ServerBrowser.eventbus.send("refresh", toRefresh);
 	}

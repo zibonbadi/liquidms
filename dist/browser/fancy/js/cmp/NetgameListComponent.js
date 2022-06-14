@@ -12,9 +12,11 @@ export default class NetgameListComponent extends HTMLElement{
 
 		this.eHdl_ngcon = this.notifyController.bind(this);
 		this.eHdl_sort = this.render.bind(this);
+		this.eHdl_view = this.update.bind(this, {});
 		this.eb_conn = function(){console.error("No eventbus hook registered yet!", this);};
 		this.shadowRoot.querySelector('a.checkbox').addEventListener( "click", (event) => {
 			this.classList.toggle("reverse");
+			event.preventDefault();
 		});
 	}
 
@@ -64,20 +66,20 @@ export default class NetgameListComponent extends HTMLElement{
 		//case "minplayers":{
 			//sort = "players";
 			return netgames.sort( (a,b) => {
-				return( Number(b.dataset[sort]) - Number(a.dataset[sort]) );
+				return( Number(b.getAttribute(sort)) - Number(a.getAttribute(sort)) );
 			});
 		}
 		case "ping":{
 			// Numeric sort
 			return netgames.sort( (a,b) => {
-				return( Number(a.dataset[sort]) - Number(b.dataset[sort]) );
+				return( Number(a.getAttribute(sort)) - Number(b.getAttribute(sort)) );
 			});
 			break;
 		}
 		case "updated_at":{
 			// Timestamp sort
 			return netgames.sort( (a,b) => {
-				return ( Date.parse(b.dataset[sort]) - Date.parse(a.dataset[sort]) );
+				return ( Date.parse(b.getAttribute(sort)) - Date.parse(a.getAttribute(sort)) );
 			});
 			break;
 		}
@@ -88,7 +90,7 @@ export default class NetgameListComponent extends HTMLElement{
 		default:{
 			// Lexical sort
 			return netgames.sort( (a,b) => {
-				return a.dataset[sort].localeCompare(b.dataset[sort] );
+				return a.getAttribute(sort).localeCompare(b.getAttribute(sort) );
 			});
 			break;
 		}
@@ -98,19 +100,20 @@ export default class NetgameListComponent extends HTMLElement{
 	connectedCallback(){
 		this.shadowRoot.querySelector('[name="update"]').addEventListener('click', this.eHdl_ngcon);
 		this.shadowRoot.querySelector('[name="sort"]').addEventListener('change', this.eHdl_sort );
+		this.shadowRoot.querySelector('[name="view"]').addEventListener('change', this.eHdl_view );
 		//this.eHdl_ngcon = setInterval(this.notifyController, 5000)
 		this.connectToEventbus();
 		this.update();
-		this.render();
 	}
 	disconnectedCallback(){
 		this.shadowRoot.querySelector('[name="update"]').removeEventListener('click', eHdl_ngcon);
 		this.shadowRoot.querySelector('[name="sort"]').removeEventListener('change', eHdl_sort);
+		this.shadowRoot.querySelector('[name="view"]').removeEventListener('change', eHdl_view);
 		//clearInterval(this.eHdl_ngcon);
 		ServerBrowser.eventbus.detach("refresh", this.eb_conn);
 	}
 	adoptedCallback(){ this.render(); }
-	attributesChangedCallback(){ this.update(); this.render(); }
+	attributesChangedCallback(){ this.update(); }
 
 	update(data = {}){
 		//let modelFetch = ServerBrowser.db.servers;
@@ -124,8 +127,18 @@ export default class NetgameListComponent extends HTMLElement{
 			this.netgames[i].update(data[i]);
 			this.netgames[i].render();
 		}
+		// Update view type
+		console.log("new viewtype: ", this.shadowRoot.querySelector('[name="view"]').value);
+		this.setAttribute("view", this.shadowRoot.querySelector('[name="view"]').value);
 		//console.log("Updated List: ",this);
-		this.render();
+
+		// Accumulate 1s of updates into one render call
+		if(this.nextUpdate == undefined){
+			this.nextUpdate = setTimeout(() => {
+				this.render();
+				this.nextUpdate = undefined;
+			}, 1000);
+		}
 	}
 
 	async render(){

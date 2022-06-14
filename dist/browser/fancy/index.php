@@ -26,6 +26,7 @@
 <link rel="stylesheet" href="browse/css/NetgameComponent.css">
 <template data-name="netgame">
 	<link rel="stylesheet" href="browse/css/NetgameComponent-shadow.css">
+	<div>
 	<slot name="name">Dummy server</slot>
 	<div class="flex">
 	<ul>
@@ -39,6 +40,15 @@
 	<li><slot name="version">DummyBuild</slot> (<slot name="version_name">SRB2</slot> <slot name="version_major">X</slot> <slot name="version_minor">Y</slot> <slot name="version_patch">Z</slot>)</li>
 	<li>Update: <slot name="updated_at">Never</slot></li>
 	</ul>
+	</div>
+	<div class="flex">
+	<div class="block">
+	<slot name="players">x</slot>
+	/
+	<slot name="maxplayers">n</slot>
+	</div>
+	<div><slot name="ping">&infin;</slot> ms</div>
+	</div>
 	</div>
 	<hr>
 	<details>
@@ -63,14 +73,6 @@
 	</div>
 	</details>
 	<hr>
-	<div class="flex">
-	<div class="block">
-	<slot name="players">x</slot>
-	/
-	<slot name="maxplayers">n</slot>
-	</div>
-	<div><slot name="ping">&infin;</slot> ms</div>
-	</div>
 	<div class="flex flex-center">
 	<!-- <input type="button" value="Update" name="update"> -->
 	<a href="#" class="button" name="update">Update</a>
@@ -95,6 +97,10 @@
 		<option value="updated_at">Latest update</option>
 		<option value="version">Latest version</option>
 	</select>
+	<select value="View" name="view">
+		<option value="list">List</option>
+		<option value="gallery">Gallery</option>
+	</select>
 	<a href="#" class="button checkbox">Reverse</a>
 	</div>
 	<slot name="netgames"><p>No servers available.</p></slot>
@@ -104,7 +110,7 @@
 <img src="browse/img/logo.svg">
 <h1>Integrated server browser</h1>
 <pre><?php echo $this->sharedData()->get('motd'); ?></pre>
-<sb-netgamelist></sb-netgamelist>
+<sb-netgamelist view="list"></sb-netgamelist>
 </body>
 </html>
 
