@@ -101,7 +101,8 @@ INSTALLATION
 
 ### Host LiquidMS using Docker(-Compose)
 
-You can easily run a working LiquidMS node as a set of Docker containers:
+You can easily run a working LiquidMS node as a set of Docker
+containers using the included sample Docker Compose setup:
 
 1. Navigate your terminal to this repository
 2. Create the following files based on your customizations.
@@ -117,13 +118,13 @@ You can easily run a working LiquidMS node as a set of Docker containers:
 ### Natively installing LiquidMS
 
 First, download the source code and install all dependencies. You'll need
-[PHP] 8.0.x, [Composer] and either [MariaDB] or [MySQL] with for this with
+[PHP] 8.0.x, [Composer] and either [MariaDB] or [MySQL] for this with
 appropriate ODBC connectors and the following PHP extensions enabled:
 
 - EXT_MBSTRING
 - EXT_ODBC
 - EXT_PDO
-- EXT_SOCKETS (for hosting the server browser)
+- EXT_SOCKETS (for hosting the SRB2Query module)
 - EXT_YAML
 
 If you have trouble installing PHP extensions, here's a few links for help,
@@ -224,46 +225,6 @@ In order to host local rooms, one must register these in their database
 manually with an ID between 2 and 99. This was a deliberate security
 measure to avoid unauthorized remote database fiddling in distributed
 setups. Room ID 1 is reserved for World and remains ignored.
-
-All rooms with an id of 100+ will be reserved to be automatically generated
-by LiquidMS depending on the origin and designated room of all remote
-servers within it's database. These will be regularly deleted and rebuilt
-so don't even attempt to set up a room in this range, it's not worth it.
-
-When enabled, LiquidMS nodes also offer an integrated web-based server
-browser over the route `/liquidms/browse`. This way players are able to
-check for the status of netgames known to the LiquidMS node without need of
-launching the game. This server browser can be altered or exchanged using
-the config option `sbpath`, requiring an absolute path to the directory
-containing the frontend. The exact structure required of a frontend to work
-as a LiquidMS-compatible server browser will be displayed down below in YAML.
-
-```YAML
-sbpath:
-- index.php # Entry point to your frontend.
-- favicon.svg # Favicon
-# More information on hooking your PHP scripts into LiquidMS in
-# the "Views" section at <https://github.com/klein/klein.php>
-- css/ # CSS data. Nested structure is permitted.
-- img/ # Image stock. Nested structure is permitted.
-- js/ # JavaScript resources. Nested structure is permitted.
-- static/ # Static resources. Nested structure is permitted.
-```
-
-Currently LiquidMS ships with two server browsers by default,
-only one of which can be hosted per satellite:
-
-`dist/browser/fancy`
-: An dynamic, modern server browser with the ability
-  to query netgames right from within the UI.
-
-`dist/browser/fast`
-: A non-interactive, lightweight static browser faturing server-side
-  rendering aimed at low usage of resources and bandwidth.
-
-Furthermore the path `/liquidms/SRB2Query` offers live query information
-about the state of the netgame, based on [SRB2Query] by James R.
-
 
 ### Hosting a LiquidMS node
 
@@ -395,6 +356,14 @@ here for Linus-proofing.
 ```YAML
 ---
 # This is an example config.yaml for a LiquidMS node environment
+modules: # Features to enable
+- v1 # v1 API
+- snitch # snitch API
+- browser # integrated server browser
+- srb2query # SRB2Query endpoint (for fancy browser)
+sbpath: "/var/www/liquidms/browser/fancy"
+motd: | # Message of the day (displayed in-game and on the server browser)
+  liquidMS is licensed under AGPLv3
 db: # LiquidMS DB connection settings
    dsn: "DRIVER=LiquidMS ODBC driver;SERVER=localhost" # ODBC DSN string.
    user: "alice"
@@ -409,6 +378,14 @@ fetch: # Master servers to leech off of
 ...
 ```
 
+The `modules` section defines what modules to host on your LiquidMS
+satellite. See the source comments above for further explanation.
+
+All rooms with an id of 100+ will be reserved to be automatically generated
+by LiquidMS depending on the origin and designated room of all remote
+servers within it's database. These will be regularly deleted and rebuilt
+so don't even attempt to set up a room in this range, it's not worth it.
+
 The attribute `dsn` stands for *Data Source Name*. It provides the ODBC system
 with information about database and connection and its details may vary
 depending on the database implementation. For a quick reference on how to write
@@ -416,6 +393,40 @@ DSN connection strings for most commonly used database implementations, we
 recommend <https://www.connectionstrings.com/>. Otherwise we are not able to
 take accountability for how you decide to run or connect to your database
 using this interface; it is simply impossible for us to help you with that.
+
+When enabled, LiquidMS satellites also offer an integrated web-based server
+browser over the route `/liquidms/browse`. This way players are able to
+check for the status of netgames known to the LiquidMS node without need of
+launching the game. This server browser can be altered or exchanged using
+the config option `sbpath`, requiring an absolute path to the directory
+containing the frontend. The exact structure required of a frontend to work
+as a LiquidMS-compatible server browser will be displayed down below in YAML.
+
+```YAML
+sbpath:
+- index.php # Entry point to your frontend.
+- favicon.svg # Favicon
+# More information on hooking your PHP scripts into LiquidMS in
+# the "Views" section at <https://github.com/klein/klein.php>
+- css/ # CSS data. Nested structure is permitted.
+- img/ # Image stock. Nested structure is permitted.
+- js/ # JavaScript resources. Nested structure is permitted.
+- static/ # Static resources. Nested structure is permitted.
+```
+
+Currently LiquidMS ships with two server browsers by default,
+only one of which can be hosted per satellite:
+
+`dist/browser/fancy`
+: An dynamic, modern server browser with the ability
+  to query netgames right from within the UI.
+
+`dist/browser/fast`
+: A non-interactive, lightweight static browser faturing server-side
+  rendering aimed at low usage of resources and bandwidth.
+
+Furthermore the path `/liquidms/SRB2Query` offers live query information
+about the state of the netgame, based on [SRB2Query] by James R.
 
 
 ### MariaDB
@@ -455,9 +466,18 @@ field from the job.
 DEVELOPMENT
 -----------
 
-Simply Launch a server with PHP:
+We generally advise you to develop LiquidMS using the exemplary Docker
+Compose container network. This 
+
+If you wanna develop and test a natively running setup
+though, Simply Launch a PHP development server:
 
 	$ php -S 127.0.0.1:8080 public/index.php
+ 
+Keep in mind that the php development server is deliberately
+single-threaded and only processes one request at a time. This may severely
+impact the performance of parallelized network tests, such as testing a
+series of SRB2Query requests.
 
 NOTE: The game has been reported to have difficulties around the local DNS
       name `localhost`. Also note that the URL must not end in a slash as
