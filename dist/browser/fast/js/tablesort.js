@@ -1,4 +1,5 @@
 const tables = document.querySelectorAll('table');
+const searchbar = document.querySelector('#search');
 
 for (let tab of tables) {
   const tbody = tab.tBodies[0];
@@ -19,3 +20,22 @@ for (let tab of tables) {
     });
   }
 }
+
+searchbar.addEventListener('change', (e) => {
+	console.info("New filter: ", event.target.value);
+	for (let tab of tables) {
+	  const rows = tab.rows;
+      for(let el of rows){
+		// Skip header
+		if(el === tab.tHead.rows[0]){continue;}
+	    el.classList.remove("hidden");
+		if(event.target.value !== ""){
+			el.classList.add("hidden");
+			for (let column of el.cells) {
+				if(column.innerText.match(event.target.value)){el.classList.remove("hidden");}
+			}
+		}
+      };
+	}
+});
+

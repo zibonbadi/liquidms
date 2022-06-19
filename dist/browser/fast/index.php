@@ -27,10 +27,10 @@ $netgames = $this->sharedData()->get('netgames');
 <script src="browse/js/tablesort.js" async defer></script>
 </head>
 <body>
-<img src="browse/img/logo.svg">
-
+<a href="//github.com/zibonbadi/liquidms"><img src="browse/img/logo.svg"></a>
 <h1>Integrated server browser</h1>
 <pre><?php echo $this->sharedData()->get('motd'); ?></pre>
+<input type="text" id="search" placeholder="Filter servers">
 <table>
 	<thead>
 			<tr>

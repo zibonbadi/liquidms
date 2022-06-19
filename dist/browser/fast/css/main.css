@@ -27,6 +27,10 @@
 	}
 }
 
+.hidden{
+	display: none;
+}
+
 body{
 color: var(--color-text);
 background: var(--main-bg);
@@ -52,6 +56,25 @@ a{
 }
 a:hover{
 	color: #88ccff;
+}
+
+input[type="text"]{
+	background: #3355ff;
+	border: 3pt solid #8888ff;
+	color: #88ccff;
+	box-shadow: 0 0.3em #000;
+	cursor: pointer;
+	display: inline-block;
+	font-family: 'Press Start 2P', sans-serif;
+	font-size: 16pt;
+	text-decoration: none;
+	padding: 0.5em 1em;
+	width: 100%;
+	box-sizing: border-box;
+	margin-left: 1.5em;
+	margin-right: 1.5em;
+	margin-bottom: 1.5em;
+	margin-top: 1.5em;
 }
 
 table,tr,td{ border: none; }
