@@ -18,6 +18,7 @@ export default class NetgameListComponent extends HTMLElement{
 			this.classList.toggle("reverse");
 			event.preventDefault();
 		});
+		this.shadowRoot.querySelector('input[name="search"]').addEventListener( "change", this.search.bind(this));
 	}
 
 	init(){
@@ -97,6 +98,22 @@ export default class NetgameListComponent extends HTMLElement{
 		}
 	}
 
+	search(e){
+		let results = [];
+		for(let candidate in this.netgames){
+			this.netgames[candidate].classList.remove("hidden");
+			console.log("Target value: ", e.target.value);
+			if(e.target.value !== ""){ this.netgames[candidate].classList.add("hidden"); }
+			for(let field of this.netgames[candidate].attributes){
+				if(field.value.match(new RegExp(e.target.value, 'i'))){
+					results[candidate] = this.netgames[candidate];
+					results[candidate].classList.remove("hidden");
+				}
+			}
+		}
+		console.info("Search results: ", results);
+	}
+
 	connectedCallback(){
 		this.shadowRoot.querySelector('[name="update"]').addEventListener('click', this.eHdl_ngcon);
 		this.shadowRoot.querySelector('[name="sort"]').addEventListener('change', this.eHdl_sort );
@@ -120,6 +137,7 @@ export default class NetgameListComponent extends HTMLElement{
 		for(let i in data){
 			if(this.netgames[i] == undefined){
 				let newNG = new NetgameComponent(data[i]);
+				newNG.slot = "netgames";
 				this.netgames[i] = newNG;
 			}
 			//this.netgames[i].classList.add("locked");
@@ -142,11 +160,6 @@ export default class NetgameListComponent extends HTMLElement{
 	}
 
 	async render(){
-		if(this.querySelector('[slot="netgames"]') == undefined){
-			let newspan = document.createElement('span');
-			newspan.slot = 'netgames';
-			this.appendChild(newspan);
-		}
 		let sort = this.shadowRoot.querySelector('[name="sort"]').value;
 		let netgames_ordered = [];
 		for(let i in this.netgames){
@@ -155,7 +168,7 @@ export default class NetgameListComponent extends HTMLElement{
 		}
 		let toRender = this.sort(netgames_ordered, sort);
 		for(let i in toRender){
-			this.querySelector('[slot="netgames"]').appendChild(toRender[i]);
+			this.appendChild(toRender[i]);
 		}
 		//console.log("Rendered List: ",this);
 	}

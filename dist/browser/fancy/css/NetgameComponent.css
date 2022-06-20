@@ -7,6 +7,7 @@ sb-netgame{
 	margin: auto;
 	max-width: 100%;
 }
+
 sb-netgamelist[view="gallery"] sb-netgame{
 	/* Gallery view */
 	flex-basis: 7cm;

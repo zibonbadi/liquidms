@@ -82,6 +82,7 @@
 <template data-name="netgamelist">
 	<link rel="stylesheet" href="browse/css/NetgameListComponent-shadow.css">
 	<div class="buttonbox">
+	<input type="text" placeholder="Search" name="search">
 	<a href="#" class="button" name="update">Update all</a>
 	<!--
 	<input type="button" value="Update all" name="update">

@@ -100,6 +100,7 @@ export default class NetgameComponent extends HTMLElement{
 	}
 
 	notifyController(e = undefined){
+		console.info("Updating netgame ", this.hostname);
 		if( this.getAttribute("hostname") &&
 			this.getAttribute("port") ){
 			let attrs = {};

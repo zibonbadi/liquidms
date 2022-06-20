@@ -11,6 +11,9 @@
 	--netgame-text: white;
 	--netgame-title-text: yellow;
 	--netgame-border: 3pt solid #444;
+	--input-bg: #003;
+	--input-text: #ddd;
+	--input-border: 3pt solid #444;
 }
 
 @media screen and (prefers-color-scheme: dark){
@@ -19,6 +22,8 @@
 		--netgame-border: 3pt solid #444;
 	}
 }
+
+.hidden{ display: none !important; }
 
 body{
 color: var(--color-text);
