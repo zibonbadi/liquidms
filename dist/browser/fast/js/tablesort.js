@@ -32,7 +32,7 @@ searchbar.addEventListener('change', (e) => {
 		if(event.target.value !== ""){
 			el.classList.add("hidden");
 			for (let column of el.cells) {
-				if(column.innerText.match(event.target.value)){el.classList.remove("hidden");}
+				if(column.innerText.match(new RegExp(event.target.value,'i'))){el.classList.remove("hidden");}
 			}
 		}
       };
