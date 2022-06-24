@@ -30,12 +30,12 @@ This documentation follows the [Diataxis model], being divided into 4 categories
 [Diataxis model]: <https://diataxis.fr/>
 
 
-## Tutorials
+### Tutorials
 
 1. [Configuring MariaDB](doc/tutorial/mariadb-install.md)
 2. [Troubleshooting MariaDB](doc/tutorial/mariadb-troubleshooting.md)
 
-## How-To guides
+### How-To guides
 
 1. [Installing & hosting LiquidMS](doc/howto/install.md)
 2. [Connecting to LiquidMS](doc/howto/connect.md)
@@ -43,7 +43,7 @@ This documentation follows the [Diataxis model], being divided into 4 categories
 4. [Banning netgames](doc/howto/banning.md)
 5. [Forwarding ports](doc/howto/portforwarding.md)
 
-## Teardown
+### Teardown
 
 1. [LiquidMS hosting model](doc/teardown/hosting-model.md)
 2. [Fetching](doc/teardown/fetching.md)
@@ -51,7 +51,7 @@ This documentation follows the [Diataxis model], being divided into 4 categories
 4. [Fast server browser](doc/teardown/fastbrowser.md)
 5. [Fancy server browser](doc/teardown/fancybrowser.md)
 
-## Reference
+### Reference
 
 1. [Endpoints](doc/reference/endpoints.md)
 2. [Configuration files](doc/reference/configfiles.md)
