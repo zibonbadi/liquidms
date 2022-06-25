@@ -104,7 +104,9 @@ class NetgameModel{
 			   $values .= "(\"".self::map4to6($netgame["host"])."\", \"{$netgame["port"]}\", \"{$netgame["servername"]}\", \"{$netgame["version"]}\", \"{$netgame["roomname"]}\", \"{$netgame["origin"]}\"),";
 			}
 			$values = rtrim($values,", \n\r\t");
-			$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`) VALUES {$values}";
+			$query = "INSERT INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`)"
+			."VALUES {$values}"
+			."ON DUPLICATE KEY UPDATE `host`=VALUES(host), `port`=VALUES(port), `servername`=VALUES(servername), `version`=VALUES(version), `roomname`=VALUES(roomname), `origin`=VALUES(origin)";
 
 			$serverdata = self::db_execute($query);
 			return $serverdata;
