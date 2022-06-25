@@ -74,3 +74,5 @@ forward ports), the network failure will mark the netgame in red and make
 it transparent. If you wanna retry, you can just push the update button on
 that netgame again any time.
 
+[SRB2Query]: <https://git.do.srb2.org/Golden/SRB2-Query>
+
