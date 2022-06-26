@@ -107,15 +107,18 @@ export default class NetgameComponent extends HTMLElement{
 			for(var i = this.attributes.length - 1; i >= 0; i--) {
 				attrs[this.attributes[i].name] = this.attributes[i].value;
 			}
-			console.info("Issuing request to:", this.attributes, this.classList.contains("locked"));
 			if(!this.classList.contains("locked")){
+				console.info("Issuing request to:", this.attributes, this.classList.contains("locked"));
 			    this.classList.add("locked");
 				ServerBrowser.netgamecon.updateOne(attrs)
 				  .then( () => {
 					  this.classList.remove("locked");
 					  this.classList.remove("error");
 				  })
-				  .catch( () => { this.classList.add("error") });
+				  .catch( () => { 
+					  this.classList.remove("locked");
+					  this.classList.add("error")
+				  });
 			}
 			//this.classList.add("locked");
 		}

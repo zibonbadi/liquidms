@@ -63,7 +63,7 @@ export default class NetgameListComponent extends HTMLElement{
 	sort(netgames, sort){
 		//console.log(`Sort by: ${sort} (${typeof netgames})`, netgames);
 		switch(sort){
-		case "maxplayers":{
+		case "players":{
 		//case "minplayers":{
 			//sort = "players";
 			return netgames.sort( (a,b) => {

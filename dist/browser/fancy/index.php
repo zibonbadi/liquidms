@@ -89,14 +89,13 @@
 	<a href="#" class="button" name="sortbutton">Sort list</a>
 	-->
 	<select value="Update all" name="sort">
-		<option value="maxplayers">Max players</option>
-		<option value="minplayers">Min players</option>
-		<option value="name">Name A-Z</option>
-		<option value="origin">Origin A-Z &rarr; Room A-Z</option>
+		<option value="players">Players</option>
+		<option value="name">Name</option>
+		<option value="origin">Origin</option>
 		<option value="ping">Ping</option>
-		<option value="roomname">Room A-Z &rarr; Origin A-Z</option>
-		<option value="updated_at">Latest update</option>
-		<option value="version">Latest version</option>
+		<option value="roomname">Room</option>
+		<option value="updated_at">Timestamp</option>
+		<option value="version">Version</option>
 	</select>
 	<select value="View" name="view">
 		<option value="list">List</option>
