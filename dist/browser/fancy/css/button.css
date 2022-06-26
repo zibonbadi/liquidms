@@ -20,8 +20,8 @@ input[type="text"]{
 	padding: 0.5em 1em;
 	background-color: var(--input-bg);
 	border: var(--input-border);
-	margin: auto;
 	max-width: 100%;
+	box-sizing: border-box;
 }
 @media(any-hover: hover) and (pointer: fine){
 	button:hover, a.button:hover, select:hover, input[type="button"]:hover{
