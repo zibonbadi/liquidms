@@ -1,7 +1,7 @@
 ![LiquidMS logo](../liquidMS.svg)
 
-Snitching API
-=============
+Snitch API
+==========
 
 LiquidMS features a custom extension called the *Snitch API*. Through use
 of the endpoint `/liquidms/snitch` via HTTP GET and POST requests,
