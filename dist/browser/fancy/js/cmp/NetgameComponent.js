@@ -24,7 +24,7 @@ export default class NetgameComponent extends HTMLElement{
 		this.updateListener =  this.notifyController.bind(this);
 		//this.updateListener = this.shadowRoot.querySelector('[name="update"]').addEventListener("click",));
 		this.update(data);
-		this.classList.add('locked');
+		//this.classList.add('locked');
 		this.updateListener();
 	}
 
@@ -100,14 +100,16 @@ export default class NetgameComponent extends HTMLElement{
 	}
 
 	notifyController(e = undefined){
-		console.info("Updating netgame ", this.hostname);
+		console.info("Updating netgame ", this.getAttribute("hostname"), this);
 		if( this.getAttribute("hostname") &&
 			this.getAttribute("port") ){
 			let attrs = {};
 			for(var i = this.attributes.length - 1; i >= 0; i--) {
 				attrs[this.attributes[i].name] = this.attributes[i].value;
 			}
-			if(this.classList.contains("locked")){
+			console.info("Issuing request to:", this.attributes, this.classList.contains("locked"));
+			if(!this.classList.contains("locked")){
+			    this.classList.add("locked");
 				ServerBrowser.netgamecon.updateOne(attrs)
 				  .then( () => {
 					  this.classList.remove("locked");
