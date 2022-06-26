@@ -16,3 +16,14 @@
 	border-radius: 2em;
 }
 
+slot[name="netgames"]{
+	display: flex;
+	flex-flow: row wrap;
+	gap: 1.5em;
+	margin-top: 5mm;
+}
+
+:host(.reverse) slot[name="netgames"]{
+	flex-flow: row-reverse wrap-reverse;
+}
+
