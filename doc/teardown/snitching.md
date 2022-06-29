@@ -18,8 +18,10 @@ limitations in case you're planning to host a multi-node LiquidMS network:
    at a time, preventing the possibility of independent volunteer fetches.
 
 Because of this, LiquidMS features a custom API called the *Snitch API*.
-This API allows by sending CSV data over HTTP between fetchscripts and
-LiquidMS nodes on which this API is enabled.
+This API offers an alternative way of committing netgame data to by sending
+CSV data over HTTP between fetchscripts and LiquidMS nodes on which this
+API is enabled. Fetching CSV data is also possible through this API in
+order to fetch netgames with origin addresses attached.
 
 To control for volunteer requests potentially submitting bad or malicious
 data, all will be sufficiently sanitized by the node and database upon each
