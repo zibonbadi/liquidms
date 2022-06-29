@@ -18,6 +18,8 @@ export default class NetgameComponent extends HTMLElement{
 		let template = document.querySelector('template[data-name="netgame"]');
 		let templateContent = template.content;
 
+		this.eb_conn = function(){console.error("No eventbus hook registered yet!", this);};
+
 		const shadowRoot = this.attachShadow({mode: 'open'})
 		  .appendChild(templateContent.cloneNode(true));
 
@@ -32,13 +34,24 @@ export default class NetgameComponent extends HTMLElement{
 		customElements.define('sb-netgame', NetgameComponent);
 	}
 
+	async connectToEventbus(){
+		try{
+			this.eb_conn = await ServerBrowser.eventbus.attach("query", this.handleBus.bind(this));
+		}catch(error){
+			console.error("Error connecting to Eventbus (will retry in 2s):", error);
+			setTimeout(this.connectToEventbus.bind(this), 2000);
+		}
+	}
+
 	connectedCallback(){
 		this.shadowRoot.querySelector('[name="update"]').addEventListener("click", this.updateListener);
+		this.connectToEventbus();
 		//this.updateListener();
 		this.update(); 
 		this.render();
 	}
 	disconnectedCallback(){
+		ServerBrowser.eventbus.detach("query", this.eb_conn);
 		this.shadowRoot.querySelector('[name="update"]').removeEventListener("click", this.updateListener);
 	}
 	adoptedCallback(){
@@ -46,7 +59,7 @@ export default class NetgameComponent extends HTMLElement{
 	}
 	attributeChangedCallback(name, oldVal, newVal){
 		if( this.isConnected && oldVal != newVal){
-			console.info(`NETGAME UPDATE ${name}: ${oldVal} -> ${newVal}`, this);
+			console.info(`(${this.hostname}) NETGAME UPDATE ATTRIBUTE ${name}: ${oldVal} -> ${newVal}`);
 			//let tmp_o = {};
 			//tmp_o[name] = newVal;
 			//this.update(tmp_o);
@@ -127,9 +140,13 @@ export default class NetgameComponent extends HTMLElement{
 
 	handleBus(message, data = {}){
 		switch(message){
-			case "refresh":{
+			case "query":{
 				for(let sv in data){
-					if(data[sv].hostname == this.getAttribute("hostname")){ console.log("Caught refresh on: ", this.getAttribute("hostname")); }
+					//if(data[sv].hostname == this.getAttribute("hostname")){ console.log("Caught refresh on: ", this.getAttribute("hostname")); }
+					if(data[sv] == this.getAttribute("hostname")){
+						console.log("Caught refresh on: ", this.getAttribute("hostname"));
+						this.notifyController();
+					}
 				}
 				break;
 			}

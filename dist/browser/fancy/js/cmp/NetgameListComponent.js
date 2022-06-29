@@ -10,7 +10,11 @@ export default class NetgameListComponent extends HTMLElement{
 		const shadowRoot = this.attachShadow({mode: 'open'})
 		  .appendChild(templateContent.cloneNode(true));
 
-		this.eHdl_ngcon = this.notifyController.bind(this);
+		this.eHdl_ngcon = (e) => {
+			this.notifyController.bind(this);
+			ServerBrowser.eventbus.send("query", Object.keys(this.netgames));
+			e.preventDefault();
+		}
 		this.eHdl_sort = this.render.bind(this);
 		this.eHdl_view = this.update.bind(this, {});
 		this.eb_conn = function(){console.error("No eventbus hook registered yet!", this);};
@@ -67,12 +71,27 @@ export default class NetgameListComponent extends HTMLElement{
 		//case "minplayers":{
 			//sort = "players";
 			return netgames.sort( (a,b) => {
+
+				if(a.hasAttribute(sort) && !b.hasAttribute(sort)){
+					return -1;
+				}else if(!a.hasAttribute(sort) && b.hasAttribute(sort)){
+					return 1;
+				}else if(!a.hasAttribute(sort) && !b.hasAttribute(sort)){
+					return 0;
+				}
 				return( Number(b.getAttribute(sort)) - Number(a.getAttribute(sort)) );
 			});
 		}
 		case "ping":{
 			// Numeric sort
 			return netgames.sort( (a,b) => {
+				if(a.hasAttribute(sort) && !b.hasAttribute(sort)){
+					return 1;
+				}else if(!a.hasAttribute(sort) && b.hasAttribute(sort)){
+					return -1;
+				}else if(!a.hasAttribute(sort) && !b.hasAttribute(sort)){
+					return 0;
+				}
 				return( Number(a.getAttribute(sort)) - Number(b.getAttribute(sort)) );
 			});
 			break;
@@ -80,7 +99,9 @@ export default class NetgameListComponent extends HTMLElement{
 		case "updated_at":{
 			// Timestamp sort
 			return netgames.sort( (a,b) => {
-				return ( Date.parse(b.getAttribute(sort)) - Date.parse(a.getAttribute(sort)) );
+				let aVal = (a.hasAttribute(sort))?Date.parse(a.getAttribute(sort)):-1;
+				let bVal = (b.hasAttribute(sort))?Date.parse(b.getAttribute(sort)):-1;
+				return ( bVal - aVal );
 			});
 			break;
 		}
