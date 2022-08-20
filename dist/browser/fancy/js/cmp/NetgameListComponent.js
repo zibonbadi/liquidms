@@ -11,7 +11,8 @@ export default class NetgameListComponent extends HTMLElement{
 		  .appendChild(templateContent.cloneNode(true));
 
 		this.eHdl_ngcon = (e) => {
-			this.notifyController.bind(this);
+			//console.debug("eHdl_ngCon.this:", this);
+			this.notifyController.bind(this)();
 			ServerBrowser.eventbus.send("query", Object.keys(this.netgames));
 			e.preventDefault();
 		}
@@ -30,8 +31,11 @@ export default class NetgameListComponent extends HTMLElement{
 	}
 
 	notifyController(){
+		//console.debug("notifyController.this", this);
 		try{
 			ServerBrowser.netgamecon.fetchServers().then( (response) => {
+				//console.debug("notifyController.netgamecon.response.this", this);
+				console.info("Notify response: ", response);
 				this.shadowRoot.querySelector('[name="update"]').classList.remove("error");
 				this.shadowRoot.querySelector('[name="update"]').value = "Update all";
 				for(let i in response){
@@ -39,6 +43,7 @@ export default class NetgameListComponent extends HTMLElement{
 					this.netgames[i].updateListener().then();
 				}
 			}).catch( (error) => {
+				console.error("Notify error: ", error);
 				this.shadowRoot.querySelector('[name="update"]').classList.add("error");
 				this.shadowRoot.querySelector('[name="update"]').value = "Update failed!";
 			});
@@ -65,13 +70,28 @@ export default class NetgameListComponent extends HTMLElement{
 	}
 
 	sort(netgames, sort){
+		let rVal = netgames;
 		//console.log(`Sort by: ${sort} (${typeof netgames})`, netgames);
+		
 		switch(sort){
 		case "players":{
 		//case "minplayers":{
 			//sort = "players";
-			return netgames.sort( (a,b) => {
+			rVal = rVal.sort( (a,b) => {
 
+				if(a.hasAttribute(sort) && !b.hasAttribute(sort)){
+					return -1;
+				}else if(!a.hasAttribute(sort) && b.hasAttribute(sort)){
+					return 1;
+				}else if(!a.hasAttribute(sort) && !b.hasAttribute(sort)){
+					return 0;
+				}
+				return( Number(a.getAttribute(sort)) - Number(b.getAttribute(sort)) );
+			});
+		}
+		case "ping":{
+			// Numeric sort
+			rVal = rVal.sort( (a,b) => {
 				if(a.hasAttribute(sort) && !b.hasAttribute(sort)){
 					return -1;
 				}else if(!a.hasAttribute(sort) && b.hasAttribute(sort)){
@@ -81,24 +101,11 @@ export default class NetgameListComponent extends HTMLElement{
 				}
 				return( Number(b.getAttribute(sort)) - Number(a.getAttribute(sort)) );
 			});
-		}
-		case "ping":{
-			// Numeric sort
-			return netgames.sort( (a,b) => {
-				if(a.hasAttribute(sort) && !b.hasAttribute(sort)){
-					return 1;
-				}else if(!a.hasAttribute(sort) && b.hasAttribute(sort)){
-					return -1;
-				}else if(!a.hasAttribute(sort) && !b.hasAttribute(sort)){
-					return 0;
-				}
-				return( Number(a.getAttribute(sort)) - Number(b.getAttribute(sort)) );
-			});
 			break;
 		}
 		case "updated_at":{
 			// Timestamp sort
-			return netgames.sort( (a,b) => {
+			rVal = rVal.sort( (a,b) => {
 				let aVal = (a.hasAttribute(sort))?Date.parse(a.getAttribute(sort)):-1;
 				let bVal = (b.hasAttribute(sort))?Date.parse(b.getAttribute(sort)):-1;
 				return ( bVal - aVal );
@@ -111,12 +118,31 @@ export default class NetgameListComponent extends HTMLElement{
 		case "name":
 		default:{
 			// Lexical sort
-			return netgames.sort( (a,b) => {
+			rVal = rVal.sort( (a,b) => {
+				if(a.hasAttribute(sort) && !b.hasAttribute(sort)){
+					return -1;
+				}else if(!a.hasAttribute(sort) && b.hasAttribute(sort)){
+					return 1;
+				}else if(!a.hasAttribute(sort) && !b.hasAttribute(sort)){
+					return 0;
+				}
 				return a.getAttribute(sort).localeCompare(b.getAttribute(sort) );
 			});
 			break;
 		}
 		}
+		console.debug("Criteria sorted NetgameList:", rVal);
+		// Bury unreachable netgames
+		rVal = rVal.sort( (a,b) => {
+			if(a.classList.contains("error") && !b.classList.contains("error")){
+				return 1;
+			}else if(!a.classList.contains("error") && b.classList.contains("error")){
+				return -1;
+			}
+			return 0;
+		});
+		console.debug("Availability sorted NetgameList:", rVal);
+		return rVal;
 	}
 
 	search(e){

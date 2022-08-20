@@ -4,13 +4,13 @@ export default class NetgameController{
 	}
 
 	async fetchServers(url = '/liquidms/snitch'){
-		console.info("Fetching servers from ", url);
+		//console.debug("Fetching servers from ", url);
 		ServerBrowser.req.get(url)
 			.then( async (response) => {
-				console.info("Fetch response: ", response);
+				//console.debug("Fetch response: ", response);
 				let toModel = [];
 				let servers = this.CSVToArray(response, ',');
-				console.info("Parsed fetch response: ", servers);
+				//console.debug("Parsed fetch response: ", servers);
 				for(let sv of servers){
 					let insert = {};
 					insert.hostname = sv[0];
