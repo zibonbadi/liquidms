@@ -11,6 +11,18 @@ button, select, a.button, input[type="button"]{
 	padding: 0.5em 1em;
 	max-width: 100%;
 }
+input[type="text"]{
+	color: var(--input-text);
+	box-shadow: 0 0.3em #000;
+	text-shadow: 0.07em 0.1em 0 #000;
+	font-family: 'Press Start 2P', sans-serif;
+	font-size: 16pt;
+	padding: 0.5em 1em;
+	background-color: var(--input-bg);
+	border: var(--input-border);
+	max-width: 100%;
+	box-sizing: border-box;
+}
 @media(any-hover: hover) and (pointer: fine){
 	button:hover, a.button:hover, select:hover, input[type="button"]:hover{
 		background: #aaaaff;

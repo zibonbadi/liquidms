@@ -1,4 +1,6 @@
 @import url('/liquidms/browse/css/button.css');
+@import url('/liquidms/browse/css/main.css');
+@import url('/liquidms/browse/css/NetgameComponent.css');
 
 .buttonbox{
 	display: flex;
@@ -12,5 +14,16 @@
 }
 :root.reverse a.checkbox{
 	border-radius: 2em;
+}
+
+slot[name="netgames"]{
+	display: flex;
+	flex-flow: row wrap;
+	gap: 1.5em;
+	margin-top: 5mm;
+}
+
+:host(.reverse) slot[name="netgames"]{
+	flex-flow: row-reverse wrap-reverse;
 }
 

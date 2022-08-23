@@ -8,9 +8,16 @@
 	--netgame-locked-bg: #447d;
 	/* --netgame-bg: #35d1ff77; */
 	--netgame-bg-hover: #335;
+	--netgame-bg-error: #fc5b7c;
+	--netgame-bg-error-hover: #bf4262;
 	--netgame-text: white;
+	--netgame-text-error: #ffbae4;
 	--netgame-title-text: yellow;
 	--netgame-border: 3pt solid #444;
+	--netgame-border-error: #fd9fa3;
+	--input-bg: #003;
+	--input-text: #ddd;
+	--input-border: 3pt solid #444;
 }
 
 @media screen and (prefers-color-scheme: dark){
@@ -19,6 +26,8 @@
 		--netgame-border: 3pt solid #444;
 	}
 }
+
+.hidden{ display: none !important; }
 
 body{
 color: var(--color-text);

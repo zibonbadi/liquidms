@@ -7,6 +7,7 @@ sb-netgame{
 	margin: auto;
 	max-width: 100%;
 }
+
 sb-netgamelist[view="gallery"] sb-netgame{
 	/* Gallery view */
 	flex-basis: 7cm;
@@ -21,20 +22,24 @@ sb-netgamelist[view="list"] sb-netgame{
 }
 sb-netgame.locked{
 	background-color: var(--netgame-locked-bg);
+	pointer-events: none;
 }
 sb-netgame.error{
-	background: #fc5b7c;
-	border-color: #fd9fa3;
-	color: #ffbae4;
+	background:  var(--netgame-bg-error);
+	border-color: var(--netgame-border-error);
+	color: var(--netgame-border-error);
 	opacity: 66%;
 }
 @media(any-hover: hover) and (pointer: fine){
 	sb-netgame.locked{
 		opacity: 25%
 	}
-	sb-netgame:hover{
+	sb-netgame:not(.locked):hover{
 		background-color: var(--netgame-bg-hover);
 		opacity: 100%
+	}
+	sb-netgame:not(.locked).error:hover{
+		background-color: var(--netgame-bg-error-hover);
 	}
 	sb-netgame .player:hover{
 		box-shadow: 0 0.3em #000;
