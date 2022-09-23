@@ -34,7 +34,8 @@ This documentation follows the [Diataxis model], being divided into 4 categories
 
 1. [Configuring MariaDB](doc/tutorial/mariadb-install.md)
 2. [Troubleshooting MariaDB](doc/tutorial/mariadb-troubleshooting.md)
-2. [Troubleshooting Docker](doc/tutorial/docker-troubleshooting.md)
+3. [Troubleshooting Docker](doc/tutorial/docker-troubleshooting.md)
+4. [Snitching](doc/tutorial/snitching.md)
 
 ### How-To guides
 
