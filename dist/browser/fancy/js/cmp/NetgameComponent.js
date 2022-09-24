@@ -85,12 +85,14 @@ export default class NetgameComponent extends HTMLElement{
 	async render(){
 		this.innerHTML = ''
 		for(let i of this.getAttributeNames()){
-			if(i == "players_list"){continue;}
-			let newNG = document.createElement('span');
-			newNG.slot = i;
-			newNG.innerHTML = this.getAttribute(`${i}`);
-			this.appendChild(newNG);
+			// Skip the nasty ones
+			if(!this.shadowRoot.querySelector(`[name="${i}"]`)){continue;}
+			this.shadowRoot.querySelector(`[name="${i}"]`).innerHTML = this.getAttribute(`${i}`);
 		}
+
+		// Player count update
+		this.shadowRoot.querySelector('progress').setAttribute("value", (this.getAttribute('players') / this.getAttribute('maxplayers')) );
+
 
 		for(let i in this.playerlist){
 			//if(i == "players_list"){continue;}

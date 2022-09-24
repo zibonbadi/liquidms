@@ -18,6 +18,12 @@
 	--input-bg: #003;
 	--input-text: #ddd;
 	--input-border: 3pt solid #444;
+	--progress-bg: #003;
+	--progress-trough: #ccc;
+	--progress-trough-good: #6bde4a;
+	--progress-trough-medium: yellow;
+	--progress-trough-bad: red;
+	--progress-border: 2pt solid #666;
 }
 
 @media screen and (prefers-color-scheme: dark){

@@ -27,27 +27,27 @@
 <template data-name="netgame">
 	<link rel="stylesheet" href="browse/css/NetgameComponent-shadow.css">
 	<div>
-	<slot name="name">Dummy server</slot>
+	<span name="name">Dummy server</span>
 	<div class="flex">
 	<ul>
 	<li>
-	<slot name="hostname">Dummy hostname</slot>
-	<slot name="port">Dummy port</slot>
+	<span name="hostname">Dummy hostname</span>:<span name="port">Dummy port</span>
 	</li>
-	<li>Game type: <slot name="gametype">unknown</slot></li>
+	<li>Game type: <span name="gametype">unknown</span></li>
 	</ul>
 	<ul>
-	<li><slot name="version">DummyBuild</slot> (<slot name="version_name">SRB2</slot> <slot name="version_major">X</slot> <slot name="version_minor">Y</slot> <slot name="version_patch">Z</slot>)</li>
-	<li>Update: <slot name="updated_at">Never</slot></li>
+	<li><span name="version">DummyBuild</span> (<span name="version_name">SRB2</span> <span name="version_major">X</span> <span name="version_minor">Y</span> <span name="version_patch">Z</span>)</li>
+	<li>Update: <span name="updated_at">Never</span></li>
 	</ul>
 	</div>
 	<div class="flex">
 	<div class="block">
-	<slot name="players">x</slot>
+	<progress></progress>
+	<span name="players">x</span>
 	/
-	<slot name="maxplayers">n</slot>
+	<span name="maxplayers">n</span>
 	</div>
-	<div><slot name="ping">&infin;</slot> ms</div>
+	<div><span name="ping">&infin;</span> ms</div>
 	</div>
 	</div>
 	<hr>
@@ -55,18 +55,18 @@
 	<summary>Netgame details</summary>
 		<div class="flex">
 		<ul class="flex-left">
-		<li>Stage: <slot name="level_name">Earless Netless Zone</slot></li>
-		<li>Stage hash: <slot name="level_md5">xxxxx</slot></li>
+		<li>Stage: <span name="level_name">Earless Netless Zone</span></li>
+		<li>Stage hash: <span name="level_md5">xxxxx</span></li>
 		</ul>
 		<ul class="flex-right">
-		<li>Dedicated server: <slot name="dedicated">unknown</slot></li>
-		<li>Modified: <slot name="modified">unknown</slot></li>
-		<li>Cheats: <slot name="cheats">unknown</slot></li>
-		<li>Origin: <slot name="roomname">Dummy room</slot>@<slot name="origin">World</slot></li>
+		<li>Dedicated server: <span name="dedicated">unknown</span></li>
+		<li>Modified: <span name="modified">unknown</span></li>
+		<li>Cheats: <span name="cheats">unknown</span></li>
+		<li>Origin: <span name="roomname">Dummy room</span>@<span name="origin">World</span></li>
 		</ul>
 		</div>
 	</details>
-	<details>
+	<details id="playerlist">
 	<summary>Players</summary>
 	<div class="flex flex-left">
 	<slot name="players_list">No players available.</slot>
