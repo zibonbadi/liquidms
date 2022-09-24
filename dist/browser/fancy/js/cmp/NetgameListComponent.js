@@ -151,11 +151,23 @@ export default class NetgameListComponent extends HTMLElement{
 			this.netgames[candidate].classList.remove("hidden");
 			console.log("Target value: ", e.target.value);
 			if(e.target.value !== ""){ this.netgames[candidate].classList.add("hidden"); }
+			// Do the attributes match?
 			for(let field of this.netgames[candidate].attributes){
 				if(field.value.match(new RegExp(e.target.value, 'i'))){
 					results[candidate] = this.netgames[candidate];
 					results[candidate].classList.remove("hidden");
+					break;
 				}
+			}
+			// Does the player name match?
+			if(
+			typeof(this.netgames[candidate].playerlist) == "object" &&
+			this.netgames[candidate].playerlist.filter((i) => { return i.name.match(new RegExp(e.target.value, 'i')); }).length > 0
+			){
+				results[candidate] = this.netgames[candidate];
+				results[candidate].classList.remove("hidden");
+				// TODO: Capsule into NetgameComponent
+				results[candidate].shadowRoot.querySelector("#playerlist").setAttribute("open", "");
 			}
 		}
 		console.info("Search results: ", results);
