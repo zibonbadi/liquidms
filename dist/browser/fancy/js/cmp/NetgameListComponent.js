@@ -149,6 +149,9 @@ export default class NetgameListComponent extends HTMLElement{
 		let results = [];
 		for(let candidate in this.netgames){
 			this.netgames[candidate].classList.remove("hidden");
+			// TODO: Capsule into NetgameComponent
+			this.netgames[candidate].shadowRoot.querySelector("#playerlist").removeAttribute("open");
+
 			console.log("Target value: ", e.target.value);
 			if(e.target.value !== ""){ this.netgames[candidate].classList.add("hidden"); }
 			// Do the attributes match?
@@ -162,6 +165,7 @@ export default class NetgameListComponent extends HTMLElement{
 			// Does the player name match?
 			if(
 			typeof(this.netgames[candidate].playerlist) == "object" &&
+			e.target.value &&
 			this.netgames[candidate].playerlist.filter((i) => { return i.name.match(new RegExp(e.target.value, 'i')); }).length > 0
 			){
 				results[candidate] = this.netgames[candidate];
