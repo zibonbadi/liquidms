@@ -163,15 +163,9 @@ export default class NetgameListComponent extends HTMLElement{
 				}
 			}
 			// Does the player name match?
-			if(
-			typeof(this.netgames[candidate].playerlist) == "object" &&
-			e.target.value &&
-			this.netgames[candidate].playerlist.filter((i) => { return i.name.match(new RegExp(e.target.value, 'i')); }).length > 0
-			){
+			if( this.netgames[candidate].morph_has(e.target.value)){
 				results[candidate] = this.netgames[candidate];
 				results[candidate].classList.remove("hidden");
-				// TODO: Capsule into NetgameComponent
-				results[candidate].shadowRoot.querySelector("#playerlist").setAttribute("open", "");
 			}
 		}
 		console.info("Search results: ", results);

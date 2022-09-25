@@ -140,6 +140,43 @@ export default class NetgameComponent extends HTMLElement{
 		if(e != undefined){ e.preventDefault(); }
 	}
 
+	morph_has( input = undefined ){
+		// Return existence of input and highlight it within the component
+		
+		// Fields within meta details to look for
+		let metafields = [
+			"level_name",
+			"level_md5",
+			"origin",
+			"roomname",
+		];
+
+		this.shadowRoot.querySelector("#playerlist").removeAttribute("open");
+		this.shadowRoot.querySelector("#meta").removeAttribute("open");
+
+		for(let field of metafields){
+			if(
+				input &&
+				this.getAttribute(field) &&
+				this.getAttribute(field).match(new RegExp(input, 'i'))
+			){
+				console.log('Found matching field \"', field, 'within',  this.attributes.name);
+				this.shadowRoot.querySelector("#meta").setAttribute("open", "");
+				return true;
+			}
+		}
+		
+		if(
+			typeof(this.playerlist) == "object" &&
+			input &&
+			this.playerlist.filter((i) => { return i.name.match(new RegExp(input, 'i')); }).length > 0
+		){
+			this.shadowRoot.querySelector("#playerlist").setAttribute("open", "");
+			return true;
+		}
+		return false;
+	}
+
 	handleBus(message, data = {}){
 		switch(message){
 			case "query":{

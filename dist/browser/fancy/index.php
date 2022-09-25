@@ -51,7 +51,7 @@
 	</div>
 	</div>
 	<hr>
-	<details>
+	<details id="meta">
 	<summary>Netgame details</summary>
 		<div class="flex">
 		<ul class="flex-left">
