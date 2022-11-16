@@ -118,7 +118,7 @@ Use this server in-game:
 <li>Server Options</li>
 <li>Advanced Master</li>
 <li>Server</li>
-<li><code><?php echo "http://{$_SERVER['SERVER_NAME']}/v1"; ?></code></li>
+<li>Master Server: <code><?php echo "http://{$_SERVER['SERVER_NAME']}/v1"; ?></code></li>
 </ol>
 </p>
 <?php } ?>
