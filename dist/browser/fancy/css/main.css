@@ -46,7 +46,13 @@ font-size: 10pt;
 
 pre{ font-family: 'Press Start 2P', monospace; }
 
-h1,p,pre,img{
+a{
+	color: #88ccff;
+	text-decoration: none;
+}
+a:visited{ color: #3355ff; }
+
+h1,p,pre,img,ul,ol{
 max-width: min(100%, 60em);
 margin: 1em auto;
 display: block;

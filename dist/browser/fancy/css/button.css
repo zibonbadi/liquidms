@@ -1,4 +1,4 @@
-button, select, a.button, input[type="button"]{
+button, select, a.button, a.button:visited, input[type="button"]{
 	background: #3355ff;
 	border: 3pt solid #8888ff;
 	color: #88ccff;

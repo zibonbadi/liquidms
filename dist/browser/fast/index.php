@@ -30,6 +30,18 @@ $netgames = $this->sharedData()->get('netgames');
 <a href="//github.com/zibonbadi/liquidms"><img src="browse/img/logo.svg"></a>
 <h1>Integrated server browser</h1>
 <pre><?php echo $this->sharedData()->get('motd'); ?></pre>
+<?php if(in_array('v1', $config["modules"])){ ?>
+<p>
+Use this server in-game:
+<ol>
+<li>Options</li>
+<li>Server Options</li>
+<li>Advanced Master</li>
+<li>Server</li>
+<li><code><?php echo "http://{$_SERVER['SERVER_NAME']}/v1"; ?></code></li>
+</ol>
+</p>
+<?php } ?>
 <input type="text" id="search" placeholder="Filter servers">
 <table>
 	<thead>
@@ -56,6 +68,7 @@ foreach($netgames["data"] as $server){
 }
 ?>
 </tbody></table>
+<p><a target="_blank" href="https://github.com/zibonbadi/liquidms/">LiquidMS</a> version 1.1.0-dev. &copy; 2021-2022 Zibon Badi and others</p>
 </body>
 </html>
 

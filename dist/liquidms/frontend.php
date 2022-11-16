@@ -29,7 +29,11 @@ $router->with('/liquidms/browse', function() use ($router){
 	$router->respond('GET', '/?', function($request, $response, $service){
 			$config = ConfigModel::getConfig();
 			$netgames = NetgameModel::getServers();
-			$service->render(rtrim($config["sbpath"], "/")."/index.php", ["motd" => $config["motd"], "netgames" => $netgames]);
+			$service->render(rtrim($config["sbpath"], "/")."/index.php", [
+				"motd" => $config["motd"],
+				"modules" => $config["modules"],
+				"netgames" => $netgames
+				]);
 	});
 	// Three separate resource routes for capsuled security
 	$router->respond('GET', '/img/[**:path]/?', function($request, $response, $service){

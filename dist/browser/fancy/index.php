@@ -110,7 +110,20 @@
 <img src="browse/img/logo.svg">
 <h1>Integrated server browser</h1>
 <pre><?php echo $this->sharedData()->get('motd'); ?></pre>
+<?php if(in_array('v1', $this->sharedData()->get('modules'))){ ?>
+<p>
+Use this server in-game:
+<ol>
+<li>Options</li>
+<li>Server Options</li>
+<li>Advanced Master</li>
+<li>Server</li>
+<li><code><?php echo "http://{$_SERVER['SERVER_NAME']}/v1"; ?></code></li>
+</ol>
+</p>
+<?php } ?>
 <sb-netgamelist view="list"></sb-netgamelist>
+<p><a target="_blank" href="https://github.com/zibonbadi/liquidms/">LiquidMS</a> version 1.1.0-dev. &copy; 2021-2022 Zibon Badi and others</p>
 </body>
 </html>
 
