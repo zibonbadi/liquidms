@@ -30,7 +30,7 @@ $netgames = $this->sharedData()->get('netgames');
 <a href="//github.com/zibonbadi/liquidms"><img src="browse/img/logo.svg"></a>
 <h1>Integrated server browser</h1>
 <pre><?php echo $this->sharedData()->get('motd'); ?></pre>
-<?php if(in_array('v1', $config["modules"])){ ?>
+<?php if(in_array('v1', $this->sharedData()->get('modules'))){ ?>
 <p>
 Use this server in-game:
 <ol>
