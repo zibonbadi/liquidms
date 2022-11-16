@@ -27,3 +27,11 @@ slot[name="netgames"]{
 	flex-flow: row-reverse wrap-reverse;
 }
 
+@media screen and (max-width: 50em){
+	.buttonbox{
+		position: static;
+		top: 0;
+		z-index: 0;
+	}
+}
+

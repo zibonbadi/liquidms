@@ -23,7 +23,7 @@ input[type="text"]{
 	max-width: 100%;
 	box-sizing: border-box;
 }
-@media(any-hover: hover) and (pointer: fine){
+@media(any-hover: hover){
 	button:hover, a.button:hover, select:hover, input[type="button"]:hover{
 		background: #aaaaff;
 		box-shadow: 0 0.3em #88f;
@@ -42,4 +42,14 @@ iframe, img{
 	margin: auto;
 }
 
+@media (pointer:fine){
+	button,
+	select,
+	a.button,
+	a.button:visited,
+	input[type="button"],
+	input[type="text"]{
+		font-size: 12pt;
+	}
+}
 
