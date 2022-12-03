@@ -36,8 +36,9 @@ Use this server in-game:
 <ol>
 <li>Options</li>
 <li>Server Options</li>
-<li>Advanced </li>
-<li>Master Server: <code><?php echo "http://{$_SERVER['SERVER_NAME']}/v1"; ?></code></li>
+<li>Advanced</li>
+<li>Server</li>
+<li>Master Server: <a href="<?php echo "http://{$_SERVER['SERVER_NAME']}/v1"; ?>"><?php echo "http://{$_SERVER['SERVER_NAME']}/v1"; ?></a></li>
 </ol>
 </p>
 <?php } ?>
@@ -67,7 +68,10 @@ foreach($netgames["data"] as $server){
 }
 ?>
 </tbody></table>
-<p><a target="_blank" href="https://github.com/zibonbadi/liquidms/">LiquidMS</a> version 1.1.0-dev. &copy; 2021-2022 Zibon Badi and others</p>
+<p><a target="_blank"
+href="https://github.com/zibonbadi/liquidms/">LiquidMS</a> version
+1.1.0-dev. &copy; 2021-2022 Zibon Badi and others. LiquidMS is licensed under the <a target="_blank" href="/liquidms/license">GNU Affero General Public License version 3</a></p>
+<p>LiquidMS is part of Liquid Underground. <a href="https://discord.gg/HVTzVfAWG6">Join our Discord!</a></p>
 </body>
 </html>
 
