@@ -48,6 +48,7 @@
 	<span name="maxplayers">n</span>
 	</div>
 	<div><span name="ping">&infin;</span> ms</div>
+	<div>Origin: <span name="roomname">Dummy room</span>@<span name="origin">World</span></div>
 	</div>
 	</div>
 	<hr>
@@ -107,7 +108,9 @@
 </template>
 </head>
 <body>
+<a target="_blank" href="https://github.com/zibonbadi/liquidms/">
 <img src="browse/img/logo.svg">
+</a>
 <h1>Integrated server browser</h1>
 <pre><?php echo $this->sharedData()->get('motd'); ?></pre>
 <?php if(in_array('v1', $this->sharedData()->get('modules'))){ ?>
@@ -118,12 +121,15 @@ Use this server in-game:
 <li>Server Options</li>
 <li>Advanced Master</li>
 <li>Server</li>
-<li>Master Server: <code><?php echo "http://{$_SERVER['SERVER_NAME']}/v1"; ?></code></li>
+<li>Master Server: <a href="<?php echo "http://{$_SERVER['SERVER_NAME']}/v1"; ?>"><?php echo "http://{$_SERVER['SERVER_NAME']}/v1"; ?></a></li>
 </ol>
 </p>
 <?php } ?>
 <sb-netgamelist view="list"></sb-netgamelist>
-<p><a target="_blank" href="https://github.com/zibonbadi/liquidms/">LiquidMS</a> version 1.1.0-dev. &copy; 2021-2022 Zibon Badi and others</p>
+<p><a target="_blank"
+href="https://github.com/zibonbadi/liquidms/">LiquidMS</a> version
+1.1.0-dev. &copy; 2021-2022 Zibon Badi and others. LiquidMS is licensed under the <a target="_blank" href="/liquidms/license">GNU Affero General Public License version 3</a></p>
+<p>LiquidMS is part of Liquid Underground. <a href="https://discord.gg/HVTzVfAWG6">Join our Discord!</a></p>
 </body>
 </html>
 

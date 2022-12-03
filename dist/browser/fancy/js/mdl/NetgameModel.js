@@ -74,6 +74,7 @@ export default class NetgameModel{
 			this.servers[hostname].cheats = data.cheats;
 			this.servers[hostname].dedicated = data.dedicated;
 			this.servers[hostname].gametype = data.gametype;
+			this.servers[hostname].name = data.servername;
 			if(data.level){
 				this.servers[hostname].level_md5 = data.level.md5sum;
 				this.servers[hostname].level_name = data.level.title;

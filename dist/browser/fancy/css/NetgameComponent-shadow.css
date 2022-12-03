@@ -109,6 +109,14 @@ progress[value^="1"]::-webkit-progress-value
 	background: var(--progress-trough-bad);
 }
 
+:host-context(sb-netgamelist[view="list"]) hr{
+	background: #f0f;
+}
+
+:host-context(sb-netgamelist[view="list"]) hr{
+	display: none;
+}
+
 [name="name"]{
 	font-size: x-large;
 	color: var(--netgame-title-text);

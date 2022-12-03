@@ -6,7 +6,7 @@
 	display: flex;
 	flex-flow: row wrap;
 	justify-content: center;
-	gap: 1.5em;
+	gap: 1.5ex;
 	margin: auto;
 	position: sticky;
 	top: 2em;
@@ -19,7 +19,7 @@
 slot[name="netgames"]{
 	display: flex;
 	flex-flow: row wrap;
-	gap: 1.5em;
+	gap: 1.5ex;
 	margin-top: 5mm;
 }
 
@@ -27,7 +27,7 @@ slot[name="netgames"]{
 	flex-flow: row-reverse wrap-reverse;
 }
 
-@media screen and (max-width: 50em){
+@media screen and (max-width: 50em), screen and (max-height: 15cm){
 	.buttonbox{
 		position: static;
 		top: 0;

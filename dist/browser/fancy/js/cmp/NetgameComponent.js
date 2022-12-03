@@ -86,8 +86,8 @@ export default class NetgameComponent extends HTMLElement{
 		this.innerHTML = ''
 		for(let i of this.getAttributeNames()){
 			// Skip the nasty ones
-			if(!this.shadowRoot.querySelector(`[name="${i}"]`)){continue;}
-			this.shadowRoot.querySelector(`[name="${i}"]`).innerHTML = this.getAttribute(`${i}`);
+			//if(!this.shadowRoot.querySelector(`[name="${i}"]`)){continue;}
+			this.shadowRoot.querySelectorAll(`[name="${i}"]`).forEach( (e) => { e.innerHTML = this.getAttribute(`${i}`); });
 		}
 
 		// Player count update

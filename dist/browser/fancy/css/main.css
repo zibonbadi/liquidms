@@ -59,6 +59,10 @@ display: block;
 width: max-content;
 }
 
+p,h1,h2{
+	text-align: center;
+}
+
 h1{
 	text-shadow: 0.07em 0.1em 0 black;
 	color: white;
