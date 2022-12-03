@@ -125,7 +125,7 @@ Use this server in-game:
 </ol>
 </p>
 <?php } ?>
-<sb-netgamelist view="list"></sb-netgame152.67.42.101list>
+<sb-netgamelist view="list"></sb-netgamelist>
 <p><a target="_blank"
 href="https://github.com/zibonbadi/liquidms/">LiquidMS</a> version
 1.1.0-dev. &copy; 2021-2022 Zibon Badi and others. LiquidMS is licensed under the <a target="_blank" href="/liquidms/license">GNU Affero General Public License version 3</a></p>
