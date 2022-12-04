@@ -82,6 +82,13 @@
 <link rel="stylesheet" href="browse/css/NetgameListComponent.css">
 <template data-name="netgamelist">
 	<link rel="stylesheet" href="browse/css/NetgameListComponent-shadow.css">
+	<p>
+	<progress></progress>
+	<span name="players_total">x</span>
+	/
+	<span name="maxplayers_total">x</span>
+	Players online
+	</p>
 	<div class="buttonbox">
 	<input type="text" placeholder="Search" name="search">
 	<a href="#" class="button" name="update">Update all</a>

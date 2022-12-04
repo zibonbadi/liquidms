@@ -223,11 +223,24 @@ export default class NetgameListComponent extends HTMLElement{
 			// Parse netgames into array
 			netgames_ordered.push(this.netgames[i]);
 		}
+
 		let toRender = this.sort(netgames_ordered, sort);
 		for(let i in toRender){
 			this.appendChild(toRender[i]);
 		}
 		//console.log("Rendered List: ",this);
+
+		/* Accumulate player count */
+		let players_total = 0;
+		let maxplayers_total = 0;
+		this.querySelectorAll('sb-netgame:not(.error)').forEach( (e) => {
+			console.debug("querySelector routine called")
+			players_total += Number(e.getAttribute("players"));
+			maxplayers_total += Number(e.getAttribute("maxplayers"));
+		});
+		this.shadowRoot.querySelector('progress').setAttribute("value", (players_total / maxplayers_total) );
+		this.shadowRoot.querySelector('span[name="players_total"]').innerText = players_total;
+		this.shadowRoot.querySelector('span[name="maxplayers_total"]').innerText = maxplayers_total;
 	}
 
 	async handleBus(message, data){

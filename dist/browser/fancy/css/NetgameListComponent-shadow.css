@@ -35,3 +35,65 @@ slot[name="netgames"]{
 	}
 }
 
+progress
+{
+	border: var(--progress-border);
+	background: var(--progress-bg);
+	color: var(--progress-trough);
+	min-height: 1ex;
+	min-width: 1ex;
+	margin: 0.5em;
+}
+
+progress::-moz-progress-bar,
+progress::-webkit-progress-bar,
+progress::-webkit-progress-value
+{
+	background: var(--progress-trough);
+}
+
+progress[value^="0.0"]::-moz-progress-bar,
+progress[value^="0.0"]::-webkit-progress-bar,
+progress[value^="0.0"]::-webkit-progress-value,
+progress[value^="0.1"]::-moz-progress-bar,
+progress[value^="0.1"]::-webkit-progress-bar,
+progress[value^="0.1"]::-webkit-progress-value,
+progress[value^="0.2"]::-moz-progress-bar,
+progress[value^="0.2"]::-webkit-progress-bar,
+progress[value^="0.2"]::-webkit-progress-value,
+progress[value^="0.3"]::-moz-progress-bar,
+progress[value^="0.3"]::-webkit-progress-bar,
+progress[value^="0.3"]::-webkit-progress-value
+{
+	background: var(--progress-trough-good);
+}
+
+progress[value^="0.4"]::-moz-progress-bar,
+progress[value^="0.4"]::-webkit-progress-bar,
+progress[value^="0.4"]::-webkit-progress-value,
+progress[value^="0.5"]::-moz-progress-bar,
+progress[value^="0.5"]::-webkit-progress-bar,
+progress[value^="0.5"]::-webkit-progress-value,
+progress[value^="0.6"]::-moz-progress-bar,
+progress[value^="0.6"]::-webkit-progress-bar,
+progress[value^="0.6"]::-webkit-progress-value,
+progress[value^="0.7"]::-moz-progress-bar,
+progress[value^="0.7"]::-webkit-progress-bar,
+progress[value^="0.7"]::-webkit-progress-value
+{
+	background: var(--progress-trough-medium);
+}
+
+progress[value^="0.8"]::-moz-progress-bar,
+progress[value^="0.8"]::-webkit-progress-bar,
+progress[value^="0.8"]::-webkit-progress-value,
+progress[value^="0.9"]::-moz-progress-bar,
+progress[value^="0.9"]::-webkit-progress-bar,
+progress[value^="0.9"]::-webkit-progress-value,
+progress[value^="1"]::-moz-progress-bar,
+progress[value^="1"]::-webkit-progress-bar,
+progress[value^="1"]::-webkit-progress-value
+{
+	background: var(--progress-trough-bad);
+}
+
