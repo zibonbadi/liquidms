@@ -122,6 +122,9 @@ running a snitch using the fetchscript:
 `fetch.<jobname>.minute`
 : Interval to fetch. Only used by `liquidanacron.php`
 
+`fetch.<jobname>.http-header`
+: A flat array of HTTP headers to use during the request (e.g. `User-Agent: "%s/%s (%s, %s, %i, %i) SRB2BASE/%s"`).
+
 `fetchmode`
 : Can either be `"fetch"` or `"snitch"`
 
