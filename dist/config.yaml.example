@@ -33,6 +33,8 @@ fetch: # Master servers to leech off of
     host: "https://mb.srb2.org/MS/0"
     api: v1 # "v1" or "snitch"
     minute: 5
+    #http-header: # Only needed for DRM-ridden Master servers
+      #User-Agent: "${SRB2APPLICATION}/${VERSIONSTRING} (${compbranch}; ${comprevision}; ${MODID}; ${comprevision}) SRB2BASE/${CODEBASE}"
 snitch: # Servers to snitch to
 - "localhost:8080"
 ...
