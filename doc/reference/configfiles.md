@@ -123,7 +123,18 @@ running a snitch using the fetchscript:
 : Interval to fetch. Only used by `liquidanacron.php`
 
 `fetch.<jobname>.http-header`
-: A flat array of HTTP headers to use during the request (e.g. `User-Agent: "%s/%s (%s, %s, %i, %i) SRB2BASE/%s"`).
+: A flat array of HTTP headers to use during the request For example:
+
+  ```sh
+  User-Agent: "${SRB2APPLICATION}/${VERSIONSTRING} (${compbranch}; ${comprevision}; ${MODID}; ${comprevision}) SRB2BASE/${CODEBASE}"
+  ```
+  - `${SRB2APPLICATION}`: SRB2 application string ("SRB2")
+  - `${VERSIONSTRING}`: SRB2 version string. Should match the LiquidMS database's `versions.name`
+  - `${compbranch}`: Your client's Git branch (usually "main")
+  - `${comprevision}`: Your client's git commit hash (varies by version/fork)
+  - `${MODID}`: Doom mod ID. Should match the LiquidMS database's `versions._id`
+  - `${comprevision}`: Game revision Should match the LiquidMS database's `versions.gameid`
+  - `${CODEBASE}`: Internal codebase version number.
 
 `fetchmode`
 : Can either be `"fetch"` or `"snitch"`
