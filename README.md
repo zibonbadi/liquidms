@@ -58,6 +58,7 @@ This documentation follows the [Diataxis model], being divided into 4 categories
 1. [Endpoints](doc/reference/endpoints.md)
 2. [Configuration files](doc/reference/configfiles.md)
 3. [Snitch API](doc/reference/snitch.md)
+3. [Netgame Configuration (external)](doc/reference/netgames.md)
 
 
 

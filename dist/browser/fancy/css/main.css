@@ -15,6 +15,26 @@
 	--netgame-title-text: yellow;
 	--netgame-border: 3pt solid #444;
 	--netgame-border-error: #fd9fa3;
+
+	/* Text coloring */
+	--netgame-text-white: white;
+	--netgame-text-purple: #c4f;
+	--netgame-text-yellow: yellow;
+	--netgame-text-green: #5f5;
+	--netgame-text-blue: #8888ff;
+	--netgame-text-red: #fc5b7c;
+	--netgame-text-gray: #999;
+	--netgame-text-orange: #eab24d;
+	--netgame-text-sky: skyblue;
+	--netgame-text-lavender: #d9f;
+	--netgame-text-gold: gold;
+	--netgame-text-lime: #85ff85;
+	--netgame-text-steel: #ccc;
+	--netgame-text-pink: pink;
+	--netgame-text-brown: #ce6339;
+	--netgame-text-peach: #fdc4bf;
+
+	/* Input elements */
 	--input-bg: #003;
 	--input-text: #ddd;
 	--input-border: 3pt solid #444;

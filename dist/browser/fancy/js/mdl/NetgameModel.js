@@ -36,20 +36,7 @@ export default class NetgameModel{
 			let insert = {};
 			insert.hostname = sv.hostname;
 			insert.port = sv.port;
-			try{
-				//let sanitized = sv.name.replace(/[\x00-\x19\x7F-\xFF]/, '');
-				let sanitized = sv.name.replace(/\%[8-9a-fA-F][0-F]/g, '');
-				sanitized = sanitized.replace(/\%[0-1][0-F]/g, '').replace(/\+/g,' ');
-				insert.name = decodeURIComponent(sanitized);
-			}catch (error) {
-				console.error(`URL decode error: `, sv.name, error);
-				let sanitized = sv.name.replace(/\%20/g, ' ');
-				sanitized = sanitized.replace(/\%2F/g, '/');
-				sanitized = sanitized.replace(/\%27/g, "'");
-				sanitized = sanitized.replace(/\%[0-9A-F][0-9A-F]/g, '.');
-				insert.name = sanitized.replace(/\%[0-9A-F][0-9A-F]/g, '+');
-				//insert.name = sv.name;
-			}
+			insert.name = sv.name;
 			insert.version = sv.version;
 			insert.roomname = sv.roomname;
 			insert.origin = sv.origin;
@@ -67,7 +54,7 @@ export default class NetgameModel{
 			await sleep(25);
 		}
 		//ServerBrowser.eventbus.send("refresh", toRefresh);
-	}
+	};
 
 	async populateOne(hostkey, data = {}){
 
@@ -95,7 +82,6 @@ export default class NetgameModel{
 			toRefresh[hostkey] = this.servers[hostkey];
 			console.info("Populated entry:", toRefresh[hostkey]);
 			ServerBrowser.eventbus.send("refresh", toRefresh);
-	}
-
+	};
 }
 
