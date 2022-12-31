@@ -42,12 +42,12 @@ Netgame titles can be forward-colored using the following color codes ([source][
 | 0x85 | … | Red |
 | 0x86 | † | Gray |
 | 0x87 | ‡ | Orange |
-| 0x88 | <ˆ> | Sky/Cyan |
-| 0x89 | <‰> | Lavender |
-| 0x8A | <Š> | Gold |
-| 0x8B | <‹> | Tea/Lime |
-| 0x8C | <Œ> | Steel |
-| 0x8D | <�> | Pink |
-| 0x8E | <Ž> | Brown |
-| 0x8F | <�> | Peach |
+| 0x88 | ˆ | Sky/Cyan |
+| 0x89 | ‰ | Lavender |
+| 0x8A | Š | Gold |
+| 0x8B | ‹ | Tea/Lime |
+| 0x8C | Œ | Steel |
+| 0x8D | � | Pink |
+| 0x8E | Ž | Brown |
+| 0x8F | � | Peach |
 
