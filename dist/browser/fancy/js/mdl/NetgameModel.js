@@ -56,43 +56,44 @@ export default class NetgameModel{
 			//insert.updated_at = new Date().toLocaleString();
 
 			// this.servers for all , toRefresh for update culling
-			this.servers[insert.hostname] = insert;
-			toRefresh[insert.hostname] = insert;
+			let hostkey = `${insert.hostname}:${insert.port}`;
+			this.servers[hostkey] = insert;
+			toRefresh[hostkey] = insert;
 					
 			// Offset request flood
 			let passthru = [];
-			passthru[insert.hostname] = insert;
+			passthru[hostkey] = insert;
 			ServerBrowser.eventbus.send("refresh", passthru);
 			await sleep(25);
 		}
 		//ServerBrowser.eventbus.send("refresh", toRefresh);
 	}
 
-	async populateOne(hostname, data = {}){
+	async populateOne(hostkey, data = {}){
 
 			// Sanitization & flattener block
-			this.servers[hostname].cheats = data.cheats;
-			this.servers[hostname].dedicated = data.dedicated;
-			this.servers[hostname].gametype = data.gametype;
-			this.servers[hostname].name = data.servername;
+			this.servers[hostkey].cheats = data.cheats;
+			this.servers[hostkey].dedicated = data.dedicated;
+			this.servers[hostkey].gametype = data.gametype;
+			this.servers[hostkey].name = data.servername;
 			if(data.level){
-				this.servers[hostname].level_md5 = data.level.md5sum;
-				this.servers[hostname].level_name = data.level.title;
+				this.servers[hostkey].level_md5 = data.level.md5sum;
+				this.servers[hostkey].level_name = data.level.title;
 			}
-			this.servers[hostname].maxplayers = data.players.max;
-			this.servers[hostname].modified = data.mods;
-			this.servers[hostname].players = data.players.list.length;
-			this.servers[hostname].players_list = data.players.list;
-			this.servers[hostname].version_major = data.version.major;
-			this.servers[hostname].version_minor = data.version.minor;
-			this.servers[hostname].version_name = data.version.name;
-			this.servers[hostname].version_patch = data.version.patch;
-			this.servers[hostname].updated_at = new Date().toLocaleString();
+			this.servers[hostkey].maxplayers = data.players.max;
+			this.servers[hostkey].modified = data.mods;
+			this.servers[hostkey].players = data.players.list.length;
+			this.servers[hostkey].players_list = data.players.list;
+			this.servers[hostkey].version_major = data.version.major;
+			this.servers[hostkey].version_minor = data.version.minor;
+			this.servers[hostkey].version_name = data.version.name;
+			this.servers[hostkey].version_patch = data.version.patch;
+			this.servers[hostkey].updated_at = new Date().toLocaleString();
 
 			
 			let toRefresh = {};
-			toRefresh[hostname] = this.servers[hostname];
-			console.info("Populated entry:", toRefresh[hostname]);
+			toRefresh[hostkey] = this.servers[hostkey];
+			console.info("Populated entry:", toRefresh[hostkey]);
 			ServerBrowser.eventbus.send("refresh", toRefresh);
 	}
 

@@ -44,7 +44,8 @@ export default class NetgameController{
 		return ServerBrowser.req.get(`/liquidms/SRB2Query/?hostname=${server.hostname}&port=${server.port}`)
 			.then( (response) => {
 				let query = JSON.parse(response, ',');
-				ServerBrowser.db.populateOne(server.hostname, query);
+				let hostkey = `${server.hostname}:${server.port}`;
+				ServerBrowser.db.populateOne(hostkey, query);
 			}).catch( (error) => {
 				console.error('Failed to update NetgameModel: ', server.hostname, error);
 				throw error;
