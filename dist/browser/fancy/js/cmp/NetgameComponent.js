@@ -13,6 +13,26 @@ export default class NetgameComponent extends HTMLElement{
 	constructor(data = {}){
 		super();
 
+		/* color lookup table */
+		this.textcolors = [
+			"var(--netgame-text-white)",
+			"var(--netgame-text-purple)",
+			"var(--netgame-text-yellow)",
+			"var(--netgame-text-green)",
+			"var(--netgame-text-blue)",
+			"var(--netgame-text-red)",
+			"var(--netgame-text-gray)",
+			"var(--netgame-text-orange)",
+			"var(--netgame-text-sky)",
+			"var(--netgame-text-lavender)",
+			"var(--netgame-text-gold)",
+			"var(--netgame-text-lime)",
+			"var(--netgame-text-steel)",
+			"var(--netgame-text-pink)",
+			"var(--netgame-text-brown)",
+			"var(--netgame-text-peach)",
+		];
+
 		this.api = this.observedAttributes
 
 		let template = document.querySelector('template[data-name="netgame"]');
@@ -67,6 +87,60 @@ export default class NetgameComponent extends HTMLElement{
 		}
 	}
 
+	color_text(input){
+		try{
+			let out = "";
+			let spans = 0;
+			let ccodes = [];
+			//let sanitized = input.replace(/\%[8-9a-fA-F][0-F]/g, '');
+			//sanitized = sanitized.replace(/\%[0-1][0-F]/g, '').replace(/\+/g,' ');
+			// String == char array
+			for(let c of input){
+				let c_code = c.charCodeAt(0);
+				ccodes.push(c_code);
+				if(c_code >= 0x20 && c_code < 0x80){
+					out += c;
+				}else if(c_code >= 0x80 && c_code <= 0x8F){
+					if(spans > 0){
+						out += "</span>";
+						spans--;
+					}
+					out += `<span style="color: ${this.textcolors[c_code - 0x80]};">`;
+					spans++;
+				}
+			}
+			//console.debug("Successfully parsed netgame name: ", spans, ccodes);
+			for(spans; spans > 0; spans--){
+				out += "</span>";
+				spans--;
+			}
+			out = out.replace(/\%20/g, ' ');
+			out = out.replace(/\%2F/g, '/');
+			out = out.replace(/\%27/g, "'");
+			out = out.replace(/\%[0-9A-F][0-9A-F]/g, '.');
+			return out;
+		}catch(error) {
+			console.warn("Unable to parse text colors! Fallback to sanitize_text()", error);
+			return this.sanitize_text(input);
+		}
+	};
+
+	sanitize_text(input){
+		try{
+			let sanitized = input.replace(/\%[8-9a-fA-F][0-F]/g, '');
+			sanitized = sanitized.replace(/\%[0-1][0-F]/g, '').replace(/\+/g,' ');
+			return decodeURIComponent(sanitized);
+		}catch (error) {
+			console.error(`URL decode error: `, input, error);
+			let sanitized = input.replace(/\%20/g, ' ');
+			sanitized = sanitized.replace(/\%2F/g, '/');
+			sanitized = sanitized.replace(/\%27/g, "'");
+			sanitized = sanitized.replace(/\%[0-9A-F][0-9A-F]/g, '.');
+			return sanitized.replace(/\%[0-9A-F][0-9A-F]/g, '+');
+		}
+	}
+
+
 	update(data = {}){
 		if(Object.entries(data).length > 0){
 			for(let i in data){
@@ -87,7 +161,14 @@ export default class NetgameComponent extends HTMLElement{
 		for(let i of this.getAttributeNames()){
 			// Skip the nasty ones
 			//if(!this.shadowRoot.querySelector(`[name="${i}"]`)){continue;}
-			this.shadowRoot.querySelectorAll(`[name="${i}"]`).forEach( (e) => { e.innerHTML = this.getAttribute(`${i}`); });
+			this.shadowRoot.querySelectorAll(`[name="${i}"]`).forEach( (e) => {
+				if(e.getAttribute("name") == "name"){
+					console.debug("Selected element attrib: ", e, e.getAttribute("name"));
+					e.innerHTML = this.color_text(this.getAttribute(`${i}`)); 
+				}else{
+					e.innerHTML = this.getAttribute(`${i}`); 
+				}
+				});
 		}
 
 		// Player count update
