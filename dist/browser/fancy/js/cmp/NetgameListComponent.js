@@ -156,7 +156,13 @@ export default class NetgameListComponent extends HTMLElement{
 			if(e.target.value !== ""){ this.netgames[candidate].classList.add("hidden"); }
 			// Do the attributes match?
 			for(let field of this.netgames[candidate].attributes){
-				if(field.value.match(new RegExp(e.target.value, 'i'))){
+
+				// Get unformatted representation (RegEx: [ -z])
+				let field_parsed = field.value.replace(/\%[8-9a-fA-F][0-F]/g, '');
+				field_parsed = field_parsed.replace(/\%[0-1][0-F]/g, '').replace(/\+/g,' ');
+				field_parsed = field_parsed.replace(/[^\x20-\x7E]+/g, '');
+
+				if(field_parsed.match(new RegExp(e.target.value, 'i'))){
 					results[candidate] = this.netgames[candidate];
 					results[candidate].classList.remove("hidden");
 					break;
