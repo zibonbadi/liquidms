@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # Using multi-stage builds! https://docs.docker.com/develop/develop-images/multistage-build/
 
-FROM caddy:2.6.1-alpine
+FROM caddy:2.6.2-alpine
 
 COPY caddy.conf /etc/caddy/Caddyfile
 
