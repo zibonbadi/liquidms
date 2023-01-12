@@ -8,6 +8,7 @@ export default class NetgameModel{
 
 		let subjects = [];
 		let toRefresh = [];
+		console.debug("NetgameModel: Bulk update...")
 		switch(typeof(data)){
 		case "array":
 		case "object":{

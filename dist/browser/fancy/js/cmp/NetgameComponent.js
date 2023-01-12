@@ -69,7 +69,7 @@ export default class NetgameComponent extends HTMLElement{
 		this.connectToEventbus();
 		//this.updateListener();
 		this.update().then( () => {
-			this.netgames[i].render();
+			this.render();
 		});
 	}
 	disconnectedCallback(){
@@ -92,12 +92,13 @@ export default class NetgameComponent extends HTMLElement{
 	color_text(input){
 		try{
 			let out = "";
+			let input_parsed = unescape(input);
 			let spans = 0;
 			let ccodes = [];
 			//let sanitized = input.replace(/\%[8-9a-fA-F][0-F]/g, '');
 			//sanitized = sanitized.replace(/\%[0-1][0-F]/g, '').replace(/\+/g,' ');
 			// String == char array
-			for(let c of input){
+			for(let c of input_parsed){
 				let c_code = c.charCodeAt(0);
 				ccodes.push(c_code);
 				if(c_code >= 0x20 && c_code < 0x80){
@@ -119,7 +120,7 @@ export default class NetgameComponent extends HTMLElement{
 			out = out.replace(/\%20/g, ' ');
 			out = out.replace(/\%2F/g, '/');
 			out = out.replace(/\%27/g, "'");
-			out = out.replace(/\%[0-9A-F][0-9A-F]/g, '.');
+			//out = out.replace(/\%[0-9A-F][0-9A-F]/g, '.');
 			return out;
 		}catch(error) {
 			console.warn("Unable to parse text colors! Fallback to sanitize_text()", error);
