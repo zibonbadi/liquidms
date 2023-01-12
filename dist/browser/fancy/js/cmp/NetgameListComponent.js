@@ -199,8 +199,9 @@ export default class NetgameListComponent extends HTMLElement{
 			}
 			//this.netgames[i].classList.add("locked");
 			//this.netgames[i].updateListener();
-			this.netgames[i].update(data[i]);
-			this.netgames[i].render();
+			this.netgames[i].update(data[i]).then( () => {
+				this.netgames[i].render();
+			});
 		}
 		// Update view type
 		console.log("new viewtype: ", this.shadowRoot.querySelector('[name="view"]').value);

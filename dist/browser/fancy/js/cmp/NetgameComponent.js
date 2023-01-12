@@ -45,9 +45,10 @@ export default class NetgameComponent extends HTMLElement{
 
 		this.updateListener =  this.notifyController.bind(this);
 		//this.updateListener = this.shadowRoot.querySelector('[name="update"]').addEventListener("click",));
-		this.update(data);
 		//this.classList.add('locked');
-		this.updateListener();
+		this.update(data).then( () => {
+			this.updateListener();
+		});
 	}
 
 	init(){
@@ -67,8 +68,9 @@ export default class NetgameComponent extends HTMLElement{
 		this.shadowRoot.querySelector('[name="update"]').addEventListener("click", this.updateListener);
 		this.connectToEventbus();
 		//this.updateListener();
-		this.update(); 
-		this.render();
+		this.update().then( () => {
+			this.netgames[i].render();
+		});
 	}
 	disconnectedCallback(){
 		ServerBrowser.eventbus.detach("query", this.eb_conn);
@@ -141,7 +143,7 @@ export default class NetgameComponent extends HTMLElement{
 	}
 
 
-	update(data = {}){
+	async update(data = {}){
 		if(Object.entries(data).length > 0){
 			for(let i in data){
 				//console.log("Update attrib", i);
