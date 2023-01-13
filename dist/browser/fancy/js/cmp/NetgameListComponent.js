@@ -10,6 +10,7 @@ export default class NetgameListComponent extends HTMLElement{
 		const shadowRoot = this.attachShadow({mode: 'open'})
 		  .appendChild(templateContent.cloneNode(true));
 
+		/* Event handlers */
 		this.eHdl_ngcon = (e) => {
 			//console.debug("eHdl_ngCon.this:", this);
 			this.notifyController.bind(this)();
@@ -24,7 +25,63 @@ export default class NetgameListComponent extends HTMLElement{
 			event.preventDefault();
 		});
 		this.shadowRoot.querySelector('input[name="search"]').addEventListener( "change", this.search.bind(this));
+		
+		// Drag & Drop container
+		this.addEventListener("dragover", (e) => {
+			e.preventDefault();
+			let dragged = this.querySelector(".dragging");
+			let nextElement = this.getDNDSlot.bind(this)(e.clientX, e.clientY);
+			console.debug(nextElement);
+			if(nextElement == null){
+				this.appendChild(dragged);
+			}else{
+				this.insertBefore(dragged, nextElement);
+			}
+		});
 	}
+
+	getDNDSlot(x, y){
+		// Get DND candidates
+		let draggables = [...this.querySelectorAll('*[draggable="true"]:not(.dragging)')];
+		// Find element closest to pointer
+		return draggables.reduce((closest, current, index) => {
+			const box = current.getBoundingClientRect();
+			const nextBox = draggables[index + 1] && draggables[index + 1].getBoundingClientRect();
+			const inRow = y - box.bottom <= 0 && y - box.top >= 0; // check if this is in the same row
+			const offsetX = x - (box.left + box.width / 2);
+			//console.debug(box, nextBox, inRow, offsetX);
+			if (inRow && this.shadowRoot.querySelector('[name="view"]').value == "gallery" ) {
+			  if (offsetX < 0 && offsetX > closest.offsetX) {
+				return {
+				offsetX: offsetX,
+				element: current
+				};
+			  } else {
+				if ( // handle row ends, 
+				nextBox && // there is a box after this one. 
+				y - nextBox.top <= 0 && // the next is in a new row
+				closest.offsetX === Number.NEGATIVE_INFINITY // we didn't find a fit in the current row.
+				) {
+				return {
+				  offsetX: 0,
+				  element: draggableElements[index + 1]
+				};
+				}
+				return closest;
+			  }
+			} else if(this.shadowRoot.querySelector('[name="view"]').value == "list"){
+			const box = current.getBoundingClientRect();
+				const offsetY = y - box.top - (box.height/2);
+				if(offsetY < 0 && offsetY > closest.offsetY){
+					return {  offsetX: offsetX, offsetY: offsetY, element: current, };
+				} else {
+				  return closest;
+				}
+			} else {
+			  return closest;
+			}
+		}, { offsetX: Number.NEGATIVE_INFINITY, offsetY: Number.NEGATIVE_INFINITY }).element;
+	};
 
 	init(){
 		customElements.define('sb-netgamelist', NetgameListComponent);

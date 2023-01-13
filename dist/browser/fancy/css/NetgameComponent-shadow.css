@@ -1,4 +1,5 @@
 @import url('/liquidms/browse/css/button.css');
+@import url('/liquidms/browse/css/dnd.css');
 
 .flex{
 	display: flex;
@@ -46,6 +47,14 @@ ul > li
 {
 	list-style: none;
 }
+
+*[draggable="true"]{
+	cursor: move;
+}
+*[draggable="true"].dragging{
+	opacity: 10%;
+}
+
 
 progress
 {

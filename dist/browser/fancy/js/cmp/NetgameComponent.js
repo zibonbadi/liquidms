@@ -49,6 +49,26 @@ export default class NetgameComponent extends HTMLElement{
 		this.update(data).then( () => {
 			this.updateListener();
 		});
+
+		/* Drag & Drop + it's necessary event listener(s) */
+		this.setAttribute("draggable", "true");
+		this.addEventListener("dragstart", () => { this.classList.add("dragging"); })
+		this.addEventListener("dragend", () => { this.classList.remove("dragging"); })
+		
+		/*
+		// Drag & Drop container
+		this.shadowRoot.querySelector('#playerlist div').addEventListener("dragover", (e) => {
+			e.preventDefault();
+			let dragged = this.querySelector(".dragging");
+			let nextElement = this.getDNDSlot.bind(this.querySelector('#playerlist div'))(e.clientX, e.clientY);
+			console.debug(nextElement);
+			if(nextElement == null){
+				this.appendChild(dragged);
+			}else{
+				this.insertBefore(dragged, nextElement);
+			}
+		});
+		*/
 	}
 
 	init(){
@@ -63,6 +83,26 @@ export default class NetgameComponent extends HTMLElement{
 			setTimeout(this.connectToEventbus.bind(this), 2000);
 		}
 	}
+
+	/*
+	getDNDSlot(x, y){
+		// Get DND candidates
+		let draggables = [...this.querySelectorAll('*[draggable="true"]:not(.dragging)')];
+		// Find element closest to pointer
+		return draggables.reduce((closest, current) => {
+			const box = current.getBoundingClientRect();
+			const offsetX = x - box.left - (box.width/2);
+			const offsetY = y - box.top - (box.height/2);
+
+			let offsetBool = (offsetX < 0 && offsetX > closest.offsetX) && (offsetY < 0 && offsetY > closest.offsetY);
+			if(offsetBool){
+				return {  offsetX: offsetX, offsetY: offsetY, element: current, };
+			}else{
+				return closest;
+			}
+		}, { offsetX: Number.NEGATIVE_INFINITY, offsetY: Number.NEGATIVE_INFINITY, }).element;
+	};
+	*/
 
 	connectedCallback(){
 		this.shadowRoot.querySelector('[name="update"]').addEventListener("click", this.updateListener);
@@ -166,7 +206,7 @@ export default class NetgameComponent extends HTMLElement{
 			//if(!this.shadowRoot.querySelector(`[name="${i}"]`)){continue;}
 			this.shadowRoot.querySelectorAll(`[name="${i}"]`).forEach( (e) => {
 				if(e.getAttribute("name") == "name"){
-					console.debug("Selected element attrib: ", e, e.getAttribute("name"));
+					//console.debug("Selected element attrib: ", e, e.getAttribute("name"));
 					e.innerHTML = this.color_text(this.getAttribute(`${i}`)); 
 				}else{
 					e.innerHTML = this.getAttribute(`${i}`); 
@@ -181,6 +221,7 @@ export default class NetgameComponent extends HTMLElement{
 		for(let i in this.playerlist){
 			//if(i == "players_list"){continue;}
 			let player = document.createElement('details');
+			player.setAttribute("draggable", "false");
 			player.classList.add('player');
 			player.classList.add(this.playerlist[i].team);
 
