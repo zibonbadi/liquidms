@@ -39,6 +39,18 @@
 	--input-bg: #003;
 	--input-text: #ddd;
 	--input-border: 3pt solid #444;
+	--checkbox-bg: #3355ff;
+	--checkbox-text: #88ccff;
+	--checkbox-border: 3pt solid #8888ff;
+	--checkbox-bg-hover: #aaaaff;
+	--checkbox-text-hover: #44f;
+	--checkbox-border-hover: 3pt solid #88f;
+	--checkbox-bg-checked: #72cc5b;
+	--checkbox-text-checked: #8fa;
+	--checkbox-border-checked: 3pt solid #89e572;
+	--checkbox-bg-checked-hover: #aaffaa;
+	--checkbox-text-checked-hover: #89e572;
+	--checkbox-border-checked-hover: 3pt solid #89e572;
 	--progress-bg: #003;
 	--progress-trough: #ccc;
 	--progress-trough-good: #6bde4a;

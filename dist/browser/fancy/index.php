@@ -77,6 +77,7 @@
 	<div class="flex flex-center">
 	<!-- <input type="button" value="Update" name="update"> -->
 	<a href="#" class="button" name="update">Update</a>
+	<a href="#" class="checkbox" name="pin">Pin Netgame</a>
 	</div>
 </template>
 <link rel="stylesheet" href="browse/css/NetgameListComponent.css">

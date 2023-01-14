@@ -194,6 +194,7 @@ export default class NetgameListComponent extends HTMLElement{
 		}
 		console.debug("Criteria sorted NetgameList:", rVal);
 		// Bury unreachable netgames
+		/*
 		rVal = rVal.sort( (a,b) => {
 			if(a.classList.contains("error") && !b.classList.contains("error")){
 				return 1;
@@ -202,6 +203,7 @@ export default class NetgameListComponent extends HTMLElement{
 			}
 			return 0;
 		});
+		*/
 		console.debug("Availability sorted NetgameList:", rVal);
 		return rVal;
 	}

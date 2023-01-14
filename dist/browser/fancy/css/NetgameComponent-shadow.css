@@ -126,6 +126,20 @@ progress[value^="1"]::-webkit-progress-value
 	display: none;
 }
 
+:host() [name="pin"]{
+	cursor: pointer;
+}
+:host(.pinned) [name="pin"]{
+	background: var(--checkbox-bg-checked);
+	border: var(--checkbox-border-checked);
+	color: var(--checkbox-text-checked);
+}
+:host(.pinned) [name="pin"]:hover{
+	background: var(--checkbox-bg-checked-hover);
+	border: var(--checkbox-border-checked-hover);
+	color: var(--checkbox-text-checked-hover);
+}
+
 [name="name"]{
 	font-size: x-large;
 	color: var(--netgame-title-text);

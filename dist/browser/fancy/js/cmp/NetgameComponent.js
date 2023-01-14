@@ -44,6 +44,15 @@ export default class NetgameComponent extends HTMLElement{
 		  .appendChild(templateContent.cloneNode(true));
 
 		this.updateListener =  this.notifyController.bind(this);
+		this.pinListener =  (e) => {
+			e.preventDefault();
+			this.classList.toggle("pinned");
+			if(this.classList.contains("pinned")){
+				this.shadowRoot.querySelector('[name="pin"]').innerText = "Unpin Netgame";
+			}else{
+				this.shadowRoot.querySelector('[name="pin"]').innerText = "Pin Netgame";
+			}
+		}
 		//this.updateListener = this.shadowRoot.querySelector('[name="update"]').addEventListener("click",));
 		//this.classList.add('locked');
 		this.update(data).then( () => {
@@ -106,6 +115,7 @@ export default class NetgameComponent extends HTMLElement{
 
 	connectedCallback(){
 		this.shadowRoot.querySelector('[name="update"]').addEventListener("click", this.updateListener);
+		this.shadowRoot.querySelector('[name="pin"]').addEventListener("click", this.pinListener);
 		this.connectToEventbus();
 		//this.updateListener();
 		this.update().then( () => {
@@ -114,6 +124,7 @@ export default class NetgameComponent extends HTMLElement{
 	}
 	disconnectedCallback(){
 		ServerBrowser.eventbus.detach("query", this.eb_conn);
+		this.shadowRoot.querySelector('[name="pin"]').removeEventListener("click", this.pinListener);
 		this.shadowRoot.querySelector('[name="update"]').removeEventListener("click", this.updateListener);
 	}
 	adoptedCallback(){
