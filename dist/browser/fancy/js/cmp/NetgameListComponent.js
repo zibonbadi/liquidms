@@ -14,7 +14,10 @@ export default class NetgameListComponent extends HTMLElement{
 		this.eHdl_ngcon = (e) => {
 			//console.debug("eHdl_ngCon.this:", this);
 			this.notifyController.bind(this)();
-			ServerBrowser.eventbus.send("query", Object.keys(this.netgames));
+			//ServerBrowser.eventbus.send("query", Object.keys(this.netgames));
+			for( let el in this.netgames){
+				this.netgames[el].notifyController();
+			};
 			e.preventDefault();
 		}
 		this.eHdl_sort = this.render.bind(this);
@@ -90,6 +93,7 @@ export default class NetgameListComponent extends HTMLElement{
 	notifyController(){
 		//console.debug("notifyController.this", this);
 		try{
+			console.debug("NLC.notifyCtrl(): this = ", this);
 			ServerBrowser.netgamecon.fetchServers().then( (response) => {
 				//console.debug("notifyController.netgamecon.response.this", this);
 				console.info("Notify response: ", response);

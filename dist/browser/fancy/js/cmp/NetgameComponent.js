@@ -305,10 +305,19 @@ export default class NetgameComponent extends HTMLElement{
 	handleBus(message, data = {}){
 		switch(message){
 			case "query":{
+				console.log("Query data:", data, this.getAttribute("hostname"), this.getAttribute("port") );
 				for(let sv in data){
 					//if(data[sv].hostname == this.getAttribute("hostname")){ console.log("Caught refresh on: ", this.getAttribute("hostname")); }
-					if(data[sv] == this.getAttribute("hostname")){
-						console.log("Caught refresh on: ", this.getAttribute("hostname"));
+					// Whitespace/Control character formatting from hell
+					let comparedata = {
+						sv_host: escape(data[sv].slice(0, data[sv].indexOf(':')).trim()),
+						sv_port: escape(data[sv].slice(data[sv].indexOf(':')+1).trim()),
+						attr_host: escape(this.getAttribute("hostname").trim()),
+						attr_port: escape(this.getAttribute("port").trim()),
+					};
+					console.log("Query:", comparedata.sv_host == comparedata.attr_host, comparedata.sv_host == comparedata.attr_port, comparedata);
+					if(comparedata.sv_host == comparedata.attr_host && comparedata.sv_host == comparedata.attr_port){
+						console.log("Caught query on: ", data[sv]);
 						this.notifyController();
 					}
 				}
