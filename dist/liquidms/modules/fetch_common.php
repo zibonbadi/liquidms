@@ -15,6 +15,31 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+function fetchUpdate_mkContext(String $method, array|null $headers = []){
+   // Emergency exit; return null in case the data is bad
+   if(gettype($headers) == "NULL" || empty($headers)){
+	   return null;
+   }
+
+   // Stream context for HTTP fetch
+   $stream_context = null;
+   $stream_context_opts = ["http" => [ "method" => $method] ];
+
+   // sco = Stream Context Option
+   $sco_header = "";
+   foreach($headers as $sco_key => $sco_value ){
+	   $sco_header .= "{$sco_key}: {$sco_value}\r\n";
+   }
+
+   // Construct context
+   if($sco_header != ""){
+	   $stream_context_opts["http"]["header"] = $sco_header;
+   }
+
+   $stream_context = stream_context_create($stream_context_opts);
+   return $stream_context;
+}
+
 function fetchUpdate(array $config, array $jobs = []){
 	$rVal = []; // Return value
 
@@ -33,7 +58,7 @@ function fetchUpdate(array $config, array $jobs = []){
 	}
 
    // Below: return value structure in YAML format (one server).
-   // Defaults and examples are noted in paretheses:
+   // Defaults and examples are noted in parentheses:
    //
    // ---
    // - host: "[Server IP address (127.0.0.1)]"
@@ -88,8 +113,21 @@ function fetchUpdate_snitch(array $config, array $job = []){
 function fetchUpdate_v1(array $config, array $job = []){
    $rVal = []; // Return value
 
-   $res_rooms = file_get_contents(rtrim($job["host"], "/")."/rooms");
-   $res_server = file_get_contents(rtrim($job["host"], "/")."/servers");
+   // Get stream context for header configs
+   $stream_context = null;
+   $stream_context = fetchUpdate_mkContext("GET", $job["http-header"]);
+   #var_dump($stream_context);
+
+   $res_rooms = file_get_contents(
+		   rtrim($job["host"], "/")."/rooms",
+		   false,
+		   $stream_context
+		   );
+   $res_server = file_get_contents(
+		   rtrim($job["host"], "/")."/servers",
+		   false,
+		   $stream_context
+		   );
 
    // Regex match room list into a group array:
    // - - "[Entire match]"

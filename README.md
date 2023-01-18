@@ -36,6 +36,7 @@ This documentation follows the [Diataxis model], being divided into 4 categories
 2. [Troubleshooting MariaDB](doc/tutorial/mariadb-troubleshooting.md)
 3. [Troubleshooting Docker](doc/tutorial/docker-troubleshooting.md)
 4. [Snitching](doc/tutorial/snitching.md)
+4. [Figuring out HTTP Headers](doc/tutorial/http-headers.md)
 
 ### How-To guides
 

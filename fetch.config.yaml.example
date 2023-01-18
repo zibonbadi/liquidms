@@ -11,6 +11,8 @@ fetch: # Master servers to leech off of
     host: "https://mb.srb2.org/MS/0"
     api: v1 # "v1" to fetch from /servers
     minute: 5 # Should be unused due to crontab
+    #http-header: # Only needed for DRM-ridden Master servers
+      #User-Agent: "${SRB2APPLICATION}/${VERSIONSTRING} (${compbranch}; ${comprevision}; ${MODID}; ${comprevision}) SRB2BASE/${CODEBASE}"
   self: # Example LiquidMS (snitch API) server
     host: "http://caddy"
     api: snitch # "snitch" to fetch from /liquidms/snitch
