@@ -97,7 +97,7 @@ foreach($netgames["data"] as $server){
 </tbody></table>
 <p><a target="_blank"
 href="https://github.com/zibonbadi/liquidms/">LiquidMS</a> version
-1.1.1-dev. &copy; 2021-2022 Zibon Badi and others. LiquidMS is licensed under the <a target="_blank" href="/liquidms/license">GNU Affero General Public License version 3</a></p>
+1.1.2-dev. &copy; 2021-2022 Zibon Badi and others. LiquidMS is licensed under the <a target="_blank" href="/liquidms/license">GNU Affero General Public License version 3</a></p>
 <p>LiquidMS is part of Liquid Underground. <a href="https://discord.gg/HVTzVfAWG6">Join our Discord!</a></p>
 </body>
 </html>
