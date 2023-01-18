@@ -23,6 +23,8 @@
 @media screen and (prefers-color-scheme: dark){
 	:root{
 		/* --main-bg: #000; */
+		--main-bg: url('/liquidms/browse/img/bg-dark.svg') rgba(0,0,24, 1);
+		--color-text: white;
 		--netgame-border: 3pt solid #444;
 	}
 }
