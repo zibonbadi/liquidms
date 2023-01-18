@@ -93,6 +93,10 @@ class ConfigModel{
 						self::child_assertType("minute", $peer_data, "integer") ){
 						self::$config["fetch"][$peer_name]["minute"] = $peer_data["minute"];
 					}
+					if(
+						self::child_assertType("http-header", $peer_data, "array") ){
+						self::$config["fetch"][$peer_name]["http-header"] = $peer_data["http-header"];
+					}
 				}
 			}
 
