@@ -2,14 +2,21 @@
     "name": "zibonbadi/liquidchaos",
 	"description": "Custom V1-compliant HTTP master server for Sonic Robo Blast 2",
 	"type": "project",
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/optimacros/klein.php/",
+			"no-api": true
+		}
+	],
 	"require": {
 	    "ext-mbstring": "*",
 	    "ext-odbc": "*",
 	    "ext-pdo": "*",
 	    "ext-sockets": "*",
 	    "ext-yaml": "*",
-	    "klein/klein": "^2.1",
-	    "php": ">=8.0"
+	    "klein/klein": "dev-dev-php8",
+	    "php": ">=8.1"
 	},
 	"license": "AGPL-3.0-or-later",
 	"authors": [
