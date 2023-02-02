@@ -18,14 +18,14 @@ let SBClasses = {
 };
 
 
-if(ServerBrowser == undefined){
+if(ServerBrowser === undefined){
 	var ServerBrowser = { };
 	// Class loader
 	for( const component in SBClasses ){
 	  import(SBClasses[component]).then( function(module){
 		  SBClasses[component] = module.default;
 		  //console.log(component,SBClasses[component].prototype.init);
-		  if(SBClasses[component].prototype.init != undefined){ SBClasses[component].prototype.init(); }
+		  if(SBClasses[component].prototype.init !== undefined){ SBClasses[component].prototype.init(); }
 	  });
 	};
 }
