@@ -1,5 +1,5 @@
 {
-    "name": "zibonbadi/liquidchaos",
+    "name": "zibonbadi/liquidms",
 	"description": "Custom V1-compliant HTTP master server for Sonic Robo Blast 2",
 	"type": "project",
 	"repositories": [
@@ -23,6 +23,10 @@
 	{
 	    "name": "zibonbadi",
 	    "email": "zibonbadi@users.noreply.github.com"
+	},
+	{
+	    "name": "InFTord",
+	    "email": "InFTord@users.noreply.github.com"
 	},
 	{
 	    "name": "thewane",
