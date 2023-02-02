@@ -31,7 +31,7 @@ $config = ConfigModel::getConfig(); // Local var kludge
 
 // Start "daemon"
 #var_dump($config);
-echo "[" . date(DateTime::ISO8601, time()) . "] liquidanacron UP\n";
+echo "[" . date(DateTimeInterface::ATOM, time()) . "] liquidanacron UP\n";
 while (true) {
     // Get new timestamps
     $timestamps = TimestampModel::getData(); // Local var kludge

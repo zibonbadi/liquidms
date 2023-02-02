@@ -77,7 +77,7 @@ $router->with('/liquidms', function () use ($router) {
     });
 
     $router->respond('POST', '/snitch', function ($request, $response, $service) {
-        // Provide some CSV text and it'll get parsed into tables
+        // Provide some CSV text, and it'll get parsed into tables
         //$csvdata[] = str_getcsv($request->body());
         $csvdata = [];
         $files = $request->files();

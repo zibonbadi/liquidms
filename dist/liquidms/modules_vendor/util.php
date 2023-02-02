@@ -39,7 +39,7 @@ function cstr ( string $string [, int $offset = 0 [, int $limit ] ] ) : string
 
 function copy_bool ( bool &$to, mixed $from ) : mixed
 
-	Copy a variable to a reference, casting it to bool. The casted variable is
+	Copy a variable to a reference, casting it to bool. The cast variable is
 	also returned.
  */
 

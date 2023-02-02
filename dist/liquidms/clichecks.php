@@ -27,4 +27,4 @@ if (PHP_SAPI == "cli") {
     $config = $tmp;
     unset($tmp);
 }
-?>
+

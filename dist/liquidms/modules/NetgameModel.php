@@ -173,7 +173,7 @@ class NetgameModel
 
         foreach ($serverdata["data"] as $netgameId => $netgame) {
             $serverdata["data"][$netgameId]["host"] = self::map6to4($netgame["host"]);
-        };
+        }
 
         return $serverdata;
     }

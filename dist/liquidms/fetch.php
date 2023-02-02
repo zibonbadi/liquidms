@@ -44,7 +44,7 @@ if (empty($fetchjobs)) {
 }
 
 foreach ($fetchjobs as $jobId => $job) {
-    $timestamps["fetch"][$jobId]["updated_at"] = date(DateTime::ISO8601, time());
+    $timestamps["fetch"][$jobId]["updated_at"] = date(DateTimeInterface::ATOM, time());
 }
 TimestampModel::setData($timestamps);
 TimestampModel::dumpData();
