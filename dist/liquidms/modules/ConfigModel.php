@@ -22,7 +22,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 class ConfigModel
 {
 
-    private static $config = [
+    private static array $config = [
         "modules" => [],
         "sbpath" => __DIR__ . "/../../browser",
         "db" => [

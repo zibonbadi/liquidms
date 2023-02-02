@@ -29,4 +29,4 @@ foreach ($import["data"] as $import_index => $import_value) {
 }
 echo "{$room}\n{$maincontent}";
 
-?>
+

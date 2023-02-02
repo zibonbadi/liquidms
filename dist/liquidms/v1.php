@@ -35,10 +35,10 @@ $router->with('/v1/servers', function () use ($router) {
             $response->code(403);
             if (($servers["error"] != 0)) {
                 $service->render(__DIR__ . "/modules/ErrorView.php", ["response" => $servers]);
-            };
+            }
             if (($rooms["error"] != 0)) {
                 $service->render(__DIR__ . "/modules/ErrorView.php", ["response" => $rooms]);
-            };
+            }
         }
     });
     $router->respond('POST', '/[:serverid]?/update', function ($request, $response) {
@@ -227,10 +227,10 @@ $router->with('/v1/rooms', function () use ($router) {
                 $response->code(500);
                 if (($servers["error"] != 0)) {
                     $service->render(__DIR__ . "/modules/ErrorView.php", ["response" => $servers]);
-                };
+                }
                 if (($rooms["error"] != 0)) {
                     $service->render(__DIR__ . "/modules/ErrorView.php", ["response" => $rooms]);
-                };
+                }
             }
         } else {
             if ($servers["error"] == 0) {
@@ -249,4 +249,4 @@ $router->with('/v1', function () use ($router) {
         return "Unknown action\n";
     });
 });
-?>
+

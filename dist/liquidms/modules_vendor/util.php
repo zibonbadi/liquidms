@@ -72,4 +72,4 @@ function copy_bool (bool &$to = NULL, $from) : bool
 	$to = (bool)$from;
 	return $to;
 }
-?>
+

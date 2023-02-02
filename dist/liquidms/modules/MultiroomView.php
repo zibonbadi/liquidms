@@ -53,4 +53,4 @@ foreach ($servers_sorted as $cat_index => $cat_data) {
 $maincontent = substr($maincontent, 0, -1);
 
 echo $maincontent;
-?>
+

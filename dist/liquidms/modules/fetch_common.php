@@ -310,7 +310,6 @@ function snitch(array $data, array $finsters)
         $csvContent .= fread($tmp, $csvChars);
         fclose($tmp);
     }
-    rtrim($csvContent, "\n");
 
     //echo $csvContent;
 
@@ -335,7 +334,7 @@ function snitch(array $data, array $finsters)
 
     foreach ($finsters as $finster) {
         $url = rtrim($finster, '/') . "/liquidms/snitch";
-        echo "[" . date(DateTime::ISO8601, time()) . "] Snitching to \"{$url}\"...\n";
+        echo "[" . date(DateTimeInterface::ATOM, time()) . "] Snitching to \"{$url}\"...\n";
         $response_tmp = file_get_contents($url, false, $http_context);
         if ($response_tmp !== false) {
             $http_response .= $response_tmp;
