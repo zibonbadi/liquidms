@@ -1,18 +1,20 @@
-sb-netgamelist[view="list"]{
-	flex-basis: 100%;
+sb-netgamelist[view="list"] {
+    flex-basis: 100%;
 }
 
-sb-netgamelist sb-netgame.error{
-	order: 1;
-}
-sb-netgamelist.reverse sb-netgame.error{
-	order: -1;
+sb-netgamelist sb-netgame.error {
+    order: 1;
 }
 
-sb-netgamelist sb-netgame.pinned{
-	order: -1;
+sb-netgamelist.reverse sb-netgame.error {
+    order: -1;
 }
-sb-netgamelist.reverse sb-netgame.pinned{
-	order: 1;
+
+sb-netgamelist sb-netgame.pinned {
+    order: -1;
+}
+
+sb-netgamelist.reverse sb-netgame.pinned {
+    order: 1;
 }
 

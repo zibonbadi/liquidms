@@ -1,113 +1,120 @@
-sb-netgame{
-	/* General */
-	color: var(--netgame-text);
-	padding: 1em;
-	background-color: var(--netgame-bg);
-	border: var(--netgame-border);
-	margin: auto;
-	max-width: 100%;
+sb-netgame {
+    /* General */
+    color: var(--netgame-text);
+    padding: 1em;
+    background-color: var(--netgame-bg);
+    border: var(--netgame-border);
+    margin: auto;
+    max-width: 100%;
 }
 
-sb-netgamelist[view="gallery"] sb-netgame{
-	/* Gallery view */
-	flex-basis: 7cm;
-	flex: 1 3;
+sb-netgamelist[view="gallery"] sb-netgame {
+    /* Gallery view */
+    flex-basis: 7cm;
+    flex: 1 3;
 }
-sb-netgamelist[view="list"] sb-netgame{
-	/* List view */
-	flex-basis: 100%;
-	flex-flow: row wrap;
-	display: flex;
-	align-items: center;
+
+sb-netgamelist[view="list"] sb-netgame {
+    /* List view */
+    flex-basis: 100%;
+    flex-flow: row wrap;
+    display: flex;
+    align-items: center;
 }
-sb-netgame.locked{
-	background-color: var(--netgame-locked-bg);
-	pointer-events: none;
+
+sb-netgame.locked {
+    background-color: var(--netgame-locked-bg);
+    pointer-events: none;
 }
-sb-netgame.error{
-	background:  var(--netgame-bg-error);
-	border-color: var(--netgame-border-error);
-	color: var(--netgame-border-error);
-	opacity: 66%;
+
+sb-netgame.error {
+    background: var(--netgame-bg-error);
+    border-color: var(--netgame-border-error);
+    color: var(--netgame-border-error);
+    opacity: 66%;
 }
-@media(any-hover: hover) and (pointer: fine){
-	sb-netgame.locked{
-		opacity: 25%
-	}
-	sb-netgame:not(.locked):hover{
-		background-color: var(--netgame-bg-hover);
-		opacity: 100%
-	}
-	sb-netgame:not(.locked).error:hover{
-		background-color: var(--netgame-bg-error-hover);
-	}
-	sb-netgame .player:hover{
-		box-shadow: 0 0.3em #000;
-	}
+
+@media (any-hover: hover) and (pointer: fine) {
+    sb-netgame.locked {
+        opacity: 25%
+    }
+
+    sb-netgame:not(.locked):hover {
+        background-color: var(--netgame-bg-hover);
+        opacity: 100%
+    }
+
+    sb-netgame:not(.locked).error:hover {
+        background-color: var(--netgame-bg-error-hover);
+    }
+
+    sb-netgame .player:hover {
+        box-shadow: 0 0.3em #000;
+    }
 }
 
 
-sb-netgame span[slot="name"]{
-	font-size: x-large;
-	color: var(--netgame-title-text);
-	text-shadow: 0.07em 0.1em 0 #000;
+sb-netgame span[slot="name"] {
+    font-size: x-large;
+    color: var(--netgame-title-text);
+    text-shadow: 0.07em 0.1em 0 #000;
 }
+
 sb-netgame span[slot="origin"],
-sb-netgame span[slot="hostname"]{
-	font-style: italic;
-}
-sb-netgame span[slot="origin"],
-sb-netgame span[slot="roomname"]{
-	font-size: small;
+sb-netgame span[slot="hostname"] {
+    font-style: italic;
 }
 
-sb-netgame span[slot="name"]{
-	display:block;
-	margin: 1em auto;
+sb-netgame span[slot="origin"],
+sb-netgame span[slot="roomname"] {
+    font-size: small;
 }
+
+sb-netgame span[slot="name"] {
+    display: block;
+    margin: 1em auto;
+}
+
 sb-netgame span[slot="origin"],
 sb-netgame span[slot="hostname"],
 sb-netgame span[slot="origin"],
-sb-netgame span[slot="roomname"]{
-	display:inline;
+sb-netgame span[slot="roomname"] {
+    display: inline;
 }
 
 sb-netgame ul,
 sb-netgame ul > li,
 {
-	margin-left: 0;
-	padding-left: 0;
-	list-style: none;
-	font-size: small;
+    margin-left: 0;
+    padding-left: 0;
+    list-style: none;
+    font-size: small;
 }
 
-sb-netgame .player
-{
-	border: 2pt solid;
-	padding: 1em;
-	display: block;
-	width: fit-content;
-	height: fit-content;
-	flex: 1 3 max-content;
-	cursor: pointer;
-}
-sb-netgame .player.Blue
-{
-	background: #3355ff;
-	border-color: #8888ff;
-	color: #88ccff;
+sb-netgame .player {
+    border: 2pt solid;
+    padding: 1em;
+    display: block;
+    width: fit-content;
+    height: fit-content;
+    flex: 1 3 max-content;
+    cursor: pointer;
 }
 
-sb-netgame .player.Red
-{
-	background: #fc5b7c;
-	border-color: #fd9fa3;
-	color: #ffbae4;
+sb-netgame .player.Blue {
+    background: #3355ff;
+    border-color: #8888ff;
+    color: #88ccff;
 }
 
-sb-netgame .player.Spectator
-{
-	color: gray;
-	border-color: gray;
+sb-netgame .player.Red {
+    background: #fc5b7c;
+    border-color: #fd9fa3;
+    color: #ffbae4;
+}
+
+sb-netgame .player.Spectator {
+    color: gray;
+    border-color: gray;
 }
 

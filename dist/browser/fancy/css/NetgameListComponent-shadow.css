@@ -3,54 +3,53 @@
 @import url('/liquidms/browse/css/main.css');
 @import url('/liquidms/browse/css/NetgameComponent.css');
 
-.buttonbox{
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: center;
-	gap: 1.5ex;
-	margin: auto;
-	position: sticky;
-	top: 2em;
-	z-index: 999;
-}
-:root.reverse a.checkbox{
-	border-radius: 2em;
+.buttonbox {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    gap: 1.5ex;
+    margin: auto;
+    position: sticky;
+    top: 2em;
+    z-index: 999;
 }
 
-slot[name="netgames"]{
-	display: flex;
-	flex-flow: row wrap;
-	gap: 1.5ex;
-	margin-top: 5mm;
+:root.reverse a.checkbox {
+    border-radius: 2em;
 }
 
-:host(.reverse) slot[name="netgames"]{
-	flex-flow: row-reverse wrap-reverse;
+slot[name="netgames"] {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 1.5ex;
+    margin-top: 5mm;
 }
 
-@media screen and (max-width: 50em), screen and (max-height: 15cm){
-	.buttonbox{
-		position: static;
-		top: 0;
-		z-index: 0;
-	}
+:host(.reverse) slot[name="netgames"] {
+    flex-flow: row-reverse wrap-reverse;
 }
 
-progress
-{
-	border: var(--progress-border);
-	background: var(--progress-bg);
-	color: var(--progress-trough);
-	min-height: 1ex;
-	min-width: 1ex;
-	margin: 0.5em;
+@media screen and (max-width: 50em), screen and (max-height: 15cm) {
+    .buttonbox {
+        position: static;
+        top: 0;
+        z-index: 0;
+    }
+}
+
+progress {
+    border: var(--progress-border);
+    background: var(--progress-bg);
+    color: var(--progress-trough);
+    min-height: 1ex;
+    min-width: 1ex;
+    margin: 0.5em;
 }
 
 progress::-moz-progress-bar,
 progress::-webkit-progress-bar,
-progress::-webkit-progress-value
-{
-	background: var(--progress-trough);
+progress::-webkit-progress-value {
+    background: var(--progress-trough);
 }
 
 progress[value^="0.0"]::-moz-progress-bar,
@@ -64,9 +63,8 @@ progress[value^="0.2"]::-webkit-progress-bar,
 progress[value^="0.2"]::-webkit-progress-value,
 progress[value^="0.3"]::-moz-progress-bar,
 progress[value^="0.3"]::-webkit-progress-bar,
-progress[value^="0.3"]::-webkit-progress-value
-{
-	background: var(--progress-trough-good);
+progress[value^="0.3"]::-webkit-progress-value {
+    background: var(--progress-trough-good);
 }
 
 progress[value^="0.4"]::-moz-progress-bar,
@@ -80,9 +78,8 @@ progress[value^="0.6"]::-webkit-progress-bar,
 progress[value^="0.6"]::-webkit-progress-value,
 progress[value^="0.7"]::-moz-progress-bar,
 progress[value^="0.7"]::-webkit-progress-bar,
-progress[value^="0.7"]::-webkit-progress-value
-{
-	background: var(--progress-trough-medium);
+progress[value^="0.7"]::-webkit-progress-value {
+    background: var(--progress-trough-medium);
 }
 
 progress[value^="0.8"]::-moz-progress-bar,
@@ -93,8 +90,7 @@ progress[value^="0.9"]::-webkit-progress-bar,
 progress[value^="0.9"]::-webkit-progress-value,
 progress[value^="1"]::-moz-progress-bar,
 progress[value^="1"]::-webkit-progress-bar,
-progress[value^="1"]::-webkit-progress-value
-{
-	background: var(--progress-trough-bad);
+progress[value^="1"]::-webkit-progress-value {
+    background: var(--progress-trough-bad);
 }
 

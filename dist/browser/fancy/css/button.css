@@ -1,83 +1,89 @@
-button, select, a.button, a.button:visited, input[type="button"]{
-	background: #3355ff;
-	border: 3pt solid #8888ff;
-	color: #88ccff;
-	box-shadow: 0 0.3em #000;
-	cursor: pointer;
-	display: inline-block;
-	font-family: 'Press Start 2P', sans-serif;
-	font-size: 16pt;
-	text-decoration: none;
-	padding: 0.5em 1em;
-	max-width: 100%;
-}
-.checkbox, input[type="checkbox"]{
-	background: var(--checkbox-bg);
-	border: var(--checkbox-border);
-	color: var(--checkbox-text);
-	box-shadow: 0 0.3em #000;
-	cursor: pointer;
-	display: inline-block;
-	text-decoration: none;
-	padding: 0.5em 1em;
-}
-.checkbox.checked, input[type="checkbox"]:checked{
-	background: var(--checkbox-bg-checked);
-	border: var(--checkbox-border-checked);
-	color: var(--checkbox-text-checked);
-	box-shadow: none;
-}
-input[type="text"]{
-	color: var(--input-text);
-	box-shadow: 0 0.3em #000;
-	text-shadow: 0.07em 0.1em 0 #000;
-	font-family: 'Press Start 2P', sans-serif;
-	font-size: 16pt;
-	padding: 0.5em 1em;
-	background-color: var(--input-bg);
-	border: var(--input-border);
-	max-width: 100%;
-	box-sizing: border-box;
-}
-@media(any-hover: hover){
-	button:hover, a.button:hover, select:hover, input[type="button"]:hover
-	{
-		background: #aaaaff;
-		box-shadow: 0 0.3em #88f;
-		color: #44f;
-	}
-	.checkbox:hover, input[type="checkbox"]:hover
-	{
-		background: var(--checkbox-bg-hover);
-		border: var(--checkbox-border-hover);
-		color: var(--checkbox-text-hover);
-	}
-	.checkbox.checked:hover, input[type="checkbox"]:checked:hover{
-		background: var(--checkbox-bg-checked-hover);
-		border: var(--checkbox-border-checked-hover);
-		color: var(--checkbox-text-hover-hover);
-	}
-}
-button.error, a.button.error, input[type="button"].error{
-	background: #fc5b7c;
-	border-color: #fd9fa3;
-	color: #ffbae4;
-}
-iframe, img{ 
-	max-width:90%;
-	height: auto;
-	display: block;
-	margin: auto;
+button, select, a.button, a.button:visited, input[type="button"] {
+    background: #3355ff;
+    border: 3pt solid #8888ff;
+    color: #88ccff;
+    box-shadow: 0 0.3em #000;
+    cursor: pointer;
+    display: inline-block;
+    font-family: 'Press Start 2P', sans-serif;
+    font-size: 16pt;
+    text-decoration: none;
+    padding: 0.5em 1em;
+    max-width: 100%;
 }
 
-@media (pointer:fine){
-	button,
-	select,
-	a.button,
-	a.button:visited,
-	input[type="button"],
-	input[type="text"]{
-		font-size: 12pt;
-	}
+.checkbox, input[type="checkbox"] {
+    background: var(--checkbox-bg);
+    border: var(--checkbox-border);
+    color: var(--checkbox-text);
+    box-shadow: 0 0.3em #000;
+    cursor: pointer;
+    display: inline-block;
+    text-decoration: none;
+    padding: 0.5em 1em;
+}
+
+.checkbox.checked, input[type="checkbox"]:checked {
+    background: var(--checkbox-bg-checked);
+    border: var(--checkbox-border-checked);
+    color: var(--checkbox-text-checked);
+    box-shadow: none;
+}
+
+input[type="text"] {
+    color: var(--input-text);
+    box-shadow: 0 0.3em #000;
+    text-shadow: 0.07em 0.1em 0 #000;
+    font-family: 'Press Start 2P', sans-serif;
+    font-size: 16pt;
+    padding: 0.5em 1em;
+    background-color: var(--input-bg);
+    border: var(--input-border);
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+@media (any-hover: hover) {
+    button:hover, a.button:hover, select:hover, input[type="button"]:hover {
+        background: #aaaaff;
+        box-shadow: 0 0.3em #88f;
+        color: #44f;
+    }
+
+    .checkbox:hover, input[type="checkbox"]:hover {
+        background: var(--checkbox-bg-hover);
+        border: var(--checkbox-border-hover);
+        color: var(--checkbox-text-hover);
+    }
+
+    .checkbox.checked:hover, input[type="checkbox"]:checked:hover {
+        background: var(--checkbox-bg-checked-hover);
+        border: var(--checkbox-border-checked-hover);
+        color: var(--checkbox-text-hover-hover);
+    }
+}
+
+button.error, a.button.error, input[type="button"].error {
+    background: #fc5b7c;
+    border-color: #fd9fa3;
+    color: #ffbae4;
+}
+
+iframe, img {
+    max-width: 90%;
+    height: auto;
+    display: block;
+    margin: auto;
+}
+
+@media (pointer: fine) {
+    button,
+    select,
+    a.button,
+    a.button:visited,
+    input[type="button"],
+    input[type="text"] {
+        font-size: 12pt;
+    }
 }
 

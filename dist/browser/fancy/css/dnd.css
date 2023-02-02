@@ -1,7 +1,8 @@
-*[draggable="true"]{
-	cursor: move;
+*[draggable="true"] {
+    cursor: move;
 }
-*[draggable="true"].dragging{
-	opacity: 10%;
+
+*[draggable="true"].dragging {
+    opacity: 10%;
 }
 

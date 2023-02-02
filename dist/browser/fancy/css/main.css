@@ -1,121 +1,142 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 @import url('/liquidms/browse/css/dnd.css');
-:root{
-	/* --color-bg: url('/browse/img/bg.svg'); */
-	--main-bg: url('/liquidms/browse/img/bg.svg') rgba(255, 220, 21, 1);
-	/* --color-bg: teal; */
-	--color-text: black;
-	--netgame-bg: #003d;
-	--netgame-locked-bg: #447d;
-	/* --netgame-bg: #35d1ff77; */
-	--netgame-bg-hover: #335;
-	--netgame-bg-error: #fc5b7c;
-	--netgame-bg-error-hover: #bf4262;
-	--netgame-text: white;
-	--netgame-text-error: #ffbae4;
-	--netgame-title-text: yellow;
-	--netgame-border: 3pt solid #444;
-	--netgame-border-error: #fd9fa3;
 
-	/* Text coloring */
-	--netgame-text-white: white;
-	--netgame-text-purple: #c4f;
-	--netgame-text-yellow: yellow;
-	--netgame-text-green: #5f5;
-	--netgame-text-blue: #8888ff;
-	--netgame-text-red: #fc5b7c;
-	--netgame-text-gray: #999;
-	--netgame-text-orange: #eab24d;
-	--netgame-text-sky: skyblue;
-	--netgame-text-lavender: #d9f;
-	--netgame-text-gold: gold;
-	--netgame-text-lime: #85ff85;
-	--netgame-text-steel: #ccc;
-	--netgame-text-pink: pink;
-	--netgame-text-brown: #ce6339;
-	--netgame-text-peach: #fdc4bf;
+:root {
+    /* --color-bg: url('/browse/img/bg.svg'); */
+    --main-bg: url('/liquidms/browse/img/bg.svg') rgba(255, 220, 21, 1);
+    /* --color-bg: teal; */
+    --color-text: black;
+    --netgame-bg: #003d;
+    --netgame-locked-bg: #447d;
+    /* --netgame-bg: #35d1ff77; */
+    --netgame-bg-hover: #335;
+    --netgame-bg-error: #fc5b7c;
+    --netgame-bg-error-hover: #bf4262;
+    --netgame-text: white;
+    --netgame-text-error: #ffbae4;
+    --netgame-title-text: yellow;
+    --netgame-border: 3pt solid #444;
+    --netgame-border-error: #fd9fa3;
 
-	/* Input elements */
-	--input-bg: #003;
-	--input-text: #ddd;
-	--input-border: 3pt solid #444;
-	--checkbox-bg: #3355ff;
-	--checkbox-text: #88ccff;
-	--checkbox-border: 3pt solid #8888ff;
-	--checkbox-bg-hover: #aaaaff;
-	--checkbox-text-hover: #44f;
-	--checkbox-border-hover: 3pt solid #88f;
-	--checkbox-bg-checked: #72cc5b;
-	--checkbox-text-checked: #8fa;
-	--checkbox-border-checked: 3pt solid #89e572;
-	--checkbox-bg-checked-hover: #aaffaa;
-	--checkbox-text-checked-hover: #89e572;
-	--checkbox-border-checked-hover: 3pt solid #89e572;
-	--progress-bg: #003;
-	--progress-trough: #ccc;
-	--progress-trough-good: #6bde4a;
-	--progress-trough-medium: yellow;
-	--progress-trough-bad: red;
-	--progress-border: 2pt solid #666;
+    /* Text coloring */
+    --netgame-text-white: white;
+    --netgame-text-purple: #c4f;
+    --netgame-text-yellow: yellow;
+    --netgame-text-green: #5f5;
+    --netgame-text-blue: #8888ff;
+    --netgame-text-red: #fc5b7c;
+    --netgame-text-gray: #999;
+    --netgame-text-orange: #eab24d;
+    --netgame-text-sky: skyblue;
+    --netgame-text-lavender: #d9f;
+    --netgame-text-gold: gold;
+    --netgame-text-lime: #85ff85;
+    --netgame-text-steel: #ccc;
+    --netgame-text-pink: pink;
+    --netgame-text-brown: #ce6339;
+    --netgame-text-peach: #fdc4bf;
+
+    /* Input elements */
+    --input-bg: #003;
+    --input-text: #ddd;
+    --input-border: 3pt solid #444;
+    --checkbox-bg: #3355ff;
+    --checkbox-text: #88ccff;
+    --checkbox-border: 3pt solid #8888ff;
+    --checkbox-bg-hover: #aaaaff;
+    --checkbox-text-hover: #44f;
+    --checkbox-border-hover: 3pt solid #88f;
+    --checkbox-bg-checked: #72cc5b;
+    --checkbox-text-checked: #8fa;
+    --checkbox-border-checked: 3pt solid #89e572;
+    --checkbox-bg-checked-hover: #aaffaa;
+    --checkbox-text-checked-hover: #89e572;
+    --checkbox-border-checked-hover: 3pt solid #89e572;
+    --progress-bg: #003;
+    --progress-trough: #ccc;
+    --progress-trough-good: #6bde4a;
+    --progress-trough-medium: yellow;
+    --progress-trough-bad: red;
+    --progress-border: 2pt solid #666;
 }
 
-@media screen and (prefers-color-scheme: dark){
-	:root{
-		/* --main-bg: #000; */
-		--main-bg: url('/liquidms/browse/img/bg-dark.svg') rgba(0,0,24, 1);
-		--color-text: white;
-		--netgame-border: 3pt solid #444;
-	}
+@media screen and (prefers-color-scheme: dark) {
+    :root {
+        /* --main-bg: #000; */
+        --main-bg: url('/liquidms/browse/img/bg-dark.svg') rgba(0, 0, 24, 1);
+        --color-text: white;
+        --netgame-border: 3pt solid #444;
+    }
 }
 
-.hidden{ display: none !important; }
-
-body{
-color: var(--color-text);
-background: var(--main-bg);
-background-size: cover;
-background-attachment: fixed;
-font-family: 'Press Start 2P', sans-serif;
-font-size: 10pt;
+.hidden {
+    display: none !important;
 }
 
-pre{ font-family: 'Press Start 2P', monospace; }
-
-a{
-	color: #88ccff;
-	text-decoration: none;
-}
-a:visited{ color: #3355ff; }
-
-h1,p,pre,img,ul,ol{
-max-width: min(100%, 60em);
-margin: 1em auto;
-display: block;
-width: max-content;
+body {
+    color: var(--color-text);
+    background: var(--main-bg);
+    background-size: cover;
+    background-attachment: fixed;
+    font-family: 'Press Start 2P', sans-serif;
+    font-size: 10pt;
 }
 
-p,h1,h2{
-	text-align: center;
+pre {
+    font-family: 'Press Start 2P', monospace;
 }
 
-h1{
-	text-shadow: 0.07em 0.1em 0 black;
-	color: white;
+a {
+    color: #88ccff;
+    text-decoration: none;
 }
 
-table,tr,td{ border: none; }
-
-table{
-	background: var(--color-table-bg);
-	border-color: var(--color-table-border);
-	margin-left: auto;
-	margin-right: auto;
+a:visited {
+    color: #3355ff;
 }
 
-td,th{ padding: 0.75em; }
-tr:first-child{ background: var(--color-table-bg-head); }
-tr:nth-child(2n){ background: var(--color-table-bg2); }
-@media(any-hover: hover) and (pointer: fine){
-	tr:hover{ background: var(--color-table-bg-hover); }
+h1, p, pre, img, ul, ol {
+    max-width: min(100%, 60em);
+    margin: 1em auto;
+    display: block;
+    width: max-content;
+}
+
+p, h1, h2 {
+    text-align: center;
+}
+
+h1 {
+    text-shadow: 0.07em 0.1em 0 black;
+    color: white;
+}
+
+table, tr, td {
+    border: none;
+}
+
+table {
+    background: var(--color-table-bg);
+    border-color: var(--color-table-border);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+td, th {
+    padding: 0.75em;
+}
+
+tr:first-child {
+    background: var(--color-table-bg-head);
+}
+
+tr:nth-child(2n) {
+    background: var(--color-table-bg2);
+}
+
+@media (any-hover: hover) and (pointer: fine) {
+    tr:hover {
+        background: var(--color-table-bg-hover);
+    }
 }
 
