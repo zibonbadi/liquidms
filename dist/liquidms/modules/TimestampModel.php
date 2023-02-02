@@ -35,7 +35,7 @@ class TimestampModel{
 
 		// Merge all yaml configs together
 		$import_compose = [];
-		foreach($import as $docname => $doc) {
+		foreach($import as $doc) {
 			if(gettype($import_compose) == "array"){ $import_compose = array_merge_recursive($import_compose, $doc); }
 		}
 

@@ -26,7 +26,8 @@ class NetgameModel{
 		private static $username = null;
 		private static $password = null;
 
-		public static function init(Array $settings){
+		public static function init(Array $settings): bool
+		{
 			// The following YAML structure will be used from `config.yaml`.
 			//
 			// db: # liquidMS DB connection settings
@@ -177,9 +178,7 @@ class NetgameModel{
 				if($room != NULL){ $filter = " WHERE _id = {$room}"; }
 				$query = "SELECT _id AS roomid, roomname, origin, description FROM rooms {$filter} ORDER BY _id;";
 				#echo $query."\n";
-				$serverdata = self::db_execute($query);
-
-				return $serverdata;
+			return self::db_execute($query);
 		}
 
 		public static function getWorldRooms(){
@@ -194,9 +193,7 @@ class NetgameModel{
 				$rVal = [];
 				$query = "SELECT _id AS roomid, roomname, origin, description FROM rooms WHERE origin = 'localhost'";
 				#echo $query."\n";
-				$serverdata = self::db_execute($query);
-
-				return $serverdata;
+			return self::db_execute($query);
 		}
 
 		private static function db_execute(string $query){
@@ -212,7 +209,7 @@ class NetgameModel{
 				if($connection){
 						file_put_contents('php://stderr', "$query");
 						$result = odbc_exec($connection, $query);
-						if($result == false){ 
+						if(!$result){
 								return [
 										"error" => odbc_error(), 
 										"message" => odbc_errormsg(),

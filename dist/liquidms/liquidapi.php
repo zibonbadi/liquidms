@@ -25,7 +25,7 @@ LiquidMS\NetgameModel::init(ConfigModel::getConfig());
 
 // Namespace for extended 
 $router->with('/liquidms', function() use ($router){
-	$router->respond('GET', '/?', function($request, $response, $service){
+	$router->respond('GET', '/?', function($request, $response){
 		$response->json([
 		"routes" => [
 			"/browse",
@@ -75,7 +75,7 @@ $router->with('/liquidms', function() use ($router){
 	});
 
 	$router->respond('POST', '/snitch', function($request, $response, $service){
-		// Provide some CSV text and it'll get parsed into tables
+		// Provide some CSV text, and it'll get parsed into tables
 		//$csvdata[] = str_getcsv($request->body());
 		$csvdata = [];
 		$files = $request->files();
@@ -92,11 +92,11 @@ $router->with('/liquidms', function() use ($router){
 			return;
 		}
 
-		foreach( $files as $fileId => $file){
+		foreach($files as $file){
 			//Formatting
 			$csvlines = explode("\n",rtrim(file_get_contents($file['tmp_name']),"\n"));
 			$csvdata_raw = array_map('str_getcsv', $csvlines);
-			foreach($csvdata_raw as $csvnetgameId => $csvnetgame){
+			foreach($csvdata_raw as $csvnetgame){
 				$csvdata[] = [
 					"host" => $csvnetgame[0],
 					"port" => $csvnetgame[1],

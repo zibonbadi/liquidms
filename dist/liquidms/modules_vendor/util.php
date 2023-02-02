@@ -43,33 +43,33 @@ function copy_bool ( bool &$to, mixed $from ) : mixed
 	also returned.
  */
 
-function cstrsize (string $s, int $l = 0, int $n = NULL) : int
+function cstrsize(string $s, int $l = 0, int $n = NULL): int
 {
-	if (( $len = strlen($s) - $l ) < 0)
-		return 0;
-	// We can't substr outside of length.
-	if (isset($n) && $n < $len)
-	{
-		$s = substr($s, $l, $n);
-		$l = 0;
-		$len = $n;
-	}
-	$n = strpos($s, "\0", $l) - $l;
-	return ( ($n === FALSE) ?  $len : $n + 1 );
+    if (($len = strlen($s) - $l) < 0)
+        return 0;
+    // We can't substr outside of length.
+    if (isset($n) && $n < $len) {
+        $s = substr($s, $l, $n);
+        $l = 0;
+        $len = $n;
+    }
+    $n = strpos($s, "\0", $l) - $l;
+    return (($n === FALSE) ? $len : $n + 1);
 }
 
-function cstr (string $s, int $l = 0, int $n = NULL) : string
+function cstr(string $s, int $l = 0, int $n = NULL): string
 {
-	$n = cstrsize($s, $l, $n);
-	// Check that we haven't been truncated.
-	if (!ord($s[$l + ( $n-1 )]))
-		$n--;
-	return substr($s, $l, $n);
+    $n = cstrsize($s, $l, $n);
+    // Check that we haven't been truncated.
+    if (!ord($s[$l + ($n - 1)]))
+        $n--;
+    return substr($s, $l, $n);
 }
 
-function copy_bool (bool &$to = NULL, $from) : bool
+function copy_bool(bool &$to = NULL, $from): bool
 {
-	$to = (bool)$from;
-	return $to;
+    $to = (bool)$from;
+    return $to;
 }
+
 ?>
