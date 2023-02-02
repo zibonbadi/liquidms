@@ -21,8 +21,8 @@ require_once __DIR__.'/../../vendor/autoload.php';
 
 class TimestampModel{
 
-	private static $filename = __DIR__."/../../timestamps.yaml";
-	private static $data = [];
+	private static string $filename = __DIR__."/../../timestamps.yaml";
+	private static array $data = [];
 
 	public static function init(string $filename = __DIR__."/../../timestamps.yaml"){
 

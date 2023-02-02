@@ -16,11 +16,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // Setup, configs etc.
-require_once __DIR__.'/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 // Local utilities
-require_once __DIR__.'/../liquidms/modules/ConfigModel.php';
-require_once __DIR__.'/../liquidms/modules/NetgameModel.php';
+require_once __DIR__ . '/../liquidms/modules/ConfigModel.php';
+require_once __DIR__ . '/../liquidms/modules/NetgameModel.php';
 
 use LiquidMS\ConfigModel;
 use LiquidMS\NetgameModel;
@@ -38,17 +38,25 @@ set_time_limit(5);
 #error_log("Server settings: \n".yaml_emit($_SERVER));
 
 // Set API routes
-if(in_array('v1', $config["modules"])){ require_once(__DIR__.'/../liquidms/v1.php'); }
-if(in_array('snitch', $config["modules"])){ require_once(__DIR__.'/../liquidms/liquidapi.php'); }
-if(in_array('browser', $config["modules"])){ require_once(__DIR__.'/../liquidms/frontend.php'); }
-if(in_array('srb2query', $config["modules"])){ require_once(__DIR__.'/../liquidms/srb2query.php'); }
+if (in_array('v1', $config["modules"])) {
+    require_once(__DIR__ . '/../liquidms/v1.php');
+}
+if (in_array('snitch', $config["modules"])) {
+    require_once(__DIR__ . '/../liquidms/liquidapi.php');
+}
+if (in_array('browser', $config["modules"])) {
+    require_once(__DIR__ . '/../liquidms/frontend.php');
+}
+if (in_array('srb2query', $config["modules"])) {
+    require_once(__DIR__ . '/../liquidms/srb2query.php');
+}
 
 # Always display LICENSE for AGPLv3 compliance
-$router->with('/liquidms', function() use ($router){
-	$router->respond('GET', '/license/?', function($request, $response, $service){
-		$response->header('Content-Type','text/plain;syntax=markdown');
-		return file_get_contents(__DIR__."/../LICENSE.md");
-	});
+$router->with('/liquidms', function () use ($router) {
+    $router->respond('GET', '/license/?', function ($request, $response, $service) {
+        $response->header('Content-Type', 'text/plain;syntax=markdown');
+        return file_get_contents(__DIR__ . "/../LICENSE.md");
+    });
 });
 
 
