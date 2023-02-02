@@ -22,7 +22,8 @@ function fetchUpdate_mkContext(String $method, array|null $headers = []){
    }
 
    // Stream context for HTTP fetch
-	$stream_context_opts = ["http" => [ "method" => $method] ];
+   $stream_context = null;
+   $stream_context_opts = ["http" => [ "method" => $method] ];
 
    // sco = Stream Context Option
    $sco_header = "";
@@ -35,14 +36,15 @@ function fetchUpdate_mkContext(String $method, array|null $headers = []){
 	   $stream_context_opts["http"]["header"] = $sco_header;
    }
 
-	return stream_context_create($stream_context_opts);
+   $stream_context = stream_context_create($stream_context_opts);
+   return $stream_context;
 }
 
 function fetchUpdate(array $config, array $jobs = []){
 	$rVal = []; // Return value
 
 	foreach($jobs as $jobname => $jobval) {
-		echo "[".date(DateTimeInterface::ATOM, time())." {$jobname}] Fetching \"{$jobval["host"]}\"...\n";
+		echo "[".date(DateTime::ISO8601, time())." {$jobname}] Fetching \"{$jobval["host"]}\"...\n";
 		$sv_new = [];
 		$currentjob = $config["fetch"][$jobname];
 		#var_dump($jobval);
@@ -161,7 +163,7 @@ function fetchUpdate_v1(array $config, array $job = []){
 	   //   - "[version]"
 	   $serversplit = explode("\n",rtrim($roomdata[2],"\n"));
 
-	   foreach($serversplit as $rowdata){
+	   foreach($serversplit as $rowid =>  $rowdata){
 		   $newrow = [];
 		   $rowfields = explode(" ",$rowdata);
 
@@ -220,15 +222,15 @@ function db_execute(string $query, array $config){
    $odbcstring = $config["db"]["dsn"];
 
    $connection = odbc_connect(
-	 $odbcstring,
+	 $odbcstring, 
 	 $config["db"]["user"],
 	 $config["db"]["password"] );
 
    if($connection){
       $result = odbc_exec($connection, $query);
-      if(!$result){
+      if($result == false){ 
 	 return [
-	    "error" => odbc_error(),
+	    "error" => odbc_error(), 
 	    "message" => odbc_errormsg(),
 	    "query" => $query,
 	 ];
@@ -254,7 +256,7 @@ function db_execute(string $query, array $config){
       }
    }else{
       return [
-	 "error" => odbc_error(),
+	 "error" => odbc_error(), 
 	 "message" => odbc_errormsg(),
 	 "query" => $query,
       ];
@@ -270,14 +272,14 @@ function snitch(Array $data, Array $finsters){
 	$multipart_fieldname = 'data';
 	$multipart_filename = 'snitch.csv';
 
-	echo "[".date(DateTimeInterface::ATOM, time())."] Processing {$rowCount} rows of data...\n";
+	echo "[".date(DateTime::ISO8601, time())."] Processing {$rowCount} rows of data...\n";
 
 	if($rowCount < 1){
-		echo "[".date(DateTimeInterface::ATOM, time())."] No data to propagate. Skipping...\n";
+		echo "[".date(DateTime::ISO8601, time())."] No data to propagate. Skipping...\n";
 		return;
 	}
 
-	foreach($data as $dataRow){
+	foreach($data as $dataIndex => $dataRow){
 		// Create data
 		#echo "[".date(DateTime::ISO8601, time())."] Processing row {$dataIndex}...\n";
 
@@ -314,7 +316,7 @@ function snitch(Array $data, Array $finsters){
 
 	foreach($finsters as $finster){
 		$url = rtrim($finster,'/')."/liquidms/snitch";
-		echo "[".date(DateTimeInterface::ATOM, time())."] Snitching to \"{$url}\"...\n";
+		echo "[".date(DateTime::ISO8601, time())."] Snitching to \"{$url}\"...\n";
 		$response_tmp = file_get_contents( $url, false, $http_context);
 		if($response_tmp !== false){
 			$http_response .= $response_tmp;

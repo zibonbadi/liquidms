@@ -27,6 +27,6 @@ foreach($import["data"] as $import_index => $import_value){
 					$import_value["version"].
 					"\n";
 }
-echo "$room\n$maincontent";
+echo "{$room}\n{$maincontent}";
 
 ?>

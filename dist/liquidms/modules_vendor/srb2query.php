@@ -159,7 +159,7 @@ include __DIR__ . '/util.php';
 // THE BIG CLASS
 class SRB2Query
 {
-	public array $colors = [
+	public $colors = [
 		'inherit',
 		'#df00df',
 		'#ffff0f',
@@ -272,11 +272,11 @@ class SRB2Query
 	private $so;
 	private $addr, $port;
 
-	private array $timeout = [
+	private $timeout = [
 		'sec'  => 2,
 		'usec' => 0,
 	];
-	private int $retries = 0;
+	private $retries = 0;
 
 	private $lotsofaddons;
 	private $fileneedednum;

@@ -17,12 +17,10 @@
 
 require_once __DIR__.'/modules/ConfigModel.php';
 
-use Klein\Klein;
 use LiquidMS\ConfigModel;
 use LiquidMS\NetgameModel;
 
-$router = new Klein();
-$router->respond('GET', '/favicon.ico', function($request, $response){
+$router->respond('GET', '/favicon.ico', function($request, $response, $service){
 		$config = ConfigModel::getConfig();
 		$response->file(rtrim($config["sbpath"], "/")."/favicon.svg");
 });
@@ -38,7 +36,7 @@ $router->with('/liquidms/browse', function() use ($router){
 				]);
 	});
 	// Three separate resource routes for capsuled security
-	$router->respond('GET', '/img/[**:path]/?', function($request, $response){
+	$router->respond('GET', '/img/[**:path]/?', function($request, $response, $service){
 			$config = ConfigModel::getConfig();
 			$response->file(rtrim($config["sbpath"], "/")."/img/".$request->path);
 	});

@@ -49,7 +49,7 @@ class ConfigModel{
 
 			// Merge all yaml configs together
 			$import_compose = [];
-			foreach($import as $doc) {
+			foreach($import as $docname => $doc) {
 				$import_compose = array_merge_recursive($import_compose, $doc);
 			}
 
