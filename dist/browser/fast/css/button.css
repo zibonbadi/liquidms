@@ -1,33 +1,36 @@
-button, select, a.button, input[type="button"]{
-	background: #3355ff;
-	border: 3pt solid #8888ff;
-	color: #88ccff;
-	box-shadow: 0 0.3em #000;
-	cursor: pointer;
-	display: inline-block;
-	font-family: 'Press Start 2P', sans-serif;
-	font-size: 16pt;
-	text-decoration: none;
-	padding: 0.5em 1em;
-	max-width: 100%;
+button, select, a.button, input[type="button"] {
+    background: #3355ff;
+    border: 3pt solid #8888ff;
+    color: #88ccff;
+    box-shadow: 0 0.3em #000;
+    cursor: pointer;
+    display: inline-block;
+    font-family: 'Press Start 2P', sans-serif;
+    font-size: 16pt;
+    text-decoration: none;
+    padding: 0.5em 1em;
+    max-width: 100%;
 }
-@media(any-hover: hover) and (pointer: fine){
-	button:hover, a.button:hover, select:hover, input[type="button"]:hover{
-		background: #aaaaff;
-		box-shadow: 0 0.3em #88f;
-		color: #44f;
-	}
+
+@media (any-hover: hover) and (pointer: fine) {
+    button:hover, a.button:hover, select:hover, input[type="button"]:hover {
+        background: #aaaaff;
+        box-shadow: 0 0.3em #88f;
+        color: #44f;
+    }
 }
-button.error, a.button.error, input[type="button"].error{
-	background: #fc5b7c;
-	border-color: #fd9fa3;
-	color: #ffbae4;
+
+button.error, a.button.error, input[type="button"].error {
+    background: #fc5b7c;
+    border-color: #fd9fa3;
+    color: #ffbae4;
 }
-iframe, img{ 
-	max-width:90%;
-	height: auto;
-	display: block;
-	margin: auto;
+
+iframe, img {
+    max-width: 90%;
+    height: auto;
+    display: block;
+    margin: auto;
 }
 
 

@@ -9,48 +9,52 @@ fetch('/liquidms/snitch')
 */
 
 let SBClasses = {
-	Eventbus: './ctrl/Eventbus.js',
-	NetgameComponent: './cmp/NetgameComponent.js',
-	NetgameController: './ctrl/NetgameController.js',
-	NetgameListComponent: './cmp/NetgameListComponent.js',
-	NetgameModel: './mdl/NetgameModel.js',
-	RequestController: './ctrl/RequestController.js',
+    Eventbus: './ctrl/Eventbus.js',
+    NetgameComponent: './cmp/NetgameComponent.js',
+    NetgameController: './ctrl/NetgameController.js',
+    NetgameListComponent: './cmp/NetgameListComponent.js',
+    NetgameModel: './mdl/NetgameModel.js',
+    RequestController: './ctrl/RequestController.js',
 };
 
 
-if(ServerBrowser === undefined){
-	var ServerBrowser = { };
-	// Class loader
-	for( const component in SBClasses ){
-	  import(SBClasses[component]).then( function(module){
-		  SBClasses[component] = module.default;
-		  //console.log(component,SBClasses[component].prototype.init);
-		  if(SBClasses[component].prototype.init !== undefined){ SBClasses[component].prototype.init(); }
-	  });
-	};
+if (ServerBrowser === undefined) {
+    var ServerBrowser = {};
+    // Class loader
+    for (const component in SBClasses) {
+        import(SBClasses[component]).then(function (module) {
+            SBClasses[component] = module.default;
+            //console.log(component,SBClasses[component].prototype.init);
+            if (SBClasses[component].prototype.init !== undefined) {
+                SBClasses[component].prototype.init();
+            }
+        });
+    }
+
 }
 
-window.onload = function(){
-	ServerBrowser.req = new SBClasses.RequestController();
-	ServerBrowser.eventbus = new SBClasses.Eventbus();
-	ServerBrowser.db = new SBClasses.NetgameModel();
-	ServerBrowser.netgamecon = new SBClasses.NetgameController();
+window.onload = function () {
+    ServerBrowser.req = new SBClasses.RequestController();
+    ServerBrowser.eventbus = new SBClasses.Eventbus();
+    ServerBrowser.db = new SBClasses.NetgameModel();
+    ServerBrowser.netgamecon = new SBClasses.NetgameController();
 
-	/*
-	customElements.define('sb-netgamelist', SBClasses.NetgameListComponent);
-	customElements.define('sb-netgame', SBClasses.NetgameComponent);
-	*/
 
-	/*
-	ServerBrowser.req.get('/liquidms/snitch')
-		.then( (response) => {
-			console.log(response);
-		})
-		.catch( (error) => {
-			console.error("Initial fetch failed: ", error);
-		});
-		*/
+    /*
+    customElements.define('sb-netgamelist', SBClasses.NetgameListComponent);
+    customElements.define('sb-netgame', SBClasses.NetgameComponent);
+    */
 
-	console.log('ServerBrowser initialized.');
+    /*
+    ServerBrowser.req.get('/liquidms/snitch')
+        .then( (response) => {
+            console.log(response);
+        })
+        .catch( (error) => {
+            console.error("Initial fetch failed: ", error);
+        });
+        */
+
+    console.log('ServerBrowser initialized.');
 }
 

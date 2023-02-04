@@ -56,6 +56,24 @@ export default class NetgameModel {
             // Offset request flood
             let passthru = [];
             passthru[hostkey] = insert;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             ServerBrowser.eventbus.send("refresh", passthru);
             await sleep(25);
         }
