@@ -6,10 +6,10 @@ SRB2Kart HTTP API
 Preface
 -------
 
-**NOTE:** All information noted here has been derived from clean room
-testing of existing SRB2Kart HTTP Master Server implementations. As such,
-it has been created using limited information and may not reflect any
-official specification.
+**NOTE:** All information noted here has been derived from independent
+research and analysis of existing SRB2Kart HTTP Master Server
+implementations. As such, it has been created using limited information and
+may not reflect any official specification.
 
 
 API Basics
@@ -19,9 +19,6 @@ Defining `/` as the HTTP server's base, all endpoints/actions take the
 following form:
 
     /(games/[:game]/)[:action]?<query>
-    
-The only exception to this rule is given for `/rules?<query>` which serves
-a game-agnostic function of listing the local master server rules.
 
 
 General actions
@@ -51,9 +48,8 @@ SRB2Kart Actions
   to be of type `application/x-www-form-urlencoded` and consists of the
   following fields:
 
-  - `title`: Netgame title
+  - `contact`: Netgame title
   - `port`: Netgame port
-  - `version`: Game version
 
 
 `POST /servers/[:netgameid]/update?<query>`
@@ -65,7 +61,7 @@ SRB2Kart Actions
   to be of type `application/x-www-form-urlencoded` and consists of the
   following fields:
 
-  - `title`: New netgame title
+  - `contact`: New netgame title
 
 `POST /servers/[:netgameid]/unlist?<query>`
 : Remove netgame from list. *netgameid* is required to match a previously
