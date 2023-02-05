@@ -37,18 +37,18 @@ SRB2Kart Actions
 `GET /games/SRB2Kart/versions?<query>`
 : List `<modversion> <versionstring>`.
 
-`GET /games/SRB2Kart/[:gameid]/servers?<query>`
+`GET /games/SRB2Kart/[:modversion]/servers?<query>`
 : List all servers. The output is formatted exactly as specified for the [V1 API][v1spec].
 
 [v1spec]: <https://web.archive.org/web/20220205110841/https://mb.srb2.org/MS/tools/api/v1/>
 
-`POST /games/SRB2Kart/[:gameid]/<TBA>?<query>`
+`POST /games/SRB2Kart/[:modversion]/register?<query>`
 : Add new netgame listing
 
-`PUT /games/SRB2Kart/[:gameid]/<TBA>?<query>`
+`POST /servers/[:netgameid]/update?<query>`
 : Update netgame listing
 
-`DELETE /games/SRB2Kart/[:gameid]/<TBA>/unlist?<query>`
+`POST /servers/[:netgameid]/unlist?<query>`
 : Remove netgame from list
 
 
