@@ -35,7 +35,7 @@ SRB2Kart Actions
 ----------------
 
 `GET /games/SRB2Kart/versions?<query>`
-: List `<> <version>`.
+: List `<modversion> <versionstring>`.
 
 `GET /games/SRB2Kart/[:gameid]/servers?<query>`
 : List all servers. The output is formatted exactly as specified for the [V1 API][v1spec].
@@ -60,7 +60,7 @@ SRB2Kart Queries
 The query parameter `?v=<VALUE>` defines API version used. The following
 table lists some typical API versions corresponding to their game versions:
 
-Version | `?v=`
+Game version | API version `?v=`
 --|--
 v1.3 | 2
 v1.6 | 2.2
