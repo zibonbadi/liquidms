@@ -18,7 +18,7 @@ API Basics
 Defining `/` as the HTTP server's base, all endpoints/actions take the
 following form:
 
-    /games/[:game]/[:action]?<query>
+    /(games/[:game]/)[:action]?<query>
     
 The only exception to this rule is given for `/rules?<query>` which serves
 a game-agnostic function of listing the local master server rules.
@@ -38,18 +38,40 @@ SRB2Kart Actions
 : List `<modversion> <versionstring>`.
 
 `GET /games/SRB2Kart/[:modversion]/servers?<query>`
-: List all servers. The output is formatted exactly as specified for the [V1 API][v1spec].
+: List all servers. The output is formatted using the following schema of lines:
 
-[v1spec]: <https://web.archive.org/web/20220205110841/https://mb.srb2.org/MS/tools/api/v1/>
+  ```
+  <IP address> <TCP/UDP port> <URL-encoded title>
+  ```
 
 `POST /games/SRB2Kart/[:modversion]/register?<query>`
-: Add new netgame listing
+: Add new netgame listing. Upon registration, a *netgameid* is returned
+
+  The request body for `/servers/[:netgameid]/update?<query>` is required
+  to be of type `application/x-www-form-urlencoded` and consists of the
+  following fields:
+
+  - `title`: Netgame title
+  - `port`: Netgame port
+  - `version`: Game version
+
 
 `POST /servers/[:netgameid]/update?<query>`
-: Update netgame listing
+: Update netgame listing. *netgameid* is required to match a previously
+  assigned numeric token within the database upon which an empty response is
+  returned. If the netgameid doesn't match, `No such server` is returned.
+
+  The request body for `/servers/[:netgameid]/update?<query>` is required
+  to be of type `application/x-www-form-urlencoded` and consists of the
+  following fields:
+
+  - `title`: New netgame title
 
 `POST /servers/[:netgameid]/unlist?<query>`
-: Remove netgame from list
+: Remove netgame from list. *netgameid* is required to match a previously
+  assigned numeric token within the database upon which an empty response is
+  returned. If the netgameid doesn't match, `No such server` is returned.
+
 
 
 SRB2Kart Queries
