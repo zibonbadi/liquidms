@@ -1,6 +1,10 @@
 @import url('/liquidms/browse/css/button.css');
 @import url('/liquidms/browse/css/dnd.css');
 
+:root{
+	font-size: 10pt;
+}
+
 .flex{
 	display: flex;
 	flex-flow: row wrap;
@@ -26,7 +30,8 @@ details{
 	width: fit-content;
 }
 summary{
-	font-size: larger;
+	/* font-size: larger; */
+	font-size: 12pt;
 	color: var(--netgame-title-text);
 	text-shadow: 0.07em 0.1em 0 #000;
 	margin-bottom: 1em;
@@ -118,7 +123,7 @@ progress[value^="1"]::-webkit-progress-value
 	background: var(--progress-trough-bad);
 }
 
-:host-context(sb-netgamelist[view="list"]) hr{
+:host-context(sb-netgamelist[view="gallery"]) hr{
 	background: #f0f;
 }
 
@@ -126,7 +131,15 @@ progress[value^="1"]::-webkit-progress-value
 	display: none;
 }
 
-:host() [name="pin"]{
+:host{
+	display: grid;
+	gap: 3pt;
+	justify-content: center;
+	align-items: center;
+	justify-items: center;
+}
+
+:host [name="pin"]{
 	cursor: pointer;
 }
 :host(.pinned) [name="pin"]{
@@ -140,8 +153,62 @@ progress[value^="1"]::-webkit-progress-value
 	color: var(--checkbox-text-checked-hover);
 }
 
+:host-context(sb-netgamelist[view="gallery"]){
+	grid-template:
+		"title title"
+		"netgameaddress netgameaddress"
+		"gametype version"
+		"originaddress originaddress"
+		"playercount playercount"
+		"playerbox playerbox"
+		"details details"
+		"buttons buttons"
+		"updated_at updated_at"
+		/ auto auto;
+}
+/* :host{ */
+:host-context(sb-netgamelist[view="list"]){
+	/*
+	grid-template:
+		"title
+		netgameaddress
+		gametype
+		updated_at
+		originaddress
+		version
+		playercount
+		buttons"
+		"playerbox playerbox playerbox playerbox
+		details details details details"
+		/ repeat(11, auto);
+
+	grid-template:
+"title title . ." "netgameaddress gametype version buttons" "details playerbox playerbox buttons" "originaddress updated_at updated_at playercount" / 1fr 1fr 1fr 1fr;
+*/
+	grid-template:
+"title title . updated_at" "netgameaddress gametype version buttons" "details playerbox playerbox buttons" "originaddress originaladdress playercount buttons" / 1fr 1fr 1fr 1fr
+}
+
+[name="buttons"]{ grid-area: buttons; align-items: center; }
+[name="details"]{ grid-area: details; }
+[name="gametype"]{ grid-area: gametype; }
+[name="hostname"]{ grid-area: hostname; }
+[name="name"]{ grid-area: title; }
+[name="netgameaddress"]{ grid-area: netgameaddress; }
+[name="origin"]{ grid-area: origin; }
+[name="originaddress"]{ grid-area: originaddress; }
+[name="playercount"]{ grid-area: playercount; }
+[name="players"]{ grid-area: players; }
+[name="players_bar"]{ grid-area: players_bar; }
+[name="playerbox"]{ grid-area: playerbox; }
+[name="port"]{ grid-area: port; }
+[name="roomname"]{ grid-area: roomname; }
+[name="updated_at"]{ grid-area: updated_at; }
+[name="version"]{ grid-area: version; }
+
 [name="name"]{
-	font-size: x-large;
+	/* font-size: x-large; */
+	font-size: 15pt;
 	color: var(--netgame-title-text);
 	text-shadow: 0.07em 0.1em 0 #000;
 }
@@ -151,7 +218,17 @@ progress[value^="1"]::-webkit-progress-value
 }
 [name="origin"],
 [name="roomname"]{
-	font-size: small;
+	/* font-size: small; */
+	font-size: 8pt;
+}
+
+:host:not(:focus), :host:not(:focus-within) [name]{
+	display:none;
+}
+:host:not(:focus), :host:not(:focus-within) [name="netgameaddress"],
+:host:not(:focus), :host:not(:focus-within) [name="version"],
+:host:not(:focus), :host:not(:focus-within) [name="playercount"]{
+	display: initial;
 }
 
 [name="name"]{
@@ -159,9 +236,11 @@ progress[value^="1"]::-webkit-progress-value
 	justify-self: stretch;
 	margin: 1em auto;
 }
+
 [name="origin"],
 [name="hostname"],
 [name="origin"],
 [name="roomname"]{
 	display:inline;
 }
+

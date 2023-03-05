@@ -9,17 +9,26 @@ sb-netgame{
 }
 
 sb-netgamelist[view="gallery"] sb-netgame{
-	/* Gallery view */
-	flex-basis: 7cm;
-	flex: 1 3;
+	grid-template:
+		"title title"
+		"netgameaddress gametype"
+		"originaddress originaddress"
+		"details details"
+		"playerbox playerbox"
+		"playercount playercount"
+		"buttons buttons"
+		"updated_at version"
+		/ auto auto;
 }
 sb-netgamelist[view="list"] sb-netgame{
-	/* List view */
-	flex-basis: 100%;
-	flex-flow: row wrap;
-	display: flex;
-	align-items: center;
+	grid-template:
+		"title title . updated_at"
+		"netgameaddress gametype version buttons"
+		"details playerbox playerbox buttons"
+		"originaddress originaladdress playercount buttons"
+		/ 1fr 1fr 1fr 1fr
 }
+
 sb-netgame.locked{
 	background-color: var(--netgame-locked-bg);
 	pointer-events: none;
@@ -44,6 +53,14 @@ sb-netgame.error{
 	sb-netgame .player:hover{
 		box-shadow: 0 0.3em #000;
 	}
+}
+sb-netgame:focus,
+sb-netgame:focus-within{
+	background-color: var(--netgame-bg-hover);
+}
+sb-netgame.error:focus,
+sb-netgame.error:focus-within{
+	background-color: var(--netgame-bg-error-hover);
 }
 
 

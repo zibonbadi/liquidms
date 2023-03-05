@@ -26,33 +26,17 @@
 <link rel="stylesheet" href="browse/css/NetgameComponent.css">
 <template data-name="netgame">
 	<link rel="stylesheet" href="browse/css/NetgameComponent-shadow.css">
-	<div>
 	<span name="name">Dummy server</span>
-	<div class="flex">
-	<ul>
-	<li>
-	<span name="hostname">Dummy hostname</span>:<span name="port">Dummy port</span>
-	</li>
-	<li>Game type: <span name="gametype">unknown</span></li>
-	</ul>
-	<ul>
-	<li><span name="version">DummyBuild</span> (<span name="version_name">SRB2</span> <span name="version_major">X</span> <span name="version_minor">Y</span> <span name="version_patch">Z</span>)</li>
-	<li>Update: <span name="updated_at">Never</span></li>
-	</ul>
+	<div name="netgameaddress"><span name="hostname">Dummy hostname</span>:<span name="port">Dummy port</span></div>
+	<span name="gametype">unknown</span>
+	<span name="version">DummyBuild</span>
+	<span name="updated_at">Never</span>
+	<div name="playercount">
+		<span name="players">x</span>/<span name="maxplayers">n</span>
+		<progress name="players_bar"></progress>
 	</div>
-	<div class="flex">
-	<div class="block">
-	<progress></progress>
-	<span name="players">x</span>
-	/
-	<span name="maxplayers">n</span>
-	</div>
-	<div><span name="ping">&infin;</span> ms</div>
-	<div>Origin: <span name="roomname">Dummy room</span>@<span name="origin">World</span></div>
-	</div>
-	</div>
-	<hr>
-	<details id="meta">
+	<div name="originaddress"><span name="roomname">Dummy room</span>@<span name="origin">World</span></div>
+	<details id="meta" name="details">
 	<summary>Netgame details</summary>
 		<div class="flex">
 		<ul class="flex-left">
@@ -67,14 +51,13 @@
 		</ul>
 		</div>
 	</details>
-	<details id="playerlist">
+	<details id="playerlist" name="playerbox">
 	<summary>Players</summary>
 	<div class="flex flex-left">
 	<slot name="players_list">No players available.</slot>
 	</div>
 	</details>
-	<hr>
-	<div class="flex flex-center">
+	<div name="buttons" class="flex flex-center">
 	<!-- <input type="button" value="Update" name="update"> -->
 	<a href="#" class="button" name="update">Update</a>
 	<a href="#" class="checkbox" name="pin">Pin Netgame</a>
@@ -101,7 +84,6 @@
 		<option value="players">Players</option>
 		<option value="name">Name</option>
 		<option value="origin">Origin</option>
-		<option value="ping">Ping</option>
 		<option value="roomname">Room</option>
 		<option value="updated_at">Timestamp</option>
 		<option value="version">Version</option>

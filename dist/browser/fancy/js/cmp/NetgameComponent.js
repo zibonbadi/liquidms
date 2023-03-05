@@ -78,6 +78,7 @@ export default class NetgameComponent extends HTMLElement{
 			}
 		});
 		*/
+		this.setAttribute("tabindex", "0");
 	}
 
 	init(){
