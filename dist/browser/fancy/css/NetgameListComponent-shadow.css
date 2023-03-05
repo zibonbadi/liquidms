@@ -18,10 +18,18 @@
 }
 
 slot[name="netgames"]{
+	/*
 	display: flex;
 	flex-flow: row wrap;
+	*/
+	display: grid;
+	justify-content: center;
+	grid-template-columns: repeat(auto-fit, minmax(20em, 50em));
 	gap: 1.5ex;
 	margin-top: 5mm;
+}
+:host([view="list"]) slot[name="netgames"]{
+	grid-template-columns: 100%;
 }
 
 :host(.reverse) slot[name="netgames"]{
