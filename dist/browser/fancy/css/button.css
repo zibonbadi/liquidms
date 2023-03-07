@@ -6,7 +6,7 @@ button, select, a.button, a.button:visited, input[type="button"]{
 	cursor: pointer;
 	display: inline-block;
 	font-family: 'Press Start 2P', sans-serif;
-	font-size: 16pt;
+	font-size: 12pt;
 	text-decoration: none;
 	padding: 0.5em 1em;
 	max-width: 100%;
@@ -32,7 +32,7 @@ input[type="text"]{
 	box-shadow: 0 0.3em #000;
 	text-shadow: 0.07em 0.1em 0 #000;
 	font-family: 'Press Start 2P', sans-serif;
-	font-size: 16pt;
+	font-size: 12pt;
 	padding: 0.5em 1em;
 	background-color: var(--input-bg);
 	border: var(--input-border);
@@ -77,7 +77,7 @@ iframe, img{
 	a.button:visited,
 	input[type="button"],
 	input[type="text"]{
-		font-size: 12pt;
+		font-size: 10pt;
 	}
 }
 

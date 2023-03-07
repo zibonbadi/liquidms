@@ -65,7 +65,7 @@ sb-netgame.error:focus-within{
 
 
 sb-netgame span[slot="name"]{
-	font-size: x-large;
+	font-size: 12pt;
 	color: var(--netgame-title-text);
 	text-shadow: 0.07em 0.1em 0 #000;
 }
@@ -95,7 +95,7 @@ sb-netgame ul > li,
 	margin-left: 0;
 	padding-left: 0;
 	list-style: none;
-	font-size: small;
+	font-size: 6pt;
 }
 
 sb-netgame .player
