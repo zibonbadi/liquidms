@@ -2,7 +2,7 @@
 @import url('/liquidms/browse/css/dnd.css');
 
 :root{
-	font-size: 10pt;
+	font-size: 8pt;
 }
 
 .flex{
@@ -31,7 +31,7 @@ details{
 }
 summary{
 	/* font-size: larger; */
-	font-size: 12pt;
+	font-size: 10pt;
 	color: var(--netgame-title-text);
 	text-shadow: 0.07em 0.1em 0 #000;
 	margin-bottom: 1em;
@@ -208,7 +208,7 @@ progress[value^="1"]::-webkit-progress-value
 
 [name="name"]{
 	/* font-size: x-large; */
-	font-size: 15pt;
+	font-size: 12pt;
 	color: var(--netgame-title-text);
 	text-shadow: 0.07em 0.1em 0 #000;
 }
@@ -219,7 +219,7 @@ progress[value^="1"]::-webkit-progress-value
 [name="origin"],
 [name="roomname"]{
 	/* font-size: small; */
-	font-size: 8pt;
+	font-size: 6pt;
 }
 
 :host:not(:focus), :host:not(:focus-within) [name]{
