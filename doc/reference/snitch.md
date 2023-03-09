@@ -10,6 +10,9 @@ nodes without the need for database access authorization on behalf of the
 peer, as it will automatically sanitize the supplied data based on it's
 internal netgame hosting policy.
 
+Basics
+------
+
 By supplying files of type `text/csv;header=absent` to a peer's
 HTTP API, hosts can actively contribute to that peer's database. The CSV
 data that is both supplied as well as expected by LiquidMS nodes is
@@ -33,4 +36,20 @@ snitch:
   "http://my-fav-liquidms.node"
 ```
 
+Snitch Version 2
+----------------
 
+LiquidMS v1.2+ introduced a new, backwards-compatible version of the Snitch
+API, capable of handling the various master server APIs now implemented and
+managed in simultaneously by LiquidMS. To access it, multiple HTTP headers
+must be defined, otherwise LiquidMS will fall back to using Snitch version 1:
+
+`X-Lq-Snitch-Version`
+: Defines the LiquidMS Snitch API version. If 1, invalid or undefined,
+LiquidMS will fall back to using Snitch version 1.
+
+`X-Lq-Snitch-Accept`
+: Comma separated list of accepted APIs using LiquidMS-internal
+  connotations such as "v1", "kart", and likewise. If not defined, yet
+  `X-Lq-Snitch-Version` is given, LiquidMS will proceed to provide all
+  available netgames indiscriminately.

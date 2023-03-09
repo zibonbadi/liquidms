@@ -45,8 +45,20 @@ $router->with('/liquidms', function() use ($router){
 	$router->respond('GET', '/snitch/?', function($request, $response){
 		// Get all known netgames as a CSV table (e.g. for snitching to other nodes)
 		$response->header('Content-Type','text/csv;header=absent');
+		$apiver = $request->headers()->get("X-liquidms-snitch-version");
 		$servers = NetgameModel::getServers();
 		if($servers["error"] == 0){
+
+		switch($apiver){
+		case "2":{
+			// new API -> check version
+			$response->body($apiver);
+			break;
+		}
+		case "1":
+		case NULL:
+		default:{
+			// No header; -> legacy API
 			if($servers["rows"] > 0){
 				$out = fopen('php://output', 'w');
 				foreach($servers["data"] as $server){
@@ -65,8 +77,11 @@ $router->with('/liquidms', function() use ($router){
 				//$response->json($servers["data"]);
 			}else{
 				#$response->code(404);
-				return "";
+				$response->body("");
 			}
+			break;
+		}
+		}
 		}else{
 			$response->code(500);
 			$response->json($servers);
