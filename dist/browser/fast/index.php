@@ -38,7 +38,34 @@ Use this server in-game:
 <li>Server Options</li>
 <li>Advanced</li>
 <li>Server</li>
-<li>Master Server: <a href="<?php echo "http://{$_SERVER['SERVER_NAME']}/v1"; ?>"><?php echo "http://{$_SERVER['SERVER_NAME']}/v1"; ?></a></li>
+<li>Master Server: <a href="<?php
+	$port_str = "";
+	switch($_SERVER['SERVER_PORT']){
+	case 80:
+	case 443:{
+		break;
+	}
+	default:{
+		$port_str = ":{$_SERVER['SERVER_PORT']}";
+		break;
+	}
+	}
+	echo "http://{$_SERVER['SERVER_NAME']}{$port_str}/v1";
+?>">
+<?php
+	$port_str = "";
+	switch($_SERVER['SERVER_PORT']){
+	case 80:
+	case 443:{
+		break;
+	}
+	default:{
+		$port_str = ":{$_SERVER['SERVER_PORT']}";
+		break;
+	}
+	}
+	echo "http://{$_SERVER['SERVER_NAME']}{$port_str}/v1";
+?></a></li>
 </ol>
 </p>
 <?php } ?>
