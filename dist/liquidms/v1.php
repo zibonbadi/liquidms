@@ -39,7 +39,7 @@ $router->with('/v1/servers', function() use ($router){
 	$router->respond('POST', '/[:serverid]?/update', function($request, $response){
 			parse_str($request->body(), $info);
 			$request->ip();
-			$response = NetgameModel::changeServer("update", $request->ip(), $request->serverid, urlencode($info['title']), null, null);
+			$response = NetgameModel::changeServer("update", $request->ip(), $request->serverid, rawurlencode($info['title']), null, null);
 			if( $response["rows"] > 0 ){
 				// No Response body
 				return;
@@ -100,7 +100,7 @@ $router->with('/v1/rooms', function() use ($router){
 						if( $rooms["error"] == 0 ){
 							if( $rooms["rows"] > 0 ){
 								parse_str($request->body(), $info);
-								NetgameModel::changeServer("create", $request->ip(),  "{$request->ip()}:{$info['port']}", urlencode($info['title']), $info['version'], $rooms["data"][0]['roomname']);
+								NetgameModel::changeServer("create", $request->ip(),  "{$request->ip()}:{$info['port']}", rawurlencode($info['title']), $info['version'], $rooms["data"][0]['roomname']);
 								return "{$request->ip()}:{$info['port']}";
 							}else{
 								$response->code(404);
