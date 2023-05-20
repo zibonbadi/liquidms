@@ -77,7 +77,8 @@ CREATE TABLE IF NOT EXISTS `bans` (
 INSERT INTO `versions` (`_id`, `gameid`,`name`) VALUES
 (20,1,'2.2.9' ),
 (19,1,'1.3.2' ),
-(18,51,'v2.2.10' ),
+-- (18,51,'v2.2.10' ),
+(18,52,'v2.2.11' ),
 (17,7,'v1.3' ),
 (16,1,'mirrormode-v1' ),
 (14,1,'TD v1.0.0'),
