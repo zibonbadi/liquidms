@@ -59,7 +59,9 @@ This documentation follows the [Diataxis model], being divided into 4 categories
 1. [Endpoints](doc/reference/endpoints.md)
 2. [Configuration files](doc/reference/configfiles.md)
 3. [Snitch API](doc/reference/snitch.md)
-3. [Netgame Configuration (external)](doc/reference/netgames.md)
+4. [SRB2 MS API v1.2](doc/reference/legacyms12.md)
+5. [SRB2 MS API v2.1](doc/reference/legacyms21.md)
+6. [Netgame Configuration (external)](doc/reference/netgames.md)
 
 
 
