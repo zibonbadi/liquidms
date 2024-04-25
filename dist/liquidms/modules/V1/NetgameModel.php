@@ -15,10 +15,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace LiquidMS;
+namespace LiquidMS\V1;
 
-require_once __DIR__.'/../../vendor/autoload.php';
-#require_once __DIR__.'/../fetch_common.php';
+require_once __DIR__.'/../../../vendor/autoload.php';
 
 class NetgameModel{
 

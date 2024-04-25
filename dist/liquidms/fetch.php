@@ -16,12 +16,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 require_once __DIR__.'/modules/ConfigModel.php';
-require_once __DIR__."/modules/NetgameModel.php";
+require_once __DIR__."/modules/V1/NetgameModel.php";
 require_once __DIR__.'/modules/TimestampModel.php';
 require_once __DIR__.'/modules/fetch_common.php';
 
 use LiquidMS\ConfigModel;
-use LiquidMS\NetgameModel;
+use LiquidMS\V1\NetgameModel;
 use LiquidMS\TimestampModel;
 
 ConfigModel::init();
@@ -58,8 +58,8 @@ $fetchsql = rtrim($fetchsql,", \n\r\t");
 switch($config["fetchmode"]){
 	case "fetch":{
 		// Upsert database (yes that's a real word)
-		if(NetgameModel::init($config)){
-			echo yaml_emit(NetgameModel::pushServers($fetchdata));
+		if(V1\NetgameModel::init($config)){
+			echo yaml_emit(V1\NetgameModel::pushServers($fetchdata));
 		}
 
 		/* 
@@ -77,7 +77,7 @@ switch($config["fetchmode"]){
 		*/
 		break;
 	}case "snitch":{
-		if(NetgameModel::init($config)){
+		if(LiquidMS\V1\NetgameModel::init($config)){
 			echo snitch($fetchdata, $config["snitch"]);
 		}
 		break;

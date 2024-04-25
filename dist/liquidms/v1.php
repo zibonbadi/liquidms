@@ -16,12 +16,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 require_once __DIR__.'/modules/ConfigModel.php';
-require_once __DIR__.'/modules/NetgameModel.php';
+require_once __DIR__.'/modules/V1/NetgameModel.php';
 
 use LiquidMS\ConfigModel;
-use LiquidMS\NetgameModel;
+use LiquidMS\V1\NetgameModel;
 
-LiquidMS\NetgameModel::init(ConfigModel::getConfig());
+LiquidMS\V1\NetgameModel::init(ConfigModel::getConfig());
 
 $router->with('/v1/servers', function() use ($router){
 	$router->respond('GET', '/?', function($request, $response, $service){
@@ -29,7 +29,7 @@ $router->with('/v1/servers', function() use ($router){
 			// filter by response. Listing dummy servers is thus not possible.
 			$servers = NetgameModel::getServers();
 			$rooms = NetgameModel::getRooms();
-				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){ $service->render(__DIR__."/modules/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);
+				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){ $service->render(__DIR__."/modules/V1/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);
 				}else{
 					$response->code(403);
 					if( ($servers["error"] != 0)){ $service->render(__DIR__."/modules/ErrorView.php", ["response" => $servers]); };
@@ -213,7 +213,7 @@ $router->with('/v1/rooms', function() use ($router){
 				$rooms = NetgameModel::getWorldRooms();
 				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){
 					if( ($servers["rows"] > 0) && ($rooms["rows"] > 0) ){
-						$service->render(__DIR__."/modules/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);
+						$service->render(__DIR__."/modules/V1/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);
 					}else{
 						//$response->code(404);
 						return "{$request->roomId}\n\n";

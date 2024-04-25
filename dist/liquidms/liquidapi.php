@@ -16,12 +16,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 require_once __DIR__.'/modules/ConfigModel.php';
-require_once __DIR__.'/modules/NetgameModel.php';
+require_once __DIR__.'/modules/V1/NetgameModel.php';
+require_once __DIR__.'/modules/SRB2Kart/NetgameModel.php';
 
 use LiquidMS\ConfigModel;
-use LiquidMS\NetgameModel;
 
-LiquidMS\NetgameModel::init(ConfigModel::getConfig());
+LiquidMS\V1\NetgameModel::init(ConfigModel::getConfig());
 
 // Namespace for extended 
 $router->with('/liquidms', function() use ($router){
@@ -46,7 +46,7 @@ $router->with('/liquidms', function() use ($router){
 		// Get all known netgames as a CSV table (e.g. for snitching to other nodes)
 		$response->header('Content-Type','text/csv;header=absent');
 		$apiver = $request->headers()->get("X-liquidms-snitch-version");
-		$servers = NetgameModel::getServers();
+		$servers = LiquidMS\V1\NetgameModel::getServers();
 		if($servers["error"] == 0){
 
 		switch($apiver){
@@ -154,7 +154,7 @@ $router->with('/liquidms', function() use ($router){
 		error_log($request->ip()." snitched the following netgames:\n".yaml_emit($csvdata));
 
 		// I'll think of something
-		$dbresponse = NetgameModel::pushServers($csvdata);
+		$dbresponse = LiquidMS\V1\NetgameModel::pushServers($csvdata);
 
 		if( $dbresponse["error"] == 0 ){
 			if( $dbresponse["rows"] > 0 ){

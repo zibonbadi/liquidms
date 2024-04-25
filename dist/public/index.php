@@ -20,10 +20,10 @@ require_once __DIR__.'/../vendor/autoload.php';
 
 // Local utilities
 require_once __DIR__.'/../liquidms/modules/ConfigModel.php';
-require_once __DIR__.'/../liquidms/modules/NetgameModel.php';
+require_once __DIR__.'/../liquidms/modules/V1/NetgameModel.php';
+require_once __DIR__.'/../liquidms/modules/SRB2Kart/NetgameModel.php';
 
 use LiquidMS\ConfigModel;
-use LiquidMS\NetgameModel;
 use Klein\Klein;
 
 // Main router object
@@ -31,14 +31,19 @@ $router = new Klein();
 $configmodel = ConfigModel::init();
 $config = ConfigModel::getConfig();
 
-NetgameModel::init($config);
-
 set_time_limit(5);
 
 #error_log("Server settings: \n".yaml_emit($_SERVER));
 
 // Set API routes
-if(in_array('v1', $config["modules"])){ require_once(__DIR__.'/../liquidms/v1.php'); }
+if(in_array('v1', $config["modules"])){
+	LiquidMS\V1\NetgameModel::init($config);
+	require_once(__DIR__.'/../liquidms/v1.php');
+}
+if(in_array('kartv1', $config["modules"])){
+	LiquidMS\SRB2Kart\NetgameModel::init($config);
+	require_once(__DIR__.'/../liquidms/kartv1.php');
+}
 if(in_array('snitch', $config["modules"])){ require_once(__DIR__.'/../liquidms/liquidapi.php'); }
 if(in_array('browser', $config["modules"])){ require_once(__DIR__.'/../liquidms/frontend.php'); }
 if(in_array('srb2query', $config["modules"])){ require_once(__DIR__.'/../liquidms/srb2query.php'); }
