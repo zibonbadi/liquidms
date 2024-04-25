@@ -20,15 +20,12 @@ require_once __DIR__.'/../vendor/autoload.php';
 
 // Local utilities
 require_once __DIR__.'/../liquidms/modules/ConfigModel.php';
-require_once __DIR__.'/../liquidms/modules/V1/NetgameModel.php';
-require_once __DIR__.'/../liquidms/modules/SRB2Kart/NetgameModel.php';
 
 use LiquidMS\ConfigModel;
 use Klein\Klein;
 
 // Main router object
 $router = new Klein();
-$configmodel = ConfigModel::init();
 $config = ConfigModel::getConfig();
 
 set_time_limit(5);
@@ -37,10 +34,12 @@ set_time_limit(5);
 
 // Set API routes
 if(in_array('v1', $config["modules"])){
+	require_once __DIR__.'/../liquidms/modules/V1/NetgameModel.php';
 	LiquidMS\V1\NetgameModel::init($config);
 	require_once(__DIR__.'/../liquidms/v1.php');
 }
 if(in_array('kartv1', $config["modules"])){
+	require_once __DIR__.'/../liquidms/modules/SRB2Kart/NetgameModel.php';
 	LiquidMS\SRB2Kart\NetgameModel::init($config);
 	require_once(__DIR__.'/../liquidms/kartv1.php');
 }

@@ -21,6 +21,7 @@ require_once __DIR__.'/../../vendor/autoload.php';
 
 class ConfigModel{
 
+	private static $instance = null;
 	private static $config = [
 		"modules" => [],
 		"sbpath" => __DIR__."/../../browser",
@@ -39,7 +40,7 @@ class ConfigModel{
 		"snitch" => [],
 	];
 
-		public static function init(){
+		private function __construct(){
 
 			if(!file_exists(__DIR__."/../../config.yaml")){
 				copy(__DIR__."/../../config.yaml.example", __DIR__."/../../config.yaml");
@@ -56,7 +57,12 @@ class ConfigModel{
 			self::setConfig($import_compose);
 		}
 
-		static function getConfig(){return self::$config;}
+		static function getConfig(){
+			if(!self::$instance){
+				self:: $instance = new ConfigModel();
+			}
+			return self::$config;
+		}
 
 		static function setConfig(Array $newconfig){
 			// Cleanup config block
