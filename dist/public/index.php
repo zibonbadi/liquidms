@@ -40,7 +40,6 @@ if(in_array('v1', $config["modules"])){
 }
 if(in_array('kartv1', $config["modules"])){
 	require_once __DIR__.'/../liquidms/modules/SRB2Kart/NetgameModel.php';
-	LiquidMS\SRB2Kart\NetgameModel::init($config);
 	require_once(__DIR__.'/../liquidms/kartv1.php');
 }
 if(in_array('snitch', $config["modules"])){ require_once(__DIR__.'/../liquidms/liquidapi.php'); }

@@ -21,8 +21,6 @@ require_once __DIR__.'/modules/SRB2Kart/NetgameModel.php';
 use LiquidMS\ConfigModel;
 use LiquidMS\SRB2Kart\NetgameModel;
 
-LiquidMS\SRB2Kart\NetgameModel::init(ConfigModel::getConfig());
-
 // Game-specific endpoints
 $router->with('/srb2kart/games/SRB2Kart', function() use ($router){
 	$router->respond('GET', '/version', function($request, $response, $service){
@@ -72,7 +70,7 @@ $router->with('/srb2kart/games/SRB2Kart', function() use ($router){
 		}
 
 
-		$servers = NetgameModel::getServers($request->roomId);
+		$servers = NetgameModel::getInstance()->getServers($request->roomId);
 
 		if( $servers["error"] == 0 ){
 		   $service->render(__DIR__."/modules/SRB2Kart/KartView.php", ["data" => $servers]);
@@ -91,11 +89,11 @@ $router->with('/srb2kart/games/SRB2Kart', function() use ($router){
 	$router->respond('POST', '/[:modid]/register', function($request, $response){
 		// Register Server and put ID here.  ID format is not specified; Vanilla 
 		// returns numbers, we will return a random base64 string for security.
-		$rooms = NetgameModel::getRooms($request->roomId);
+		$rooms = NetgameModel::getInstance()->getRooms($request->roomId);
 		if( $rooms["error"] == 0 ){
 			if( $rooms["rows"] > 0 ){
 				parse_str($request->body(), $info);
-				NetgameModel::changeServer("create", $request->ip(),  "{$request->ip()}:{$info['port']}", rawurlencode($info['title']), $info['version'], $rooms["data"][0]['roomname']);
+				NetgameModel::getInstance()->changeServer("create", $request->ip(),  "{$request->ip()}:{$info['port']}", rawurlencode($info['title']), $info['version'], $rooms["data"][0]['roomname']);
 				return "{$request->ip()}:{$info['port']}";
 			}else{
 				$response->code(404);
@@ -119,7 +117,7 @@ $router->with('/srb2kart', function() use ($router){
 	$router->respond('POST', '/servers/[:serverid]?/update', function($request, $response){
 			parse_str($request->body(), $info);
 			$request->ip();
-			$response = NetgameModel::changeServer("update", $request->ip(), $request->serverid, rawurlencode($info['title']), null, null);
+			$response = NetgameModel::getInstance()->changeServer("update", $request->ip(), $request->serverid, rawurlencode($info['title']), null, null);
 			if( $response["rows"] > 0 ){
 				// No Response body
 				return;
@@ -130,7 +128,7 @@ $router->with('/srb2kart', function() use ($router){
 	$router->respond('POST', '/servers/[:serverid]?/unlist', function($request, $response){
 			parse_str($request->body(), $info);
 			$request->ip();
-			$rooms = NetgameModel::changeServer("delete", $request->ip(), $request->serverid, null, null, null);
+			$rooms = NetgameModel::getInstance()->changeServer("delete", $request->ip(), $request->serverid, null, null, null);
 			if( $rooms["rows"] > 0 ){
 				// No Response body
 				return;

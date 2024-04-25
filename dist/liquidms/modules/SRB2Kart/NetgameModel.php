@@ -18,41 +18,25 @@
 namespace LiquidMS\SRB2Kart;
 
 require_once __DIR__.'/../../../vendor/autoload.php';
+require_once __DIR__.'/../DBSingleton.php';
 #require_once __DIR__.'/../fetch_common.php';
+
+use LiquidMS\DBSingleton;
 
 class NetgameModel{
 
-		private static $dsn = null;
-		private static $username = null;
-		private static $password = null;
+		private static $instance = null;
+		private static $db = null;
 
-		public static function init(Array $settings){
-			// The following YAML structure will be used from `config.yaml`.
-			//
-			// db: # liquidMS DB connection settings
-			//    dsn: # ODBC data source name
-			//    user: # database user
-			//    password: # database password
-			if( array_key_exists("db", $settings) &&
-					gettype($settings["db"]) == "array"){
+		public function __construct(){
+			self::$db = \LiquidMS\DBSingleton::getInstance();
+		}
 
-				if( array_key_exists("dsn", $settings["db"]) &&
-						gettype($settings["db"]["dsn"]) == "string"){
-					self::$dsn = $settings["db"]["dsn"];
-				}
-				if( array_key_exists("user", $settings["db"]) &&
-						gettype($settings["db"]["user"]) == "string"){
-					self::$username = $settings["db"]["user"];
-				}
-				if( array_key_exists("password", $settings["db"]) &&
-						gettype($settings["db"]["password"]) == "string"){
-					self::$password = $settings["db"]["password"];
-				}
-			}else{
-				error_log("No DB structure string given in config.\n");
-				return false;
+		public static function getInstance(){
+			if( !self::$instance ){
+				self::$instance = new NetgameModel();
 			}
-			return true;
+			return self::$instance;
 		}
 
 		private static function map4to6(string $address){
@@ -91,7 +75,7 @@ class NetgameModel{
 				$query = "SELECT * FROM versions";
 				if($id != NULL){ $query .= " WHERE _id = {$id}"; }
 				#echo "($id) $query\n";
-				$serverdata = self::db_execute($query);
+				$serverdata = self::$db->query($query);
 
 				return $serverdata;
 		}
@@ -108,7 +92,7 @@ class NetgameModel{
 			."VALUES {$values}"
 			."ON DUPLICATE KEY UPDATE `host`=VALUES(host), `port`=VALUES(port), `servername`=VALUES(servername), `version`=VALUES(version), `roomname`=VALUES(roomname), `origin`=VALUES(origin)";
 
-			$serverdata = self::db_execute($query);
+			$serverdata = self::$db->query($query);
 			return $serverdata;
 		}
 
@@ -149,11 +133,11 @@ class NetgameModel{
 						}
 				}
 				#error_log("OP: $op;\n$query");
-				$serverdata = self::db_execute($query);
+				$serverdata = self::$db->query($query);
 				return $serverdata;
 		}
 
-		public static function getServers($room = null){
+		public function getServers($room = null){
 
 				// Filter server block into distinct value arrays (step 2)
 				// - - "[server line]"
@@ -169,7 +153,7 @@ class NetgameModel{
 				}
 				$query = "SELECT host, port, servername, rooms._id AS roomid, rooms.roomname, version, servers.origin FROM servers INNER JOIN rooms ON servers.roomname = rooms.roomname AND rooms.origin = servers.origin {$querycondition};";
 				#echo $query."\n";
-				$serverdata = self::db_execute($query);
+				$serverdata = self::$db->execute($query);
 				#var_dump($serverdata);
 
 				foreach($serverdata["data"] as $netgameId => $netgame){
@@ -192,7 +176,7 @@ class NetgameModel{
 				if($room != NULL){ $filter = " WHERE _id = {$room}"; }
 				$query = "SELECT _id AS roomid, roomname, origin, description FROM rooms {$filter} ORDER BY _id;";
 				#echo $query."\n";
-				$serverdata = self::db_execute($query);
+				$serverdata = self::$db->query($query);
 
 				return $serverdata;
 		}
@@ -209,7 +193,7 @@ class NetgameModel{
 				$rVal = [];
 				$query = "SELECT _id AS roomid, roomname, origin, description FROM rooms WHERE origin = 'localhost'";
 				#echo $query."\n";
-				$serverdata = self::db_execute($query);
+				$serverdata = self::$db->query($query);
 
 				return $serverdata;
 		}
