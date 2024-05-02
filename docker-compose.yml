@@ -1,6 +1,5 @@
 # either port forward/allow 16000 port so you can connect to it over IP directly
 # or use reverse proxy such as nginx or caddy to map localhost:16000 or liquidms:16000 to your URI
-version: "3.8"
 services:
   caddy: #caddy reverse-proxy for the FastCGI-sattelite
     hostname: liquidms
@@ -61,9 +60,9 @@ services:
       - external # Access external nodes
   db:
     restart: unless-stopped
+    image: mariadb:latest
     build:
-      context: .
-      dockerfile: Dockerfile_mariadb #also installs ODBC driver
+      context: docker/db
       args:
         ODBC_HOST: $ODBC_HOST
         ODBC_PORT: $ODBC_PORT
@@ -73,10 +72,10 @@ services:
         MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
     environment:
       TZ: $TZ
-      MYSQL_DATABASE: $MYSQL_DATABASE
-      MYSQL_USER: $MYSQL_USER
-      MYSQL_PASSWORD: $MYSQL_PASSWORD
-      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MARIADB_DATABASE: $MYSQL_DATABASE
+      MARIADB_USER: $MYSQL_USER
+      MARIADB_PASSWORD: $MYSQL_PASSWORD
+      MARIADB_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
     networks:
       - liquidms-net
 
