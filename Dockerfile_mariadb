@@ -3,6 +3,8 @@ FROM yobasystems/alpine
 #add testing repository
 #COPY repositories /etc/apk/repositories
 #RUN echo "@testing https://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+RUN echo "https://dl-4.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
+RUN echo "https://dl-4.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
 RUN echo "https://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 
 RUN apk -U add --no-cache mariadb mariadb-client pwgen bash nano unixodbc unixodbc-dev mariadb-connector-odbc && \
@@ -16,8 +18,7 @@ ADD mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
 RUN mkdir /scripts/pre-exec.d && \
     mkdir /scripts/pre-init.d && \
     chmod -R 755 /scripts
-COPY setup.sql /docker-entrypoint-initdb.d/setup.sql
-COPY tables.sql /docker-entrypoint-initdb.d/tables.sql
+COPY docker/db/pre-init.d/ /docker-entrypoint-initdb.d/
 
 ARG ODBC_HOST=$ODBC_HOST \
     ODBC_PORT=$ODBC_PORT \
