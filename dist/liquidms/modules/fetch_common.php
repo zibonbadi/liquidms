@@ -115,7 +115,11 @@ function fetchUpdate_v1(array $config, array $job = []){
 
    // Get stream context for header configs
    $stream_context = null;
-   $stream_context = fetchUpdate_mkContext("GET", $job["http-header"]);
+   if(array_key_exists("http-header",$job)){ 
+	   $stream_context = fetchUpdate_mkContext("GET", $job["http-header"]);
+   }else{
+	   $stream_context = fetchUpdate_mkContext("GET");
+   }
    #var_dump($stream_context);
 
    $res_rooms = file_get_contents(
