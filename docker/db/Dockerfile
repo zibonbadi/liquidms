@@ -18,7 +18,7 @@ ADD mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
 RUN mkdir /scripts/pre-exec.d && \
     mkdir /scripts/pre-init.d && \
     chmod -R 755 /scripts
-COPY docker/db/pre-init.d/ /docker-entrypoint-initdb.d/
+COPY initdb.d/ /docker-entrypoint-initdb.d/
 
 ARG ODBC_HOST=$ODBC_HOST \
     ODBC_PORT=$ODBC_PORT \
