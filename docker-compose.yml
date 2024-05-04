@@ -43,8 +43,7 @@ services:
   snitch: #has php-fpm with extensions and composer, check Dockerfile!
     hostname: liquidms
     build: 
-      context: .
-      dockerfile: Dockerfile_snitch #also installs ODBC driver
+      dockerfile: docker/snitch/Dockerfile #also installs ODBC driver
       args:
         ODBC_HOST: $ODBC_HOST
         ODBC_PORT: $ODBC_PORT
@@ -55,6 +54,10 @@ services:
     environment:
       TZ: $TZ
       PHP_MEMORY_LIMIT: 1024M
+    volumes:
+      - type: bind
+        source: dist/config.yaml
+        target: /var/www/liquidms/config.yaml
     networks:
       - liquidms-net
       - external # Access external nodes

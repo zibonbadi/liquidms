@@ -109,17 +109,17 @@ ARG ODBC_HOST=$ODBC_HOST \
 
 RUN mkdir /docker-entrypoint-initdb.d && \
 	mkdir /scripts
-ADD run-snitch.sh /scripts/run.sh
-ADD install_odbc.sh /scripts/install_odbc.sh
-ADD install_config.sh /scripts/install_config.sh
+ADD docker/snitch/run-snitch.sh /scripts/run.sh
+ADD docker/snitch/install_odbc.sh /scripts/install_odbc.sh
+ADD docker/snitch/install_config.sh /scripts/install_config.sh
 RUN chmod +x /scripts/install_odbc.sh /scripts/install_config.sh
 
 #install liquidMS as an app
 #it must be already cloned from "https://github.com/zibonbadi/liquidms.git"
 COPY dist/ /var/www/liquidms
-COPY fetch.config.yaml /var/www/liquidms/config.yaml
-COPY fetch.crontab /etc/crontabs/liquidms_fetch
-RUN cat /etc/crontabs/liquidms_fetch >> /etc/crontabs/root
+#COPY docker/snitch/fetch.config.yaml /var/www/liquidms/config.yaml
+#COPY docker/snitch/fetch.crontab /etc/crontabs/liquidms_fetch
+#RUN cat /etc/crontabs/liquidms_fetch >> /etc/crontabs/root
 
 RUN /scripts/install_odbc.sh
 RUN /scripts/install_config.sh
@@ -136,5 +136,6 @@ WORKDIR /var/www/liquidms
 RUN composer install
 
 #launch init fetch with cronjob
-ENTRYPOINT ["/scripts/run.sh"]
+#ENTRYPOINT ["/scripts/run.sh"]
+ENTRYPOINT ["php", "/var/www/liquidms/liquidms/liquidanacron.php"]
 
