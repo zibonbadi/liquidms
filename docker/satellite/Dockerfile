@@ -14,51 +14,37 @@ FROM php:8.1-fpm-alpine
 #autoconf gcc
 RUN echo "https://dl-4.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
 RUN echo "https://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
-RUN apk -U add --no-cache oniguruma oniguruma-dev unixodbc unixodbc-dev autoconf gcc libc-dev yaml yaml-dev make mariadb-connector-odbc
+RUN apk -U add --no-cache oniguruma oniguruma-dev unixodbc unixodbc-dev autoconf gcc libc-dev yaml yaml-dev make mariadb-connector-odbc mysql-client
 
-# install sockets extension
-RUN docker-php-ext-install sockets
-RUN docker-php-ext-enable sockets
-
-# install mbstring extension
-# Note: Script docker-php-ext-configure executed automatically in docker-php-ext-install!
-# So no need to run it directly unless you want to pass through specific flags for ./configure
-#RUN docker-php-ext-configure --enable-mbstring
-RUN docker-php-ext-install mbstring
-RUN docker-php-ext-enable mbstring
-
-# install EXT_PDO and EXT_ODBC (unixODBC) (we don't use something like pdo_mysql extension, we use ODBC!)
-# ODBC is used by many databases such as MariaDB and MySQL
-RUN docker-php-ext-install pdo
-
-# "WINDOWS.H does not exist error" drives me crazy
-#HACK
-RUN set -ex; \
-	docker-php-source extract; \
-	{ \
-		echo '# https://github.com/docker-library/php/issues/103#issuecomment-271413933'; \
-		echo 'AC_DEFUN([PHP_ALWAYS_SHARED],[])dnl'; \
-		echo; \
-		cat /usr/src/php/ext/odbc/config.m4; \
-	} > temp.m4; \
-	mv temp.m4 /usr/src/php/ext/odbc/config.m4; \
-	docker-php-ext-configure odbc --with-unixODBC=shared,/usr; \
-	docker-php-ext-install odbc; \
-	docker-php-source delete
-#HACK
-
-#RUN apk -U add --no-cache php81-odbc
-#RUN docker-php-ext-configure odbc --with-unixODBC=shared,/usr/
-#RUN docker-php-ext-install odbc
 RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr/
-RUN docker-php-ext-install pdo_odbc
-RUN docker-php-ext-enable pdo odbc pdo_odbc
+
+# Install extensions
+#
+# For convenience, each extension has been broken into a separate line, so
+# that you can comment out unneeded database backends.
+RUN pecl install yaml && echo "extension=yaml.so" > /usr/local/etc/php/conf.d/ext-yaml.ini
+RUN docker-php-ext-install \
+		mbstring \
+		sockets \
+		#odbc \
+		## YAML might not exist on PECL due to inclusion
+		#yaml \
+		pdo \
+		pdo_mysql  \
+		pdo_odbc \
+		#pdo_pgsql \
+		## SQLite might be pre-installed
+		#pdo_sqlite \
+		&& echo "-DONE installing PHP extensions-"
+
+
+RUN docker-php-ext-enable sockets pdo mbstring pdo_mysql pdo_odbc yaml
 
 # install PECL extensions
 # install EXT_YAML
 #RUN apk add autoconf gcc libc-dev yaml yaml-dev make
-RUN pecl install yaml
-RUN docker-php-ext-enable yaml
+#RUN pecl install yaml
+#RUN docker-php-ext-enable yaml
 
 # check that everything was indeed installed
 RUN php -i|grep pdo \
@@ -83,13 +69,7 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 #install liquidMS as an app
 # dist directory must be mounted as a volume
-VOLUME ["/var/www/liquidms"]
-#RUN chown -R www-data:www-data /var/www
-WORKDIR /var/www/liquidms
-# should be redundant given the dir copy
-RUN composer install
-#RUN composer update
-#RUN composer dump-autoload
+COPY dist/ /var/www/liquidms
 EXPOSE 5029
 
 RUN apk -U add --no-cache mariadb-connector-odbc
@@ -98,13 +78,10 @@ RUN mkdir /docker-entrypoint-initdb.d && \
 	mkdir /scripts
 #ADD run-satellite.sh /scripts/run.sh
 ADD docker/satellite/install_odbc.sh /scripts/install_odbc.sh
-ADD docker/satellite/install_config.sh /scripts/install_config.sh
-RUN chmod +x /scripts/install_odbc.sh /scripts/install_config.sh
+#ADD docker/satellite/install_config.sh /scripts/install_config.sh
+#RUN chmod +x /scripts/install_odbc.sh /scripts/install_config.sh
+RUN chmod +x /scripts/install_odbc.sh
 #ADD odbc.ini /etc/odbc.ini
-
-RUN adduser -H -D liquidms_user
-
-RUN apk -U add --no-cache mysql-client
 
 ARG ODBC_HOST=$ODBC_HOST \
 ODBC_PORT=$ODBC_PORT \
@@ -114,13 +91,12 @@ MYSQL_PASSWORD=$MYSQL_PASSWORD \
 MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
 
 RUN /scripts/install_odbc.sh
-RUN /scripts/install_config.sh
+#RUN /scripts/install_config.sh
 
-#develpoment web-server
-#ENTRYPOINT ["/scripts/run.sh"]
-#ENTRYPOINT ["su", "liquidms_user", "-c", "php", "-S", "0.0.0.0:8080", "/var/www/liquidms/public/index.php"]
-#ENTRYPOINT ["su", "liquidms_user", "-c", "php -S 0.0.0.0:8080 /var/www/liquidms/public/index.php"]
-
-#production php-fashcgi
-#ENTRYPOINT ["php-fpm" ]
-
+RUN chown -R www-data:www-data /var/www
+USER www-data
+WORKDIR /var/www/liquidms
+# should be redundant given the dir copy
+RUN composer install
+#RUN composer update
+#RUN composer dump-autoload
