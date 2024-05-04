@@ -2,11 +2,9 @@
 # or use reverse proxy such as nginx or caddy to map localhost:16000 or liquidms:16000 to your URI
 services:
   caddy: #caddy reverse-proxy for the FastCGI-sattelite
+    image: caddy:2.6.2-alpine
     hostname: liquidms
     restart: unless-stopped
-    build: 
-      context: .
-      dockerfile: Dockerfile_caddy # hook Caddy into sattelite
     environment:
       TZ: $TZ
     ports:
@@ -17,6 +15,13 @@ services:
     networks:
       - liquidms-net
       - external
+    volumes:
+      - type: bind
+        source: docker/caddy/Caddyfile
+        target: /etc/caddy/Caddyfile
+      - type: bind
+        source: dist/
+        target: /var/www/liquidms
   satellite: #has php-fpm with extensions and composer, check Dockerfile!
     hostname: liquidms
     restart: unless-stopped
@@ -81,7 +86,6 @@ services:
       MARIADB_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
     networks:
       - liquidms-net
-
 networks:
   liquidms-net:
     internal: true
