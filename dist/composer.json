@@ -1,6 +1,6 @@
 {
     "name": "zibonbadi/liquidms",
-	"description": "Custom V1-compliant HTTP master server for Sonic Robo Blast 2",
+	"description": "HTTP master server for Sonic Robo Blast 2 (and Kart)",
 	"type": "project",
 	"repositories": [
 		{
@@ -11,7 +11,6 @@
 	],
 	"require": {
 	    "ext-mbstring": "*",
-	    "ext-odbc": "*",
 	    "ext-pdo": "*",
 	    "ext-sockets": "*",
 	    "ext-yaml": "*",
