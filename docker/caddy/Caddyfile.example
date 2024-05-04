@@ -1,0 +1,10 @@
+{
+	debug
+}
+:80 {
+  root * /var/www/liquidms/public
+  redir / /liquidms/browse
+  encode gzip zstd
+  php_fastcgi satellite:9000
+  file_server
+}
