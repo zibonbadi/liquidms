@@ -1,6 +1,5 @@
-# syntax=docker/dockerfile:1
 # Using multi-stage builds! https://docs.docker.com/develop/develop-images/multistage-build/
-FROM php:8.1-fpm-alpine AS php_fpm_with_addons_install
+FROM php:8.1-fpm-alpine
 
 #of course we can use this installer https://github.com/mlocati/docker-php-extension-installer
 #but let's keep our docker images minimal
@@ -13,6 +12,7 @@ FROM php:8.1-fpm-alpine AS php_fpm_with_addons_install
 # You have to install all of these packages. look if your linux distro has these in their repos
 #RUN apk -U upgrade
 #autoconf gcc
+RUN echo "https://dl-4.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
 RUN echo "https://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 RUN apk -U add --no-cache oniguruma oniguruma-dev unixodbc unixodbc-dev autoconf gcc libc-dev yaml yaml-dev make mariadb-connector-odbc
 
@@ -82,9 +82,8 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 #FROM composer_install AS liquidms_install
 
 #install liquidMS as an app
-#it must be already cloned from "https://github.com/zibonbadi/liquidms.git"
-COPY dist/ /var/www/liquidms
-COPY satellite.config.yaml /var/www/liquidms/config.yaml
+# dist directory must be mounted as a volume
+VOLUME ["/var/www/liquidms"]
 #RUN chown -R www-data:www-data /var/www
 WORKDIR /var/www/liquidms
 # should be redundant given the dir copy
@@ -98,8 +97,8 @@ RUN apk -U add --no-cache mariadb-connector-odbc
 RUN mkdir /docker-entrypoint-initdb.d && \
 	mkdir /scripts
 #ADD run-satellite.sh /scripts/run.sh
-ADD install_odbc.sh /scripts/install_odbc.sh
-ADD install_config.sh /scripts/install_config.sh
+ADD docker/satellite/install_odbc.sh /scripts/install_odbc.sh
+ADD docker/satellite/install_config.sh /scripts/install_config.sh
 RUN chmod +x /scripts/install_odbc.sh /scripts/install_config.sh
 #ADD odbc.ini /etc/odbc.ini
 

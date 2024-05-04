@@ -24,7 +24,6 @@ use LiquidMS\ConfigModel;
 use LiquidMS\V1\NetgameModel;
 use LiquidMS\TimestampModel;
 
-ConfigModel::init();
 TimestampModel::init();
 $timestamps = TimestampModel::getData();
 $config = ConfigModel::getConfig(); // Local var kludge

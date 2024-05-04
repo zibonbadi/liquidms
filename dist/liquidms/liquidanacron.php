@@ -1,6 +1,6 @@
 <?php
 # liquidMS - distributable SRB2 master server
-# Copyright (C) 2021-2022 Zibon Badi et al.
+# Copyright (C) 2021-2024 Zibon Badi et al.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -16,16 +16,15 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 require_once __DIR__.'/modules/ConfigModel.php';
-require_once __DIR__."/modules/NetgameModel.php";
+require_once __DIR__."/modules/SRB2Kart/NetgameModel.php";
+require_once __DIR__."/modules/V1/NetgameModel.php";
 require_once __DIR__.'/modules/TimestampModel.php';
 include_once(__DIR__.'/modules/fetch_common.php');
 
 use LiquidMS\ConfigModel;
-use LiquidMS\NetgameModel;
 use LiquidMS\TimestampModel;
 
 // Get job list
-ConfigModel::init();
 TimestampModel::init();
 $config = ConfigModel::getConfig(); // Local var kludge
 
@@ -105,7 +104,7 @@ while(true){
 
 			if( !empty($fetchdata) ){
 				// Upsert database (yes that's a real word)
-				if(NetgameModel::init($config)){ $dbresponse = NetgameModel::pushServers($fetchdata); }
+				if(\LiquidMS\V1\NetgameModel::init($config)){ $dbresponse = \LiquidMS\V1\NetgameModel::pushServers($fetchdata); }
 				/*
 				$dbresponse = db_execute(
 						"INSERT INTO servers (host, port, servername, version, roomname, origin)
