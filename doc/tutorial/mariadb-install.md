@@ -18,6 +18,12 @@ Downloading and installing
 root# emerge -a dev-db/unixODBC dev-db/mariadb dev-db/mariadb-connector-odbc
 ```
 
+### Ubuntu Linux
+
+```
+root# apt install unixodbc mariadb odbc-mariadb 
+```
+
 Setting up ODBC for MariaDB
 ---------------------------
 
@@ -39,6 +45,17 @@ Driver=/usr/lib64/mariadb/libmaodbc.so
 UsageCount=1
 ```
 
+A corresponding Data Source definitio (´/etc/odbc.ini`; `~/.odbc.ini`) could look like this
+
+```INI
+[liquidms]
+Description=LiquidMS database
+Driver = MariaDB
+Database = liquidms
+Socket = /var/run/mysqld/mysqld.sock
+User = alice
+Password = changeme
+```
 
 Enabling the event scheduler
 ----------------------------
