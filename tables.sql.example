@@ -9,7 +9,7 @@ INSERT INTO `rooms` (`_id`, `roomname`, `description`) VALUES
 ON DUPLICATE KEY UPDATE _id=VALUES(_id), roomname=VALUES(roomname), description=VALUES(description);
 
 -- Banlist
-INSERT INTO `bans` (`host`,`subnetmask`,`expire`,`comment`,`bans`) VALUES
+INSERT INTO `bans` (`host`,`subnetmask`,`expire`,`comment`) VALUES
 ('fe80::1', 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 1 DAY), 'Knuckles needs to calm down'),
 ('::ffff:0.0.0.0',  'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff00', NULL, "Lock out Eggman and his robots")
 ON DUPLICATE KEY
