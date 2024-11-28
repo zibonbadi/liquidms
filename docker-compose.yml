@@ -43,6 +43,7 @@ services:
     volumes:
       - type: bind
         source: dist/
+        read_only: true
         target: /var/www/liquidms/
     ports:
       - "9000:9000" # PHP FastCGI port
@@ -65,6 +66,7 @@ services:
       PHP_MEMORY_LIMIT: 1024M
     volumes:
       - type: bind
+        read_only: true
         source: dist/
         target: /var/www/liquidms/
     networks:
@@ -85,8 +87,9 @@ services:
       PHP_MEMORY_LIMIT: 1024M
     volumes:
       - type: bind
-        source: dist/snitch/
-        target: /var/www/liquidms/
+        read_only: true
+        source: docker/snitch/config.yaml
+        target: /var/www/liquidms/config.yaml
     networks:
       - liquidms-net
       - external # Access external nodes
