@@ -35,7 +35,6 @@ $FLAGS = getopt(
 );
 
 // Start "daemon"
-#var_dump($config);
 echo "[".date(DateTime::ISO8601, time())."] liquidanacron UP\n";
 do{
 	// Get new timestamps
@@ -50,38 +49,60 @@ do{
 	$time_afterall = NULL;
 
 	// Define FETCH schedule
-	foreach( $config["from"] as $job_i => $job_v){
+	foreach( $config["src"] as $job_i => $job_v){
 
-		/*if( $FLAGS !== false && array_key_exists("1", $FLAGS)){
-			if($FLAGS["1"] !== false){
+		/* Oneshot flag? -> Hijack the scheduler */ 
+		if( $FLAGS !== false && array_key_exists("1", $FLAGS)){
+			switch(gettype($FLAGS["1"])){
+			case "bool":{
+				// No param -> Oneshot all jobs
+				$todo_fetch = $config["src"];
+				break 2;
+			}
+			case "string":{
+				if($job_i === $FLAGS["1"]){
+					echo "[".date(DateTime::ISO8601, $time_before)."] (ONESHOT) FETCH job added: {$job_i}\n";
+					$todo_fetch[$job_i] = $job_v;
+					break 2; // The only one just matched -> We can move on
+				}
+				break;
+			}
+			case "array":{
+				foreach($FLAGS["1"] as $flagjob){
+					if($job_i === $flagjob){
+						echo "[".date(DateTime::ISO8601, $time_before)."] (ONESHOT) FETCH job added: {$job_i}\n";
+						$todo_fetch[$job_i] = $job_v;
+					}
+				}
+				break;
+			}
+			default:{ break; }
 			}
 			continue;
 		}
-		*/
 
 		// Job valid for anacron?
 		if( array_key_exists("minute", $job_v) &&
 				( gettype($job_v["minute"]) == "integer" ) &&
 				($job_v["minute"] > 0) ){
 			
-			// Does timestamp YAML exists?
-			if( array_key_exists("src", $timestamps) ){
-				// === TIMESTAMP.YAML check ====
-				// Does the job have a timestamp worth updating?
-				if(    array_key_exists($job_i, $timestamps["src"]) // Job is known
-					&& array_key_exists("updated_at", $timestamps["src"][$job_i]) // Job has timestamp
-					&& strtotime($timestamps["src"][$job_i]["updated_at"]) > (time() - ($job_v["minute"] * 60)) // Job is too recent
-				){
-					// Too early, skip
-					echo "[".date(DateTime::ISO8601, $time_before)." {$job_i}] FETCH job has been skipped because it's too recent. ({$timestamps["src"][$job_i]["updated_at"]})\n";
-					continue;
-				}else{
-					// No recent timestamp? WE'LL MAKE ONE!!
-					// (after the HTTP requests are done)
-					echo "[".date(DateTime::ISO8601, $time_before)." {$job_i}] FETCH job \"{$job_i}\" has been assigned a new timestamp.\n";
-					$todo_fetch[$job_i] = $job_v;
-				}
+			// === TIMESTAMP.YAML check ====
+			// Does the job have a timestamp worth updating?
+			if( array_key_exists("src", $timestamps) // Does timestamp YAML exists?
+				&& array_key_exists($job_i, $timestamps["src"]) // Job is known
+				&& array_key_exists("updated_at", $timestamps["src"][$job_i]) // Job has timestamp
+				&& strtotime($timestamps["src"][$job_i]["updated_at"]) > (time() - ($job_v["minute"] * 60)) // Job is too recent
+			){
+				// Too early, skip
+				echo "[".date(DateTime::ISO8601, $time_before)." {$job_i}] FETCH job skipped. (too recent: {$timestamps["src"][$job_i]["updated_at"]})\n";
+				continue;
+			}else{
+				// No recent timestamp? WE'LL MAKE ONE!!
+				// (after the HTTP requests are done)
+				echo "[".date(DateTime::ISO8601, $time_before)." {$job_i}] FETCH job added to schedule:  \"{$job_i}\"\n";
+				$todo_fetch[$job_i] = $job_v;
 			}
+			
 		}else{
 			echo "[".date(DateTime::ISO8601, time())." {$job_i}] FETCH job has been skipped. (minute int missing or invalid)\n";
 			continue;
@@ -94,7 +115,7 @@ do{
 		switch( $job_v["api"] ) {
 			# Unsupported crap
 			default: {
-				echo "[".date(DateTime::ISO8601, time())." {$job_i}] Skipped. (invalid API \"{$job_v["api"]}\")\n";
+				echo "[".date(DateTime::ISO8601, time())." {$job_i}] SNITCH skipped. (invalid API \"{$job_v["api"]}\")\n";
 				continue 2; # Skip this one
 			}
 			# Good APIs
@@ -118,12 +139,12 @@ do{
 					&& strtotime($timestamps["dest"][$job_i]["updated_at"]) > (time() - ($job_v["minute"] * 60)) // Job is too recent
 				){
 					// Too early, skip
-					echo "[".date(DateTime::ISO8601, $time_before)." {$job_i}] SNITCH job has been skipped because it's too recent. ({$timestamps["dest"][$job_i]["updated_at"]})\n";
+					echo "[".date(DateTime::ISO8601, $time_before)." {$job_i}] SNITCH job skipped because (too recent: {$timestamps["dest"][$job_i]["updated_at"]})\n";
 					continue;
 				}else{
 					// No recent timestamp? WE'LL MAKE ONE!!
 					// (after the HTTP requests are done)
-					echo "[".date(DateTime::ISO8601, $time_before)." {$job_i}] SNITCH job \"{$job_i}\" has been assigned a new timestamp.\n";
+					echo "[".date(DateTime::ISO8601, $time_before)." {$job_i}] SNITCH job received new timestamp: \"{$job_i}\"\n";
 					$todo_snitch[$job_i] = $job_v;
 				}
 			}
@@ -140,7 +161,7 @@ do{
 	$time_afterfetch = time(); // The time is NOW!
 
 	foreach( $todo_fetch as $job_i => $job_v){
-		echo "[".date(DateTime::ISO8601, $time_before)." {$job_i}] FETCH job \"{$job_i}\" has been assigned a new timestamp.\n";
+		echo "[".date(DateTime::ISO8601, $time_before)." {$job_i}] FETCH job received new timestamp: \"{$job_i}\"\n";
 		$timestamps["src"][$job_i]["updated_at"] = date(DateTime::ISO8601, $time_afterfetch);
 	}
 
@@ -158,6 +179,11 @@ do{
 	TimestampModel::setData($timestamps);
 	TimestampModel::dumpData();
 	
+	// Oneshot exit
+	if( $FLAGS !== false && array_key_exists("1", $FLAGS)){
+		break;
+	}
+
 	// Realtime-aware "tickless" scheduling
 	$time_afterall = time();
 	if( $time_afterall < ($time_before + 60)){

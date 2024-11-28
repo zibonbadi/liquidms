@@ -52,21 +52,17 @@ function fetchUpdate(array $config, array $jobs = []){
 	// - ...
 	// ```
 	
-	var_dump($config);
-	var_dump($jobs);
 	$rVal = []; // Return value
 
 	foreach($jobs as $jobname => $jobval) {
 		echo "[".date(DateTime::ISO8601, time())." {$jobname}] Fetching \"{$jobval["host"]}\"...\n";
 		$sv_new = [];
-		$currentjob = $config["fetch"][$jobname];
-		#var_dump($jobval);
-		#var_dump($currentjob);
+		$currentjob = $config["src"][$jobname];
 		switch($jobval["api"]){
 		case "snitchv2":{ $sv_new = fetchUpdate_snitchv2($config ,$currentjob); break; }
 		case "snitch":{ $sv_new = fetchUpdate_snitchv1($config ,$currentjob); break; }
-		case "kart":{ $sv_new = fetchUpdate_kart($config ,$currentjob); break; }
-		case "v1": { $sv_new = fetchUpdate_v1($config ,$currentjob); break; }
+		#case "kart":{ $sv_new = fetchUpdate_kart($config ,$currentjob); break; }
+		case "srb2http": { $sv_new = fetchUpdate_v1($config ,$currentjob); break; }
 		default: {
 			echo "[".date(DateTime::ISO8601, time())."] Invalid API \"{$jobval["api"]}\". Job skipped.\n";
 			$sv_new = [];
@@ -248,12 +244,13 @@ function fetchUpdate_v1(array $config, array $job = []){
 		   }
 
 		   // Build return value conforming entry
+		   $newrow["_api"] = "srb2http";
 		   $newrow["host"] = $rowfields[0];
 		   $newrow["port"] = intval($rowfields[1]);
 		   $newrow["servername"] = $rowfields[2];
 		   $newrow["version"] = $rowfields[3];
 		   $newrow["roomname"] = $roomname;
-		   $newrow["origin"] = parse_url($job["host"])["host"]; // Extract hostname from URL
+		   $newrow["_origin"] = parse_url($job["host"])["host"]; // Extract hostname from URL
 
 		   // Insert entry
 		   $rVal[] = $newrow;
@@ -278,14 +275,14 @@ function fetchUpdate_v1(array $config, array $job = []){
    return $rVal;
 }
 
+/*
+ * SNITCH functions
+ */
+
 function snitch(Array $data, Array $dests){
-	// Couldn't come up with a better var name for peers to snitch to, so I referenced Recess.
+
 	$rowCount = count($data);
-	$csvContent = "";
-	$http_response = "";
-	$multipart_boundary = '--------------------------'.microtime(true);
-	$multipart_fieldname = 'data';
-	$multipart_filename = 'snitch.csv';
+	$srb2http_cache = [];
 
 	echo "[".date(DateTime::ISO8601, time())."] Processing {$rowCount} rows of data...\n";
 
@@ -293,6 +290,46 @@ function snitch(Array $data, Array $dests){
 		echo "[".date(DateTime::ISO8601, time())."] No data to propagate. Skipping...\n";
 		return;
 	}
+
+	/**
+	 * Cache SRB2-filtered Netgames (for Snitch V1/legacy)
+	**/
+	foreach($data as $netgame_i => $netgame_v){
+		if($netgame_v["_api"] === "srb2http")
+			$srb2http_cache[] = $netgame_v;
+	}
+
+	echo "[".date(DateTime::ISO8601, time())."] Cached SRB2HTTP-related netgames (".count($srb2http_cache)." netgames)\n";
+
+	foreach($dests as $dest_i => $dest_v){
+		switch($dest_v["api"]){
+		case "snitch_v2":{
+			echo "[".date(DateTime::ISO8601, time())."] SNITCH SnitchV2 is not implemented yet!\n";
+			#echo snitch_snitchv2();
+			break;
+		}
+		case "snitch_v1":
+		case "snitch":{
+			echo "[".date(DateTime::ISO8601, time())."] SNITCH \"{$dest_v["host"]}\"...\n";
+			echo snitch_snitchv1($srb2http_cache, $dest_v["host"]);
+			break;
+		}
+		default: {
+			echo "[".date(DateTime::ISO8601, time())."] [{$dest_i}] Invalid SNITCH API \"{$dest_v["api"]}\". Job skipped.\n";
+			break;
+			}
+		}
+
+	}
+
+}
+
+function snitch_snitchv1(Array $data, String $url){
+	$csvContent = "";
+	$http_response = "";
+	$multipart_boundary = '--------------------------'.microtime(true);
+	$multipart_fieldname = 'data';
+	$multipart_filename = 'snitch.csv';
 
 	foreach($data as $dataIndex => $dataRow){
 		// Create data
@@ -329,14 +366,12 @@ function snitch(Array $data, Array $dests){
 		]
 	]);
 
-	foreach($dests as $dest){
-		$url = rtrim($dest,'/')."/liquidms/snitch";
-		echo "[".date(DateTime::ISO8601, time())."] Snitching to \"{$url}\"...\n";
-		$response_tmp = file_get_contents( $url, false, $http_context);
-		if($response_tmp !== false){
-			$http_response .= $response_tmp;
-		}
+	$response_tmp = file_get_contents( $url, false, $http_context);
+	if($response_tmp !== false){
+		$http_response .= $response_tmp;
 	}
-	echo $http_response."\n";
+
+	return $http_response."\n";
 }
+
 ?>
