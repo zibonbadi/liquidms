@@ -1,5 +1,5 @@
--- liquidMS - distributable SRB2 master server
--- Copyright (C) 2021-2022 Zibon Badi et al.
+-- LiquidMS - distributable SRB2 master server
+-- Copyright (C) 2021-2024 Zibon Badi et al.
 -- 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Affero General Public License as
@@ -15,14 +15,11 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
--- Enabling event scheduler
-SET GLOBAL event_scheduler = ON;
-
 --CREATE DATABASE IF NOT EXISTS `liquidms`;
 --USE `liquidms`;
 
 -- server list with all automations
-CREATE TABLE IF NOT EXISTS `servers` (
+CREATE TABLE IF NOT EXISTS `v1_servers` (
   `host` INET6 NOT NULL,
   `port` SMALLINT(6) unsigned NOT NULL,
   `servername` VARCHAR(256) NOT NULL,
@@ -35,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `servers` (
 
 
 -- Room list with all automations
-CREATE TABLE IF NOT EXISTS `rooms` (
+CREATE TABLE IF NOT EXISTS `v1_rooms` (
   `_id` INT(11) NOT NULL UNIQUE,
   `roomname` VARCHAR(32) NOT NULL,
   `origin` VARCHAR(32) NOT NULL DEFAULT 'localhost',
@@ -51,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `rooms` (
    -- END;
 
 
-CREATE TABLE IF NOT EXISTS `versions` (
+CREATE TABLE IF NOT EXISTS `v1_versions` (
   `_id` INT(11) NOT NULL AUTO_INCREMENT,
   `gameid` INT(11) NOT NULL DEFAULT 1,
   `name` VARCHAR(32) DEFAULT NULL,
@@ -74,11 +71,12 @@ CREATE TABLE IF NOT EXISTS `bans` (
 );
 
 -- Data section
-INSERT INTO `versions` (`_id`, `gameid`,`name`) VALUES
+INSERT INTO `v1_versions` (`_id`, `gameid`,`name`) VALUES
 (20,1,'2.2.9' ),
 (19,1,'1.3.2' ),
 -- (18,51,'v2.2.10' ),
-(18,52,'v2.2.11' ),
+--(18,52,'v2.2.11' ),
+(18,52,'v2.2.13' ),
 (17,7,'v1.3' ),
 (16,1,'mirrormode-v1' ),
 (14,1,'TD v1.0.0'),
@@ -97,77 +95,6 @@ INSERT INTO `versions` (`_id`, `gameid`,`name`) VALUES
 ON DUPLICATE KEY UPDATE
 `_id`=VALUES(`_id`), `gameid`=VALUES(`gameid`), `name`=VALUES(`name`);
 
-
--- Behaviour
-
-DELIMITER #
-CREATE EVENT IF NOT EXISTS banlist_cleanup
-   ON SCHEDULE EVERY 1 MINUTE
-   COMMENT 'Removes expired ban entries'
-   DO DELETE FROM bans WHERE expire < CURRENT_TIMESTAMP AND expire <> NULL#
-
-CREATE EVENT IF NOT EXISTS serverlist_cleanup
-   ON SCHEDULE EVERY 1 MINUTE
-   COMMENT 'Removes server entries older than 20 minutes'
-   DO BEGIN
-   DELETE FROM servers WHERE updated_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 20 MINUTE);
-   DELETE `servers` FROM `servers` JOIN `bans` WHERE INET6_ATON(`servers`.`host`) =  INET6_ATON(`bans`.`host`);
-   END#
-
--- DROP TRIGGER IF EXISTS `serverslist_bancleanup_insert`#
--- CREATE OR REPLACE TRIGGER `serverslist_bancleanup_insert`
-   -- AFTER INSERT
-   -- ON `servers` FOR EACH ROW
-   -- BEGIN
-   -- -- Delete based on direct IP match for now (blame MariaDB's lack of bitwise byte operations)
-   -- -- DELETE `servers` FROM `servers` JOIN `bans` WHERE ( INET6_ATON(`servers`.`host`) & INET6_ATON(`bans`.`subnetmask`) ) = ( INET6_ATON(`bans`.`host`) & INET6_ATON(`bans`.`subnetmask`) );
-   -- DELETE `servers` FROM `servers` JOIN `bans` WHERE INET6_ATON(`servers`.`host`) =  INET6_ATON(`bans`.`host`);
-   -- END
-   -- #
-
--- DROP TRIGGER IF EXISTS `serverslist_bancleanup_insert`#
--- CREATE OR REPLACE TRIGGER `serverslist_bancleanup_update`
-   -- AFTER UPDATE
-   -- ON `servers` FOR EACH ROW
-   -- BEGIN
-   -- -- Delete based on direct IP match for now (blame MariaDB's lack of bitwise byte operations)
-   -- -- DELETE `servers` FROM `servers` JOIN `bans` WHERE ( INET6_ATON(`servers`.`host`) & INET6_ATON(`bans`.`subnetmask`) ) = ( INET6_ATON(`bans`.`host`) & INET6_ATON(`bans`.`subnetmask`) );
-   -- DELETE `servers` FROM `servers` JOIN `bans` WHERE INET6_ATON(`servers`.`host`) =  INET6_ATON(`bans`.`host`);
-   -- END
-   -- #
-
-CREATE OR REPLACE TRIGGER `roomlist_rebuild_insert`
-   AFTER INSERT
-   ON `servers` FOR EACH ROW
-   BEGIN
-   DELETE FROM `rooms` WHERE _id > 99;
-   INSERT INTO `rooms` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+100 AS `_id`,`roomname`,`origin` FROM `servers` WHERE `origin` <> 'localhost' GROUP BY `roomname`;
-   DELETE FROM `rooms` WHERE roomname = '' OR origin = '' ;
-   END
-   #
-
-CREATE OR REPLACE TRIGGER `roomlist_rebuild_update`
-   AFTER UPDATE
-   ON `servers` FOR EACH ROW
-   BEGIN
-   DELETE FROM `rooms` WHERE _id > 99;
-   INSERT INTO `rooms` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+100 AS `_id`,`roomname`,`origin` FROM `servers` WHERE `origin` <> 'localhost' GROUP BY `roomname`;
-   DELETE FROM `rooms` WHERE roomname = '' OR origin = '' ;
-   END
-   #
-
-CREATE OR REPLACE TRIGGER `roomlist_rebuild_delete`
-   AFTER DELETE
-   ON `servers` FOR EACH ROW
-   BEGIN
-   DELETE FROM `rooms` WHERE _id > 99;
-   INSERT INTO `rooms` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+100 AS `_id`,`roomname`,`origin` FROM `servers` WHERE `origin` <> 'localhost' GROUP BY `roomname`;
-   DELETE FROM `rooms` WHERE roomname = '' OR origin = '' ;
-   END
-   #
-
-DELIMITER ;
-
 -- Launching the server
-INSERT INTO `rooms` (`_id`, `roomname`, `description`) VALUES (2, 'liquid', 'Default liquidMS room');
+INSERT INTO `v1_rooms` (`_id`, `roomname`, `description`) VALUES (2, 'liquid', 'Default liquidMS room');
 

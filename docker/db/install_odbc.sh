@@ -3,6 +3,7 @@
 mkdir -p /docker-entrypoint-initdb.d/
 
 # odbc data source, same info used for creating the db
+echo "Generating odbc.ini"
 cat << EOF > /docker-entrypoint-initdb.d/odbc.ini
 [liquidms]
 Description = LiquidMS database with ODBC
@@ -15,6 +16,7 @@ Password = ${MYSQL_PASSWORD:-""}
 EOF
 
 # Find MariaDB ODBC driver, just in case
+echo "Generating odbcinst.ini"
 cat << EOF > /docker-entrypoint-initdb.d/odbcinst.ini
 [MariaDB]
 Description=MariaDB ODBC Connector
@@ -22,6 +24,8 @@ Driver=$(find /usr -name "libmaodbc.so" )
 EOF
 
 # Use proper tools to install ODBC configs
-#odbcinst -i -f /docker-entrypoint-initdb.d/odbcinst.ini -d -n "MariaDB ODBC Connector"
-#odbcinst -i -f /docker-entrypoint-initdb.d/odbc.ini -s -l
+echo "Installing ODBC configs..."
+odbcinst -i -f /docker-entrypoint-initdb.d/odbcinst.ini -d -n "MariaDB ODBC Connector"
+odbcinst -i -f /docker-entrypoint-initdb.d/odbc.ini -s -l
 
+echo "Done."

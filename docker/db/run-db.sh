@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "==========================[ MARIADB CUSTOM RUNNER ]============================="
+
 # Returns true once mysql can connect.
     mysql_ready() {
         mysqladmin ping --host=localhost --user=root --password=${MYSQL_ROOT_PASSWORD:-""} > /dev/null 2>&1

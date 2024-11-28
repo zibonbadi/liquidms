@@ -14,7 +14,7 @@ FROM php:8.1-fpm-alpine
 #autoconf gcc
 RUN echo "https://dl-4.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
 RUN echo "https://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
-RUN apk -U add --no-cache oniguruma oniguruma-dev unixodbc unixodbc-dev autoconf gcc libc-dev yaml yaml-dev make mariadb-connector-odbc mysql-client sqlite
+RUN apk -U add --no-cache oniguruma oniguruma-dev libxml2-dev unixodbc unixodbc-dev autoconf gcc libc-dev yaml yaml-dev make mariadb-connector-odbc mysql-client sqlite
 
 # Install extensions
 # Note: Script docker-php-ext-configure executed automatically in docker-php-ext-install!
@@ -54,31 +54,35 @@ RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr/
 # that you can comment out unneeded database backends.
 RUN pecl install yaml && echo "extension=yaml.so" > /usr/local/etc/php/conf.d/ext-yaml.ini
 RUN docker-php-ext-install \
-		mbstring \
-		sockets \
+		ctype \
+		dom \
 		#odbc \
-		## YAML might not exist on PECL due to inclusion
-		#yaml \
-		pdo \
-		pdo_mysql  \
-		pdo_odbc \
 		#pdo_pgsql \
 		## SQLite might be pre-installed
 		#pdo_sqlite \
+		## YAML might not exist on PECL due to inclusion
+		#yaml \
+		mbstring \
+		pdo \
+		pdo_mysql  \
+		pdo_odbc \
+		sockets \
 		&& echo "-DONE installing PHP extensions-"
 
 #RUN docker-php-ext-enable sockets mbstring yaml
 RUN docker-php-ext-enable \
-		pdo \
+		ctype \
+		dom \
 		#odbc \
-		sockets \
-		mbstring \
-		#yaml \
 		#pdo_mssql \
-		pdo_mysql \
-		pdo_odbc \
 		#pdo_pgsql \
 		#pdo_sqlite \
+		yaml \
+		mbstring \
+		pdo \
+		pdo_mysql \
+		pdo_odbc \
+		sockets \
 		&& echo "-DONE enabling PHP extensions-"
 
 #RUN docker-php-ext-install mbstring sockets
@@ -116,8 +120,8 @@ RUN chmod +x /scripts/install_odbc.sh /scripts/install_config.sh
 
 #install liquidMS as an app
 #it must be already cloned from "https://github.com/zibonbadi/liquidms.git"
-COPY dist/ /var/www/liquidms
-#COPY docker/snitch/fetch.config.yaml /var/www/liquidms/config.yaml
+COPY dist/snitch /var/www/liquidms
+COPY docker/snitch/config.yaml /var/www/liquidms/config.yaml
 #COPY docker/snitch/fetch.crontab /etc/crontabs/liquidms_fetch
 #RUN cat /etc/crontabs/liquidms_fetch >> /etc/crontabs/root
 
@@ -137,5 +141,5 @@ RUN composer install
 
 #launch init fetch with cronjob
 #ENTRYPOINT ["/scripts/run.sh"]
-ENTRYPOINT ["php", "/var/www/liquidms/liquidms/liquidanacron.php"]
+ENTRYPOINT ["php", "/var/www/liquidms/liquidanacron.php"]
 

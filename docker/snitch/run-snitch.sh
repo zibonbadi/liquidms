@@ -1,7 +1,7 @@
 #!/bin/sh
 echo "Init fetch (checking connection)..." && \
 #su www-data -c "php /var/www/liquidms/liquidms/fetch.php" && \
-php /var/www/liquidms/liquidms/fetch.php && \
+php /var/www/liquidms/fetch.php && \
 echo "Starting crond..." && \
 crond -f -l 8
 

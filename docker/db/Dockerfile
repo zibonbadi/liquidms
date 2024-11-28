@@ -1,34 +1,3 @@
-FROM yobasystems/alpine
+FROM mariadb:latest
 
-#add testing repository
-#COPY repositories /etc/apk/repositories
-#RUN echo "@testing https://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
-RUN echo "https://dl-4.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
-RUN echo "https://dl-4.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
-RUN echo "https://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
-
-RUN apk -U add --no-cache mariadb mariadb-client pwgen bash nano unixodbc unixodbc-dev mariadb-connector-odbc && \
-    rm -f /var/cache/apk/*
-
-ADD run-db.sh /scripts/run.sh
-ADD install_odbc.sh /scripts/install_odbc.sh
-RUN chmod +x /scripts/install_odbc.sh
-#adds config to listen on all available interfaces
-ADD mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
-RUN mkdir /scripts/pre-exec.d && \
-    mkdir /scripts/pre-init.d && \
-    chmod -R 755 /scripts
-COPY initdb.d/ /docker-entrypoint-initdb.d/
-
-ARG ODBC_HOST=$ODBC_HOST \
-    ODBC_PORT=$ODBC_PORT \
-    MYSQL_DATABASE=$MYSQL_DATABASE \
-    MYSQL_USER=$MYSQL_USER \
-    MYSQL_PASSWORD=$MYSQL_PASSWORD \
-    MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
-
-RUN /scripts/install_odbc.sh
-
-EXPOSE 3306
-
-ENTRYPOINT ["/scripts/run.sh"]
+COPY docker/db/initdb.d/ /docker-entrypoint-initdb.d/
