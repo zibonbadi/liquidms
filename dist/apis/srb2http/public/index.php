@@ -30,8 +30,7 @@ $config = ConfigModel::getConfig();
 
 set_time_limit(10);
 
-#require_once __DIR__.'/../V1/NetgameModel.php';
-require_once(__DIR__.'/../api-new.php');
+require_once(__DIR__.'/../api.php');
 
 // Start accepting requests
 $router->dispatch();
