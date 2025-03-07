@@ -28,11 +28,12 @@ $router->respond('GET', '/favicon.ico', function($request, $response, $service){
 $router->with('/liquidms/browse', function() use ($router){
 	$router->respond('GET', '/?', function($request, $response, $service){
 			$config = ConfigModel::getConfig();
-			$netgames = NetgameModel::getServers();
+			#$netgames = NetgameModel::getServers();
 			$service->render(rtrim($config["sbpath"], "/")."/index.php", [
 				"motd" => $config["motd"],
 				"modules" => $config["modules"],
-				"netgames" => $netgames
+				#"netgames" => $netgames
+				"netgames" => [ "data" => [], ]
 				]);
 	});
 	// Three separate resource routes for capsuled security

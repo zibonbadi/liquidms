@@ -18,19 +18,12 @@
 // Setup, configs etc.
 require_once __DIR__.'/../vendor/autoload.php';
 
-// Local utilities
-require_once __DIR__.'/../liquidms/modules/ConfigModel.php';
-
-use LiquidMS\ConfigModel;
 use Klein\Klein;
 
 // Main router object
 $router = new Klein();
-$config = ConfigModel::getConfig();
-
 set_time_limit(10);
 
-require_once __DIR__.'/../liquidms/modules/V1/NetgameModel.php';
 require_once(__DIR__.'/../api.php');
 
 // Start accepting requests

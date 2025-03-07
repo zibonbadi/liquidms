@@ -1,6 +1,6 @@
 <?php
 # liquidMS - distributable SRB2 master server
-# Copyright (C) 2021-2022 Zibon Badi et al.
+# Copyright (C) 2021-2024 Zibon Badi et al.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -18,40 +18,24 @@
 namespace LiquidMS\V1;
 
 require_once __DIR__.'/../../../vendor/autoload.php';
+require_once __DIR__.'/../DBSingleton.php';
+
+use LiquidMS\DBSingleton;
 
 class NetgameModel{
 
-		private static $dsn = null;
-		private static $username = null;
-		private static $password = null;
+		private static $instance = null;
+		private static $db = null;
 
-		public static function init(Array $settings){
-			// The following YAML structure will be used from `config.yaml`.
-			//
-			// db: # liquidMS DB connection settings
-			//    dsn: # ODBC data source name
-			//    user: # database user
-			//    password: # database password
-			if( array_key_exists("db", $settings) &&
-					gettype($settings["db"]) == "array"){
+		public function __construct(){
+			self::$db = \LiquidMS\DBSingleton::getInstance();
+		}
 
-				if( array_key_exists("dsn", $settings["db"]) &&
-						gettype($settings["db"]["dsn"]) == "string"){
-					self::$dsn = $settings["db"]["dsn"];
-				}
-				if( array_key_exists("user", $settings["db"]) &&
-						gettype($settings["db"]["user"]) == "string"){
-					self::$username = $settings["db"]["user"];
-				}
-				if( array_key_exists("password", $settings["db"]) &&
-						gettype($settings["db"]["password"]) == "string"){
-					self::$password = $settings["db"]["password"];
-				}
-			}else{
-				error_log("No DB structure string given in config.\n");
-				return false;
+		public static function getInstance(){
+			if( !self::$instance ){
+				self::$instance = new NetgameModel();
 			}
-			return true;
+			return self::$instance;
 		}
 
 		private static function map4to6(string $address){
@@ -90,7 +74,7 @@ class NetgameModel{
 				$query = "SELECT * FROM versions";
 				if($id != NULL){ $query .= " WHERE _id = {$id}"; }
 				#echo "($id) $query\n";
-				$serverdata = self::db_execute($query);
+				$serverdata = self::$db->execute($query);
 
 				return $serverdata;
 		}
@@ -103,11 +87,11 @@ class NetgameModel{
 			   $values .= "(\"".self::map4to6($netgame["host"])."\", \"{$netgame["port"]}\", \"{$netgame["servername"]}\", \"{$netgame["version"]}\", \"{$netgame["roomname"]}\", \"{$netgame["origin"]}\"),";
 			}
 			$values = rtrim($values,", \n\r\t");
-			$query = "INSERT INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`)"
+			$query = "INSERT INTO `v1_servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`)"
 			."VALUES {$values}"
 			."ON DUPLICATE KEY UPDATE `host`=VALUES(host), `port`=VALUES(port), `servername`=VALUES(servername), `version`=VALUES(version), `roomname`=VALUES(roomname), `origin`=VALUES(origin)";
 
-			$serverdata = self::db_execute($query);
+			$serverdata = self::$db->execute($query);
 			return $serverdata;
 		}
 
@@ -131,28 +115,28 @@ class NetgameModel{
 				if($ip != NULL) {
 						switch($op){
 						case "create":{ //Create
-							$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`) ".
+							$query = "REPLACE INTO `v1_servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`) ".
 							"VALUES ('".self::map4to6($ip)."', '{$port}', '".str_replace("'","\'", $title)."', '{$version}', '{$roomname}', 'localhost')";
 							break;
 						}
 						case "update":{ //Update
-							$query = "UPDATE `servers` SET `servername` = '".str_replace("'","\'", $title)."' WHERE `servers`.`host` = '"
-										.self::map4to6($ip)."' AND `servers`.`port` = '{$port}'";
+							$query = "UPDATE `v1_servers` SET `servername` = '".str_replace("'","\'", $title)."' WHERE `v1_servers`.`host` = '"
+										.self::map4to6($ip)."' AND `v1_servers`.`port` = '{$port}'";
 							 break;
 						}
 						case "delete":
 						default:{ //Remove
-							$query = "DELETE FROM `servers` WHERE `servers`.`host` = '".self::map4to6($ip)."' AND `servers`.`port` = '{$port}'";
+							$query = "DELETE FROM `v1_servers` WHERE `v1_servers`.`host` = '".self::map4to6($ip)."' AND `v1_servers`.`port` = '{$port}'";
 							break;
 						}
 						}
 				}
 				#error_log("OP: $op;\n$query");
-				$serverdata = self::db_execute($query);
+				$serverdata = self::$db->execute($query);
 				return $serverdata;
 		}
 
-		public static function getServers($room = null){
+		public function getServers($room = null){
 
 				// Filter server block into distinct value arrays (step 2)
 				// - - "[server line]"
@@ -162,13 +146,13 @@ class NetgameModel{
 				//   - "[version]
 				$querycondition = "";
 				if(intval($room) == 1){ 
-					$querycondition = "WHERE servers.origin = 'localhost'";
+					$querycondition = "WHERE v1_servers.origin = 'localhost'";
 				}else if($room != NULL){ 
-					$querycondition = "WHERE rooms._id = {$room}";
+					$querycondition = "WHERE v1_rooms._id = {$room}";
 				}
-				$query = "SELECT host, port, servername, rooms._id AS roomid, rooms.roomname, version, servers.origin FROM servers INNER JOIN rooms ON servers.roomname = rooms.roomname AND rooms.origin = servers.origin {$querycondition};";
+				$query = "SELECT host, port, servername, v1_rooms._id AS roomid, v1_rooms.roomname, version, v1_servers.origin FROM v1_servers INNER JOIN v1_rooms ON v1_servers.roomname = v1_rooms.roomname AND v1_rooms.origin = v1_servers.origin {$querycondition};";
 				#echo $query."\n";
-				$serverdata = self::db_execute($query);
+				$serverdata = self::$db->execute($query);
 				#var_dump($serverdata);
 
 				foreach($serverdata["data"] as $netgameId => $netgame){
@@ -189,9 +173,9 @@ class NetgameModel{
 				$rVal = [];
 				$filter = "";
 				if($room != NULL){ $filter = " WHERE _id = {$room}"; }
-				$query = "SELECT _id AS roomid, roomname, origin, description FROM rooms {$filter} ORDER BY _id;";
+				$query = "SELECT _id AS roomid, roomname, origin, description FROM v1_rooms {$filter} ORDER BY _id;";
 				#echo $query."\n";
-				$serverdata = self::db_execute($query);
+				$serverdata = self::$db->execute($query);
 
 				return $serverdata;
 		}
@@ -206,9 +190,9 @@ class NetgameModel{
 				//   - "[version]"
 
 				$rVal = [];
-				$query = "SELECT _id AS roomid, roomname, origin, description FROM rooms WHERE origin = 'localhost'";
+				$query = "SELECT _id AS roomid, roomname, origin, description FROM v1_rooms WHERE origin = 'localhost'";
 				#echo $query."\n";
-				$serverdata = self::db_execute($query);
+				$serverdata = self::$db->execute($query);
 
 				return $serverdata;
 		}

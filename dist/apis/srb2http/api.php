@@ -1,7 +1,6 @@
-APIFILE REACHED
 <?php
-# liquidMS - distributable SRB2 master server
-# Copyright (C) 2021-2022 Zibon Badi et al.
+# LiquidMS - distributable SRB2 master server
+# Copyright (C) 2021-2025 Zibon Badi et al.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -17,10 +16,10 @@ APIFILE REACHED
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 require_once __DIR__.'/ConfigModel.php';
-require_once __DIR__.'/V1/NetgameModel.php';
+require_once __DIR__.'/SRB2HTTP/NetgameModel.php';
 
 use LiquidMS\ConfigModel;
-use LiquidMS\V1\NetgameModel;
+use LiquidMS\SRB2HTTP\NetgameModel;
 
 $router->with('/servers', function() use ($router){
 	$router->respond('GET', '/?', function($request, $response, $service){
@@ -28,7 +27,7 @@ $router->with('/servers', function() use ($router){
 			// filter by response. Listing dummy servers is thus not possible.
 			$servers = NetgameModel::getInstance()->getServers();
 			$rooms = NetgameModel::getInstance()->getRooms();
-				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){ $service->render(__DIR__."/V1/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);
+				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){ $service->render(__DIR__."/SRB2HTTP/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);
 				}else{
 					$response->code(403);
 					if( ($servers["error"] != 0)){ $service->render(__DIR__."/ErrorView.php", ["response" => $servers]); };
@@ -212,7 +211,7 @@ $router->with('/rooms', function() use ($router){
 				$rooms = NetgameModel::getInstance()->getWorldRooms();
 				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){
 					if( ($servers["rows"] > 0) && ($rooms["rows"] > 0) ){
-						$service->render(__DIR__."/V1/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);
+						$service->render(__DIR__."/SRB2HTTP/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);
 					}else{
 						//$response->code(404);
 						return "{$request->roomId}\n\n";
@@ -233,14 +232,8 @@ $router->with('/rooms', function() use ($router){
 		});
 });
 
-$router->with('/', function() use ($router){
-		$router->respond('GET', '/*?', function($request, $response){
-				echo "Reached /v1";
-				$response->code(400);
-				return "Unknown action\n";
-		});
+$router->respond('GET', '/*?', function($request, $response){
+		$response->code(400);
+		return "Unknown action\n";
 });
-
-echo __FILE__." accessing from ".__DIR__;
-
 ?>

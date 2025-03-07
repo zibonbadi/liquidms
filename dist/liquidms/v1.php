@@ -21,14 +21,12 @@ require_once __DIR__.'/modules/V1/NetgameModel.php';
 use LiquidMS\ConfigModel;
 use LiquidMS\V1\NetgameModel;
 
-LiquidMS\V1\NetgameModel::init(ConfigModel::getConfig());
-
 $router->with('/v1/servers', function() use ($router){
 	$router->respond('GET', '/?', function($request, $response, $service){
 			// Server test kludge. The game seems to ping every listed server and
 			// filter by response. Listing dummy servers is thus not possible.
-			$servers = NetgameModel::getServers();
-			$rooms = NetgameModel::getRooms();
+			$servers = NetgameModel::getInstance()->getServers();
+			$rooms = NetgameModel::getInstance()->getRooms();
 				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){ $service->render(__DIR__."/modules/V1/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);
 				}else{
 					$response->code(403);
@@ -39,7 +37,7 @@ $router->with('/v1/servers', function() use ($router){
 	$router->respond('POST', '/[:serverid]?/update', function($request, $response){
 			parse_str($request->body(), $info);
 			$request->ip();
-			$response = NetgameModel::changeServer("update", $request->ip(), $request->serverid, rawurlencode($info['title']), null, null);
+			$response = NetgameModel::getInstance()->changeServer("update", $request->ip(), $request->serverid, rawurlencode($info['title']), null, null);
 			if( $response["rows"] > 0 ){
 				// No Response body
 				return;
@@ -51,7 +49,7 @@ $router->with('/v1/servers', function() use ($router){
 	$router->respond('POST', '/[:serverid]?/unlist', function($request, $response){
 			parse_str($request->body(), $info);
 			$request->ip();
-			$rooms = NetgameModel::changeServer("delete", $request->ip(), $request->serverid, null, null, null);
+			$rooms = NetgameModel::getInstance()->changeServer("delete", $request->ip(), $request->serverid, null, null, null);
 			if( $rooms["rows"] > 0 ){
 				// No Response body
 				return;
@@ -66,7 +64,7 @@ $router->with('/v1/versions', function() use ($router){
 				#$versionstring = yaml_parse_file("config.yaml.example")["versions"][$request->versionId]; // Local var kludge
 				#echo "Versionizer is here {$request->versionId}\n";
 				$maincontent = "";
-				$import = NetgameModel::getVersions(intval($request->versionId));
+				$import = NetgameModel::getInstance()->getVersions(intval($request->versionId));
 				if( $import["error"] == 0 ){
 					// Technically an unspecified room would blurt out all. The
 					// router takes care of it, but that's actually non-compliant.
@@ -96,11 +94,11 @@ $router->with('/v1/rooms', function() use ($router){
 						$response->code(403);
 						return "403 Forbidden";
 				}else{
-						$rooms = NetgameModel::getRooms($request->roomId);
+						$rooms = NetgameModel::getInstance()->getRooms($request->roomId);
 						if( $rooms["error"] == 0 ){
 							if( $rooms["rows"] > 0 ){
 								parse_str($request->body(), $info);
-								NetgameModel::changeServer("create", $request->ip(),  "{$request->ip()}:{$info['port']}", rawurlencode($info['title']), $info['version'], $rooms["data"][0]['roomname']);
+								NetgameModel::getInstance()->changeServer("create", $request->ip(),  "{$request->ip()}:{$info['port']}", rawurlencode($info['title']), $info['version'], $rooms["data"][0]['roomname']);
 								return "{$request->ip()}:{$info['port']}";
 							}else{
 								$response->code(404);
@@ -121,7 +119,7 @@ $router->with('/v1/rooms', function() use ($router){
 				// the first line of the MOTD.
 
 				// This is a demo mirror. Put DB queries here.
-				$rooms = NetgameModel::getRooms();
+				$rooms = NetgameModel::getInstance()->getRooms();
 				if( $rooms["error"] == 0 ){
 					$maincontent = "";
 
@@ -172,7 +170,7 @@ $router->with('/v1/rooms', function() use ($router){
 		});
 
 		$router->respond('GET', '/[:roomId]', function($request, $response){
-				$rooms = NetgameModel::getRooms($request->roomId);
+				$rooms = NetgameModel::getInstance()->getRooms($request->roomId);
 				if( $rooms["error"] == 0 ){
 					if( $rooms["rows"] > 0 ){
 						$maincontent = "";
@@ -206,11 +204,11 @@ $router->with('/v1/rooms', function() use ($router){
 		});
 
 		$router->respond('GET', '/[:roomId]/servers', function($request, $response, $service){
-			$servers = NetgameModel::getServers($request->roomId);
+			$servers = NetgameModel::getInstance()->getServers($request->roomId);
 
 			if( intval($request->roomId) == 1){
 				#var_dump($servers);
-				$rooms = NetgameModel::getWorldRooms();
+				$rooms = NetgameModel::getInstance()->getWorldRooms();
 				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){
 					if( ($servers["rows"] > 0) && ($rooms["rows"] > 0) ){
 						$service->render(__DIR__."/modules/V1/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);

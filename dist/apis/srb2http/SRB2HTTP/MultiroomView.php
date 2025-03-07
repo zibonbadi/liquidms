@@ -1,6 +1,6 @@
 <?php
 # liquidMS - distributable SRB2 master server
-# Copyright (C) 2021-2022 Zibon Badi et al.
+# Copyright (C) 2021-2025 Zibon Badi et al.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
