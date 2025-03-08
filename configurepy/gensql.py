@@ -49,12 +49,12 @@ def state_gensql_srb2http():
         cpbanlist.append(f"('{ip_start}', '{ip_end}', NULL, '{ban_comment}')")
 
     # --- Create custom data CMDs ---
-    croom_cmd = "\n".join([ "INSERT INTO `{db_prefix}_rooms` (`_id`, `roomname`, `description`) VALUES",
+    croom_cmd = "\n".join([ f"INSERT INTO `{db_prefix}_rooms` (`_id`, `roomname`, `description`) VALUES",
                 ",\n".join(croomlist),
                 "ON DUPLICATE KEY UPDATE _id=VALUES(_id), roomname=VALUES(roomname), description=VALUES(description);"
                 ]) if croomlist else ""
 
-    cpban_cmd = "\n".join([ "INSERT INTO `{db_prefix}_bans` (`ip_first`,`ip_last`,`expire`,`comment`) VALUES",
+    cpban_cmd = "\n".join([ f"INSERT INTO `{db_prefix}_bans` (`ip_first`,`ip_last`,`expire`,`comment`) VALUES",
                 ",\n".join(cpbanlist),
                 "ON DUPLICATE KEY",
                 "UPDATE _id=VALUES(_id), ip_first=VALUES(ip_first), ip_last=VALUES(ip_last), expire=VALUES(expire), comment=VALUES(comment);"

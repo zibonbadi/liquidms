@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `$versiontabname` (
   `modid` INT(11) NOT NULL AUTO_INCREMENT,
   `gameid` INT(11) NOT NULL DEFAULT 1,
   `name` VARCHAR(32) DEFAULT NULL,
-  PRIMARY KEY (`_id`)
+  PRIMARY KEY (`modid`)
 );
 
 -- Bans will be handled through IP ranges.
@@ -86,7 +86,7 @@ INSERT INTO `$versiontabname` (`modid`, `gameid`,`name`) VALUES
 (2,1,'v0.22'),
 (1,207,'v2.0.7')
 ON DUPLICATE KEY UPDATE
-`_id`=VALUES(`_id`), `gameid`=VALUES(`gameid`), `name`=VALUES(`name`);
+`modid`=VALUES(`modid`), `gameid`=VALUES(`gameid`), `name`=VALUES(`name`);
 
 -- Behaviour
 
@@ -122,8 +122,7 @@ CREATE TRIGGER IF NOT EXISTS `roomlist_rebuild_delete`
 CREATE TRIGGER IF NOT EXISTS banlist_cleanup
    BEFORE INSERT ON `$servtabname` FOR EACH ROW -- BEFORE to support temp bans
    BEGIN
-   ON SCHEDULE EVERY 1 MINUTE
-   DELETE FROM $bantabname WHERE expire < CURRENT_TIMESTAMP AND expire <> NULL#
+   DELETE FROM $bantabname WHERE expire < CURRENT_TIMESTAMP AND expire <> NULL;
    END#
 
 -- 'Removes banned entries'
@@ -132,13 +131,12 @@ CREATE TRIGGER IF NOT EXISTS banlist_cleanup
    BEGIN
    DELETE `$servtabname` FROM `$servtabname`
 	   INNER JOIN `$bantabname` ON `$servtabname`.`host`
-	   BETWEEN `$bantabname`.`ip_start` AND `$bantabname`.`ip_end`
+	   BETWEEN `$bantabname`.`ip_start` AND `$bantabname`.`ip_end`;
    -- Delet this
    END#
 
 -- 'Removes server entries older than 20 minutes'
 CREATE TRIGGER IF NOT EXISTS serverlist_cleanup
-   ON SCHEDULE EVERY 1 MINUTE
    BEFORE INSERT ON `$servtabname` FOR EACH ROW
    BEGIN
    DELETE FROM $servtabname WHERE updated_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 20 MINUTE);
