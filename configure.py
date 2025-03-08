@@ -1,5 +1,11 @@
 #!/usr/env python3
 
+###
+### TODO:
+###
+### Make SQL script generator for shared hosters
+###
+
 import string
 
 ##### ===============
@@ -27,8 +33,8 @@ def state_api_main():
                     return states["api"]["srb2http"]
                 case "3":
                     return states["api"]["srb2kart"]
-                #case "4":
-                    #return states["api"]["srb2legacy"]
+                case "4":
+                    return states["api"]["srb2legacy"]
                 case "q"|"Q":
                     return states["main"]
                 case _:
@@ -38,14 +44,47 @@ def state_api_snitch():
     return states["main"]
 
 def state_api_srb2http():
-    return states["main"]
+    import configurepy.srb2http
+
+    while True:
+        print(
+            "--- API configuration ---\n"
+            f"(E)[] Enable SRB2HTTP endpoint\n"
+            f"(B) Blacklist configuration\n"
+            f"(R) World room configuration\n"
+            f"(V) Version configuration\n"
+            "\n"
+            "(Q)uit to API configuration\n"
+        )
+
+        while True:
+            choice = input("Select an API to configure: ")
+            match choice:
+                case "e"|"E":
+                    print(f"Option not implemented yet.\n")
+                    return states["api"]["srb2http"]
+                case "b"|"B":
+                    print(f"Option not implemented yet.\n")
+                    return states["api"]["srb2http"]
+                case "r"|"R":
+                    print(f"Option not implemented yet.\n")
+                    return states["api"]["srb2http"]
+                case "v"|"V":
+                    print(f"Option not implemented yet.\n")
+                    return states["api"]["srb2http"]
+                case "q"|"Q":
+                    return states["main"]
+                case _:
+                    print(f"Invalid option \"{choice}\"\n")
+    return states["api"]["main"]
 
 def state_api_srb2kart():
     return states["main"]
 
-#def state_api_srb2legacy():
+def state_api_srb2legacy():
     ### TBA after the legacy server is actually done
-    #return states["main"]
+    print (f"The Legacy SRB2 API is not implemented yet. :(\n")
+    return states["main"]
 
 def state_build():
     print("Gathering settings...\n")
@@ -77,6 +116,7 @@ def state_main():
             "--- Main menu ---\n"
             "(A)PI setup\n"
             "(D)atabase setup\n"
+            "(G)enerate SQL config\n"
             "(F)rontend setup\n"
             "(H)TTP router setup (Caddy)\n"
             "Snitch (R)elay setup\n"
@@ -89,9 +129,11 @@ def state_main():
             choice = input("Select an option: ")
             match choice:
                 case "a"|"A":
-                    return states["api"]["main"]
+                    return states["gensql"]["main"]
                 case "d"|"D":
                     return states["db"]["main"]
+                case "g"|"G":
+                    return states["gensql"]["main"]
                 case "f"|"F":
                     return states["frontend"]["main"]
                 case "h"|"H":
@@ -105,10 +147,6 @@ def state_main():
                 case _:
                     print (f"Invalid option \"{choice}\"\n")
     return states["main"]
-
-def state_quit():
-    print("Goodbye!\n")
-    exit(0)
 
 def state_relay_main():
     return states["main"]
@@ -124,30 +162,30 @@ def state_relay_jobs():
 ##### State machine (state transitions == return values)
 ##### --------------------------------------------------
 
-states = {
-    "main": state_main,
-    "quit": state_quit,
-    "api": {
-        "main": state_api_main,
-        "snitch": state_api_snitch,
-        "srb2http": state_api_srb2http,
-        "srb2kart": state_api_srb2kart,
-        #"srb2legacy": state_api_srb2legacy,
-    },
-    "build": state_build,
-    "db": {
-        "main": state_db_main
-    },
-    "frontend": {
-        "main": state_frontend_main,
-    },
-    "http": {
-        "main": state_http_main,
-    },
-    "relay": {
-        "main": state_relay_main,
-        "jobs": state_relay_jobs,
-    },
+from configurepy import gensql # Initialize state object
+from configurepy.states import states # Initialize state object
+### Define states by mutating shared object
+states["main"] = state_main
+states["api"] = {
+    "main": state_api_main,
+    "snitch": state_api_snitch,
+    "srb2http": state_api_srb2http,
+    "srb2kart": state_api_srb2kart,
+    "srb2legacy": state_api_srb2legacy,
+}
+states["build"] = state_build
+states["db"] = {
+    "main": state_db_main
+}
+states["frontend"] = {
+    "main": state_frontend_main,
+}
+states["http"] = {
+    "main": state_http_main,
+}
+states["relay"] = {
+    "main": state_relay_main,
+    "jobs": state_relay_jobs,
 }
 
 
@@ -176,7 +214,7 @@ if __name__ == '__main__':
     print (
         "\n====== LiquidMS installer ======\n"
         "\n"
-        "LiquidMS (c) 2021-2024 Liquid Underground.\n"
+        "LiquidMS (c) 2021-2025 Liquid Underground.\n"
         "\n"
         "This software is licensed under GNU AGPLv3. You can read it here:\n"
         "<https://www.gnu.org/licenses/agpl-3.0.en.html>\n"
