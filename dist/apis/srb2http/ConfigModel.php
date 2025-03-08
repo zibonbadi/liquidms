@@ -28,6 +28,12 @@ class ConfigModel{
 			"user" => "sonic",
 			"password" => "gottagofast",
 		],
+		"tables" => [
+			"bans" => "srb2http_bans",
+			"rooms" => "srb2http_rooms",
+			"servers" => "srb2http_servers",
+			"versions" => "srb2http_versions",
+		],
 		"netgame_query_limit" => [
 			"n" => 20,
 			"seconds" => 1,
@@ -78,6 +84,21 @@ class ConfigModel{
 				}
 				if( self::child_assertType("password", $newconfig["db"], "string") ){
 					self::$config["db"]["password"] = $newconfig["db"]["password"];
+				}
+			}
+
+			if( self::child_assertType("tables", $newconfig, "array") ){
+				if( self::child_assertType("bans", $newconfig["tables"], "string") ){
+					self::$config["tables"]["bans"] = $newconfig["tables"]["bans"];
+				}
+				if( self::child_assertType("rooms", $newconfig["tables"], "string") ){
+					self::$config["tables"]["rooms"] = $newconfig["tables"]["rooms"];
+				}
+				if( self::child_assertType("servers", $newconfig["tables"], "string") ){
+					self::$config["tables"]["servers"] = $newconfig["tables"]["servers"];
+				}
+				if( self::child_assertType("versions", $newconfig["tables"], "string") ){
+					self::$config["tables"]["versions"] = $newconfig["tables"]["versions"];
 				}
 			}
 

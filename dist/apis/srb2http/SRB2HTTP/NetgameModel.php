@@ -21,6 +21,8 @@ require_once __DIR__.'/../vendor/autoload.php';
 require_once __DIR__.'/../DBSingleton.php';
 
 use LiquidMS\DBSingleton;
+use LiquidMS\ConfigModel;
+
 
 class NetgameModel{
 
@@ -66,13 +68,14 @@ class NetgameModel{
 		public static function getVersions(int $id = null){
 
 				// Filter server block into distinct value arrays (step 2)
-				// - "[_id]"
+				// - "[modid]"
 				//   "[gameid]"
 				//   "[version]"
 
 				$rVal = [];
-				$query = "SELECT * FROM versions";
-				if($id != NULL){ $query .= " WHERE _id = {$id}"; }
+				$vertable = ConfigModel::getConfig()["tables"]["versions"];
+				$query = "SELECT * FROM {$vertable}";
+				if($id != NULL){ $query .= " WHERE modid = {$id}"; }
 				#echo "($id) $query\n";
 				$serverdata = self::$db->execute($query);
 
@@ -80,6 +83,7 @@ class NetgameModel{
 		}
 
 		public static function pushServers(Array $servers) {
+			$servtable = ConfigModel::getConfig()["tables"]["servers"];
 
 			// Generate insert values
 			$values = "";
@@ -87,7 +91,7 @@ class NetgameModel{
 			   $values .= "(\"".self::map4to6($netgame["host"])."\", \"{$netgame["port"]}\", \"{$netgame["servername"]}\", \"{$netgame["version"]}\", \"{$netgame["roomname"]}\", \"{$netgame["origin"]}\"),";
 			}
 			$values = rtrim($values,", \n\r\t");
-			$query = "INSERT INTO `v1_servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`)"
+			$query = "INSERT INTO `{$servtable}` (`host`, `port`, `servername`, `version`, `roomname`, `origin`)"
 			."VALUES {$values}"
 			."ON DUPLICATE KEY UPDATE `host`=VALUES(host), `port`=VALUES(port), `servername`=VALUES(servername), `version`=VALUES(version), `roomname`=VALUES(roomname), `origin`=VALUES(origin)";
 
@@ -98,6 +102,7 @@ class NetgameModel{
 		public static function changeServer($op = 1, $ip = null, $netgameid = '127.0.0.1:5029', $title = 'SRB2 server', $version = '2.2.10', $roomname = null) { //Operation, Host, netgameID, servername, version, roomname.
 				//Creates an SQL query based of all the info we provided.
 				//Really dirty, could possibly get cleaned.
+				$servtable = ConfigModel::getConfig()["tables"]["servers"];
 
 				// Step 1:
 				// Check if the ID belongs to the IP issuing the request
@@ -115,18 +120,18 @@ class NetgameModel{
 				if($ip != NULL) {
 						switch($op){
 						case "create":{ //Create
-							$query = "REPLACE INTO `v1_servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`) ".
+							$query = "REPLACE INTO `{$servtable}` (`host`, `port`, `servername`, `version`, `roomname`, `origin`) ".
 							"VALUES ('".self::map4to6($ip)."', '{$port}', '".str_replace("'","\'", $title)."', '{$version}', '{$roomname}', 'localhost')";
 							break;
 						}
 						case "update":{ //Update
-							$query = "UPDATE `v1_servers` SET `servername` = '".str_replace("'","\'", $title)."' WHERE `v1_servers`.`host` = '"
-										.self::map4to6($ip)."' AND `v1_servers`.`port` = '{$port}'";
+							$query = "UPDATE `{$servtable}` SET `servername` = '".str_replace("'","\'", $title)."' WHERE `{$servtable}`.`host` = '"
+										.self::map4to6($ip)."' AND `{$servtable}`.`port` = '{$port}'";
 							 break;
 						}
 						case "delete":
 						default:{ //Remove
-							$query = "DELETE FROM `v1_servers` WHERE `v1_servers`.`host` = '".self::map4to6($ip)."' AND `v1_servers`.`port` = '{$port}'";
+							$query = "DELETE FROM `{$servtable}` WHERE `{$servtable}`.`host` = '".self::map4to6($ip)."' AND `{$servtable}`.`port` = '{$port}'";
 							break;
 						}
 						}
@@ -137,6 +142,8 @@ class NetgameModel{
 		}
 
 		public function getServers($room = null){
+				$servtable = ConfigModel::getConfig()["tables"]["servers"];
+				$roomtable = ConfigModel::getConfig()["tables"]["rooms"];
 
 				// Filter server block into distinct value arrays (step 2)
 				// - - "[server line]"
@@ -146,11 +153,11 @@ class NetgameModel{
 				//   - "[version]
 				$querycondition = "";
 				if(intval($room) == 1){ 
-					$querycondition = "WHERE v1_servers.origin = 'localhost'";
+					$querycondition = "WHERE {$servtable}.origin = 'localhost'";
 				}else if($room != NULL){ 
-					$querycondition = "WHERE v1_rooms._id = {$room}";
+					$querycondition = "WHERE {$roomtable}._id = {$room}";
 				}
-				$query = "SELECT host, port, servername, v1_rooms._id AS roomid, v1_rooms.roomname, version, v1_servers.origin FROM v1_servers INNER JOIN v1_rooms ON v1_servers.roomname = v1_rooms.roomname AND v1_rooms.origin = v1_servers.origin {$querycondition};";
+				$query = "SELECT host, port, servername, {$roomtable}._id AS roomid, {$roomtable}.roomname, version, {$servtable}.origin FROM {$servtable} INNER JOIN {$roomtable} ON {$servtable}.roomname = {$roomtable}.roomname AND {$roomtable}.origin = {$servtable}.origin {$querycondition};";
 				#echo $query."\n";
 				$serverdata = self::$db->execute($query);
 				#var_dump($serverdata);
@@ -162,6 +169,7 @@ class NetgameModel{
 				return $serverdata;
 		}
 		public static function getRooms(int $room = null){
+				$roomtable = ConfigModel::getConfig()["tables"]["rooms"];
 
 				// Filter server block into distinct value arrays (step 2)
 				// - - "[server line]"
@@ -173,7 +181,7 @@ class NetgameModel{
 				$rVal = [];
 				$filter = "";
 				if($room != NULL){ $filter = " WHERE _id = {$room}"; }
-				$query = "SELECT _id AS roomid, roomname, origin, description FROM v1_rooms {$filter} ORDER BY _id;";
+				$query = "SELECT _id AS roomid, roomname, origin, description FROM {$roomtable} {$filter} ORDER BY _id;";
 				#echo $query."\n";
 				$serverdata = self::$db->execute($query);
 
@@ -181,6 +189,7 @@ class NetgameModel{
 		}
 
 		public static function getWorldRooms(){
+				$roomtable = ConfigModel::getConfig()["tables"]["rooms"];
 
 				// Filter server block into distinct value arrays (step 2)
 				// - - "[server line]"
@@ -190,7 +199,7 @@ class NetgameModel{
 				//   - "[version]"
 
 				$rVal = [];
-				$query = "SELECT _id AS roomid, roomname, origin, description FROM v1_rooms WHERE origin = 'localhost'";
+				$query = "SELECT _id AS roomid, roomname, origin, description FROM {$roomtable} WHERE origin = 'localhost'";
 				#echo $query."\n";
 				$serverdata = self::$db->execute($query);
 
