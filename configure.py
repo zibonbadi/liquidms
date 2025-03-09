@@ -117,6 +117,7 @@ def state_main():
             "(A)PI setup\n"
             "(D)atabase setup\n"
             "(G)enerate SQL config\n"
+            "Generate (Y)AML config\n"
             "(F)rontend setup\n"
             "(H)TTP router setup (Caddy)\n"
             "Snitch (R)elay setup\n"
@@ -132,6 +133,8 @@ def state_main():
                     return states["gensql"]["main"]
                 case "d"|"D":
                     return states["db"]["main"]
+                case "y"|"Y":
+                    return states["genconfig"]["main"]
                 case "g"|"G":
                     return states["gensql"]["main"]
                 case "f"|"F":
@@ -162,7 +165,7 @@ def state_relay_jobs():
 ##### State machine (state transitions == return values)
 ##### --------------------------------------------------
 
-from configurepy import gensql # Initialize state object
+from configurepy import genconfig, gensql # Initialize state object
 from configurepy.states import states # Initialize state object
 ### Define states by mutating shared object
 states["main"] = state_main

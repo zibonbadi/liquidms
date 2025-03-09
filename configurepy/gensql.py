@@ -5,15 +5,16 @@ from .states import states
 
 def _generate_sql(outfile, templatefile, db_prefix, subst_vars):
     with open(templatefile, 'r') as f:
-        print(f"Generating SQL script {outfile}...")
+        print(f"\nGenerating SQL script {outfile}...")
         src = Template(f.read())
         result = src.substitute(subst_vars)
         with open(outfile, "w") as ofile:
-            print(f"Writing SQL script into {outfile}...")
+            print(f"Writing SQL script into {outfile}...\n")
             ofile.write(result)
-    print(f"Success. Your SQL config can be found at {outfile}")
+    print(f"Success. Your SQL config can be found at {outfile}\n")
 
 def state_gensql_srb2http():
+    ofilename = input('SQL script name (default "docker/db/initdb.d/srb2http.sql"): ') or 'docker/db/initdb.d/srb2http.sql'
     db_name = input('Database name (default "liquidms"): ') or "liquidms"
     db_prefix = input('Table prefix (default "srb2http"): ') or "srb2http"
 
@@ -71,7 +72,7 @@ def state_gensql_srb2http():
     }
 
 
-    _generate_sql('srb2http_autogen.sql', 'configurepy/gensql_templates/srb2http-template.sql', db_prefix, subst_vars)
+    _generate_sql(ofilename, 'configurepy/gensql_templates/srb2http-template.sql', db_prefix, subst_vars)
     return states["gensql"]["main"]
 
 def state_gensql_srb2kart():
@@ -89,9 +90,9 @@ def state_gensql_menu():
         "on your SQL server, depending on which APIs you want LiquidMS to host.\n"
         "If you are running the development Docker Compose network, place "
         "your scripts under docker/db/initdb.d/ before bulding the DB container.\n\n"
-        f"(1)[] SRB2HTTP\n"
-        f"(2)[] SRB2Kart/Ring Racers\n"
-        f"(3)[] SRB2 Legacy\n"
+        f"(1) SRB2HTTP\n"
+        f"(2) SRB2Kart/Ring Racers\n"
+        f"(3) SRB2 Legacy\n"
         "\n"
         "(Q)uit to main menu\n"
     )
