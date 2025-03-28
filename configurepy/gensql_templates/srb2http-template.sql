@@ -20,7 +20,7 @@ USE `$dbname`;
 
 -- server list with all automations
 CREATE TABLE IF NOT EXISTS `$servtabname` (
-  `host` INET6 NOT NULL,
+  `host` BINARY(6) NOT NULL,
   `port` SMALLINT(6) unsigned NOT NULL,
   `servername` VARCHAR(256) NOT NULL,
   `version` VARCHAR(16) NOT NULL,
@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS `$versiontabname` (
 
 CREATE TABLE IF NOT EXISTS `$bantabname` (
   `_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `ip_start` INET6 NOT NULL,
-  `ip_end` INET6 NOT NULL,
+  `ip_start` BINARY(6) NOT NULL,
+  `ip_end` BINARY(6) NOT NULL,
   `expire` DATETIME DEFAULT adddate(CURRENT_TIMESTAMP,1),
   `comment` VARCHAR(128),
   PRIMARY KEY (`_id`)
