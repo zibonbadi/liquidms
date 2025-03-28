@@ -67,8 +67,56 @@ def state_genconfig_srb2query():
 
 
 ### Snitch CONFIG ###
-def state_genconfig_snitch():
+def state_genconfig_snitchapi():
     print("Not implemented yet.")
+
+    data = {
+        'netgame_query_limit': {
+            "seconds": input('Rate limit cooldown (in seconds; default 1): ') or 1,
+            "n": input('Rate limit threshold (in number; default 5): ') or 5,
+        },
+        'db': {
+            "dsn": input('DSN connection string: '),
+            "user": input('Database user (default: "lmsnode"): ') or 'lmsnode',
+            "password": getpass('DB User password: '),
+        },
+        'tables': {
+            "bans": input('Banned IP table name (default: "srb2http_bans"): ') or  "srb2http_bans",
+            "rooms": input('Room table table name (default: "srb2http_rooms"): ') or  "srb2http_rooms",
+            "servers": input('Server table name (default: "srb2http_servers"): ') or  "srb2http_servers",
+            "versions": input('Game version table name (default: "srb2http_versions"): ') or  "srb2http_versions",
+        },
+    }
+
+    jobs = {}
+    while True:
+        line = input('Message Of The Day (empty line to end): ')
+        if not line:
+            break
+        motd_lines.append(line)
+    data["motd"] = '\n'.join(motd_lines)
+
+    _generate_yaml(ofilename, data)
+
+    return states["genconfig"]["main"]
+
+def state_genconfig_snitchrelay():
+    print("Not implemented yet.")
+
+    fromjobs = {}
+    tojobs = {}
+    while True:
+        line = input('Fetch Job name(empty line to skip): ')
+        if not line:
+            break
+        fromjobs.append(line)
+
+    while True:
+        line = input('Push Job name(empty line to skip): ')
+        if not line:
+            break
+        tojobs.append(line)
+
     return states["genconfig"]["main"]
 
 
@@ -83,9 +131,10 @@ def state_genconfig_menu():
         "(1) SRB2HTTP\n"
         "(2) SRB2Kart/Ring Racers\n"
         "(3) SRB2 Legacy\n"
-        "(4) LiquidMS Snitch\n"
+        "(4) LiquidMS Snitch API\n"
         "(5) Web frontend\n"
         "(6) SRB2Query\n"
+        "(7) LiquidMS Snitch relay\n"
         "\n"
         "(Q)uit to main menu\n"
     )
@@ -99,6 +148,14 @@ def state_genconfig_menu():
                 return states["genconfig"]["srb2kart"]
             case "3":
                 return states["genconfig"]["srb2legacy"]
+            case "4":
+                return states["genconfig"]["snitch_api"]
+            case "5":
+                return states["genconfig"]["frontend"]
+            case "6":
+                return states["genconfig"]["srb2query"]
+            case "7":
+                return states["genconfig"]["snitch_relay"]
             case "q"|"Q":
                 return states["main"]
             case _:
@@ -110,5 +167,6 @@ states["genconfig"] = {
     "srb2kart": state_genconfig_srb2kart,
     "srb2legacy": state_genconfig_srb2legacy,
     "srb2query": state_genconfig_srb2query,
-    "snitch": state_genconfig_snitch,
+    "snitch_api": state_genconfig_snitchapi,
+    "snitch_relay": state_genconfig_snitchrelay,
 }
