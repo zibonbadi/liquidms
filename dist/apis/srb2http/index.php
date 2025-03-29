@@ -16,10 +16,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // Setup, configs etc.
-require_once __DIR__.'/../vendor/autoload.php';
+require_once __DIR__.'/vendor/autoload.php';
 
 // Local utilities
-require_once __DIR__.'/../ConfigModel.php';
+require_once __DIR__.'/ConfigModel.php';
 
 use LiquidMS\ConfigModel;
 use Klein\Klein;
@@ -30,7 +30,7 @@ $config = ConfigModel::getConfig();
 
 set_time_limit(10);
 
-require_once(__DIR__.'/../api.php');
+require_once(__DIR__.'/api.php');
 
 // Start accepting requests
 $router->dispatch();

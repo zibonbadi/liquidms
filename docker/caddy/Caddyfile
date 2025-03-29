@@ -10,14 +10,15 @@
 	tls internal
 }
 
-srb2.localhost {
-	tls internal
+# Caddy needs the entire dist/ to work.
+# APIs are addressed using subdomains w/ fake roots to /var/www/html
 
-	root * /var/www/liquidms/apis/srb2http/public
-	php_fastcgi api-srb2http:9000
-	#php_fastcgi api-srb2http:9000 {
-		#env REQUEST_URI {path}{http.matchers.file.remainder}
-	#}
+http://srb2.localhost {
+	#tls internal
+	root * /srv/apis/srb2http
+	php_fastcgi api-srb2http:9000 {
+		root /var/www/html
+	}
 	file_server
 }
 
