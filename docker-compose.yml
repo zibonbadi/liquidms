@@ -10,10 +10,6 @@ services:
     ports:
       - "443:443" # Provide SSL port
       - "${LIQUIDMS_PORT}:80" #exposes LiquidMS's 80 port to .env port on the host machine
-    depends_on:
-      #- satellite # connect up
-      - frontend # Frontend server
-      - api-srb2http # HTTP API server
     networks:
       - liquidms-net
       - external
@@ -27,12 +23,13 @@ services:
   api-srb2http: #has php-fpm with extensions and composer, check Dockerfile!
     restart: unless-stopped
     build: 
-      dockerfile: docker/apis/srb2http/Dockerfile #also installs PDO driver
+      dockerfile: docker/php.Dockerfile #installs necessary modules etc.
     environment:
       TZ: $TZ
       PHP_MEMORY_LIMIT: 1024M
     depends_on:
-      - db # installs and runs database first before starting liquidms
+      - caddy
+      - db 
     volumes:
       - type: bind
         source: dist/apis/srb2http
@@ -43,20 +40,68 @@ services:
     networks:
       - liquidms-net
       - external
-  frontend: #has php-fpm with extensions and composer, check Dockerfile!
+  api-snitch: #has php-fpm with extensions and composer, check Dockerfile!
     restart: unless-stopped
     build: 
-      dockerfile: docker/browser/Dockerfile #also installs ODBC driver
-      args:
-        ODBC_HOST: $ODBC_HOST
-        ODBC_PORT: $ODBC_PORT
-        MYSQL_DATABASE: $MYSQL_DATABASE
-        MYSQL_USER: $MYSQL_USER
-        MYSQL_PASSWORD: $MYSQL_PASSWORD
-        MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      dockerfile: docker/apis/srb2http/Dockerfile #also installs PDO driver
+      dockerfile: docker/php.Dockerfile #installs necessary modules etc.
     environment:
       TZ: $TZ
       PHP_MEMORY_LIMIT: 1024M
+    depends_on:
+      - caddy
+      - db 
+    volumes:
+      - type: bind
+        source: dist/
+        read_only: true
+        target: /var/www/liquidms/
+    ports:
+      - "9000:9000" # PHP FastCGI port
+    networks:
+      - liquidms-net
+  api-srb2query: 
+    restart: unless-stopped
+    build: 
+      dockerfile: docker/php.Dockerfile #installs necessary modules etc.
+    environment:
+      TZ: $TZ
+      PHP_MEMORY_LIMIT: 1024M
+    volumes:
+      - type: bind
+        source: dist/apis/srb2query
+        target: /var/www/liquidms/
+    ports:
+      - "5029:5029" # PHP FastCGI port
+    networks:
+      - liquidms-net
+      - external
+  api-srb2legacy: 
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=0
+    build: 
+      dockerfile: dist/apis/srb2legacy/Dockerfile
+    depends_on:
+      - db
+    volumes:
+      - type: bind
+        source: dist/apis/srb2legacy
+        target: /usr/src/app
+    ports:
+      - "28900:5029" # PHP FastCGI port
+    networks:
+      - liquidms-net
+      - external
+  frontend: #has php-fpm with extensions and composer, check Dockerfile!
+    restart: unless-stopped
+    build: 
+      dockerfile: docker/php.Dockerfile #installs necessary modules etc.
+    environment:
+      TZ: $TZ
+      PHP_MEMORY_LIMIT: 1024M
+    depends_on:
+      - caddy
     volumes:
       - type: bind
         read_only: true
@@ -67,14 +112,7 @@ services:
       - external
   snitch: #has php-fpm with extensions and composer, check Dockerfile!
     build: 
-      dockerfile: docker/snitch/Dockerfile #also installs ODBC driver
-      args:
-        ODBC_HOST: $ODBC_HOST
-        ODBC_PORT: $ODBC_PORT
-        MYSQL_DATABASE: $MYSQL_DATABASE
-        MYSQL_USER: $MYSQL_USER
-        MYSQL_PASSWORD: $MYSQL_PASSWORD
-        MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      dockerfile: docker/php.Dockerfile #installs necessary modules etc.
     environment:
       TZ: $TZ
       PHP_MEMORY_LIMIT: 1024M
@@ -86,7 +124,7 @@ services:
     networks:
       - liquidms-net
       - external # Access external nodes
-  liquidms-db:
+  db:
     restart: always
     image: mariadb:latest
     environment:
