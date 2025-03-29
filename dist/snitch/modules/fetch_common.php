@@ -345,31 +345,23 @@ function snitch_snitchv1(Array $data, String $url){
 	}
 	rtrim($csvContent, "\n");
 
-	//echo $csvContent;
+	/*/ NEW METHOD: cURL /*/
 
-	$httpcontent =  "--{$multipart_boundary}\r\n".
-		"Content-Disposition: form-data; name=\"{$multipart_fieldname}\"; filename=\"{$multipart_filename}\"\r\n".
-		"Content-Type: text/csv; header=absent\r\n\r\n".
-		$csvContent."\r\n";
+	$cStringFile = new CurlStringFile($csvContent, $multipart_filename, "text/csv; header=absent");
 
-	// signal end of request (note the trailing "--")
-	$httpcontent .= "--{$multipart_boundary}--\r\n";
+	$creq = curl_init();
 
-	//echo $httpcontent."\n";
+	curl_setopt_array($creq, [
+		CURLOPT_URL =>  $url,
+		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_CUSTOMREQUEST => "POST",
+		CURLOPT_POST => true,
+		CURLOPT_POSTFIELDS => [$cStringFile],
+		CURLOPT_HTTPHEADER =>[ "Content-type: multipart/form-data"]
+		]);
 
-	$http_context = stream_context_create([
-		"http" => [
-			"method"  => "POST",
-			// Request headers here
-			"header"  => "Content-type: multipart/form-data; boundary={$multipart_boundary}",
-			"content" => $httpcontent,
-		]
-	]);
-
-	$response_tmp = file_get_contents( $url, false, $http_context);
-	if($response_tmp !== false){
-		$http_response .= $response_tmp;
-	}
+	curl_exec($creq);
+	curl_close($creq);
 
 	return $http_response."\n";
 }
