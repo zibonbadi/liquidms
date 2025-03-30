@@ -337,8 +337,18 @@ function snitch_snitchv1(Array $data, String $url){
 
 		// Write CSV to var. Iterative opening may
 		// be slower, but guarantees clean output
+		
+		// Cleanup bc the intermediate array changed
+		$dRow_clean = [
+			"host" => $dataRow["host"],
+			"port" => $dataRow["port"],
+			"servername" => $dataRow["servername"],
+			"rommname" => $dataRow["roomname"],
+			"version" => $dataRow["version"],
+			"origin" => $dataRow["_origin"],
+		];
 		$tmp = fopen('php://temp', 'r+');
-		$csvChars = fputcsv($tmp, $dataRow);
+		$csvChars = fputcsv($tmp, $dRow_clean);
 		rewind($tmp);
 		$csvContent .= fread($tmp, $csvChars);
 		fclose($tmp);
@@ -360,7 +370,7 @@ function snitch_snitchv1(Array $data, String $url){
 		CURLOPT_HTTPHEADER =>[ "Content-type: multipart/form-data"]
 		]);
 
-	curl_exec($creq);
+	$http_response = curl_exec($creq);
 	curl_close($creq);
 
 	return $http_response."\n";
