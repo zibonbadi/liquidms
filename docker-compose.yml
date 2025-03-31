@@ -43,7 +43,6 @@ services:
   api-snitch: #has php-fpm with extensions and composer, check Dockerfile!
     restart: unless-stopped
     build: 
-      dockerfile: docker/apis/srb2http/Dockerfile #also installs PDO driver
       dockerfile: docker/php.Dockerfile #installs necessary modules etc.
     environment:
       TZ: $TZ
@@ -53,9 +52,9 @@ services:
       - db 
     volumes:
       - type: bind
-        source: dist/
+        source: dist/apis/snitch
         read_only: true
-        target: /var/www/liquidms/
+        target: /var/www/html
     ports:
       - "9000:9000" # PHP FastCGI port
     networks:
@@ -112,7 +111,7 @@ services:
       - external
   snitch: #has php-fpm with extensions and composer, check Dockerfile!
     build: 
-      dockerfile: docker/php.Dockerfile #installs necessary modules etc.
+      dockerfile: docker/snitch/Dockerfile #installs necessary modules etc.
     environment:
       TZ: $TZ
       PHP_MEMORY_LIMIT: 1024M
