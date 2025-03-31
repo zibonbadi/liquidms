@@ -121,17 +121,17 @@ class NetgameModel{
 						switch($op){
 						case "create":{ //Create
 							$query = "REPLACE INTO `{$servtable}` (`host`, `port`, `servername`, `version`, `roomname`, `origin`) ".
-							"VALUES ('".self::map4to6($ip)."', '{$port}', '".str_replace("'","\'", $title)."', '{$version}', '{$roomname}', 'localhost')";
+							"VALUES (INET6_ATON('".self::map4to6($ip)."'), '{$port}', '".str_replace("'","\'", $title)."', '{$version}', '{$roomname}', 'localhost')";
 							break;
 						}
 						case "update":{ //Update
-							$query = "UPDATE `{$servtable}` SET `servername` = '".str_replace("'","\'", $title)."' WHERE `{$servtable}`.`host` = '"
-										.self::map4to6($ip)."' AND `{$servtable}`.`port` = '{$port}'";
+							$query = "UPDATE `{$servtable}` SET `servername` = '".str_replace("'","\'", $title)."' WHERE `{$servtable}`.`host` = INET6_ATON('"
+										.self::map4to6($ip)."') AND `{$servtable}`.`port` = '{$port}'";
 							 break;
 						}
 						case "delete":
 						default:{ //Remove
-							$query = "DELETE FROM `{$servtable}` WHERE `{$servtable}`.`host` = '".self::map4to6($ip)."' AND `{$servtable}`.`port` = '{$port}'";
+							$query = "DELETE FROM `{$servtable}` WHERE `{$servtable}`.`host` = INET6_ATON('".self::map4to6($ip)."') AND `{$servtable}`.`port` = '{$port}'";
 							break;
 						}
 						}
@@ -157,7 +157,7 @@ class NetgameModel{
 				}else if($room != NULL){ 
 					$querycondition = "WHERE {$roomtable}._id = {$room}";
 				}
-				$query = "SELECT host, port, servername, {$roomtable}._id AS roomid, {$roomtable}.roomname, version, {$servtable}.origin FROM {$servtable} INNER JOIN {$roomtable} ON {$servtable}.roomname = {$roomtable}.roomname AND {$roomtable}.origin = {$servtable}.origin {$querycondition};";
+				$query = "SELECT INET6_NTOA(host) AS host, port, servername, {$roomtable}._id AS roomid, {$roomtable}.roomname, version, {$servtable}.origin FROM {$servtable} INNER JOIN {$roomtable} ON {$servtable}.roomname = {$roomtable}.roomname AND {$roomtable}.origin = {$servtable}.origin {$querycondition};";
 				#echo $query."\n";
 				$serverdata = self::$db->execute($query);
 				#var_dump($serverdata);

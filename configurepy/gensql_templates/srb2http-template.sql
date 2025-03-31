@@ -20,7 +20,7 @@ USE `$dbname`;
 
 -- server list with all automations
 CREATE TABLE IF NOT EXISTS `$servtabname` (
-  `host` BINARY(6) NOT NULL,
+  `host` VARBINARY(16) NOT NULL,
   `port` SMALLINT(6) unsigned NOT NULL,
   `servername` VARCHAR(256) NOT NULL,
   `version` VARCHAR(16) NOT NULL,
@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS `$versiontabname` (
 
 CREATE TABLE IF NOT EXISTS `$bantabname` (
   `_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `ip_start` BINARY(6) NOT NULL,
-  `ip_end` BINARY(6) NOT NULL,
+  `ip_start` VARBINARY(16) NOT NULL,
+  `ip_end` VARBINARY(16) NOT NULL,
   `expire` DATETIME DEFAULT adddate(CURRENT_TIMESTAMP,1),
   `comment` VARCHAR(128),
   PRIMARY KEY (`_id`)
@@ -88,58 +88,52 @@ INSERT INTO `$versiontabname` (`modid`, `gameid`,`name`) VALUES
 ON DUPLICATE KEY UPDATE
 `modid`=VALUES(`modid`), `gameid`=VALUES(`gameid`), `name`=VALUES(`name`);
 
+
 -- Behaviour
 
 DELIMITER #
 
+CREATE PROCEDURE IF NOT EXISTS liquidms.rebuild_roomlist ()
+BEGIN
+DELETE FROM `$roomtabname` WHERE _id > 99;
+INSERT INTO `$roomtabname` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+100 AS `_id`,`roomname`,`origin` FROM `$servtabname` WHERE `origin` <> 'localhost' GROUP BY `roomname`;
+DELETE FROM `$roomtabname` WHERE roomname = '' OR origin = '' ;
+END#
+
 CREATE TRIGGER IF NOT EXISTS `roomlist_rebuild_insert`
    AFTER INSERT ON `$servtabname` FOR EACH ROW
-   BEGIN
-   DELETE FROM `$roomtabname` WHERE _id > 99;
-   INSERT INTO `$roomtabname` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+100 AS `_id`,`roomname`,`origin` FROM `$servtabname` WHERE `origin` <> 'localhost' GROUP BY `roomname`;
-   DELETE FROM `$roomtabname` WHERE roomname = '' OR origin = '' ;
-   END
-   #
+BEGIN
+CALL rebuild_roomlist;
+END
+#
 
 CREATE TRIGGER IF NOT EXISTS `roomlist_rebuild_update`
    AFTER UPDATE ON `$servtabname` FOR EACH ROW
-   BEGIN
-   DELETE FROM `$roomtabname` WHERE _id > 99;
-   INSERT INTO `$roomtabname` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+100 AS `_id`,`roomname`,`origin` FROM `$servtabname` WHERE `origin` <> 'localhost' GROUP BY `roomname`;
-   DELETE FROM `$roomtabname` WHERE roomname = '' OR origin = '' ;
-   END#
+BEGIN
+CALL rebuild_roomlist;
+END
+#
 
 CREATE TRIGGER IF NOT EXISTS `roomlist_rebuild_delete`
    AFTER DELETE ON `$servtabname` FOR EACH ROW
-   BEGIN
-   DELETE FROM `$roomtabname` WHERE _id > 99;
-   INSERT INTO `$roomtabname` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+100 AS `_id`,`roomname`,`origin` FROM `$servtabname` WHERE `origin` <> 'localhost' GROUP BY `roomname`;
-   DELETE FROM `$roomtabname` WHERE roomname = '' OR origin = '' ;
-   END#
+BEGIN
+CALL rebuild_roomlist;
+END
+#
 
+CREATE EVENT IF NOT EXISTS serverlist_cleanup
+   ON SCHEDULE EVERY 1 MINUTE
+   COMMENT 'Removes server entries older than 20 minutes'
+DO BEGIN
+DELETE FROM `$servtabname` WHERE updated_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 20 MINUTE);
+DELETE `$servtabname` FROM `$servtabname` JOIN `bans` WHERE INET6_ATON(`$servtabname`.`host`) =  INET6_ATON(`bans`.`host`);
+END#
 
 -- 'Removes expired ban entries'
 CREATE TRIGGER IF NOT EXISTS banlist_cleanup
    BEFORE INSERT ON `$servtabname` FOR EACH ROW -- BEFORE to support temp bans
    BEGIN
-   DELETE FROM $bantabname WHERE expire < CURRENT_TIMESTAMP AND expire <> NULL;
-   END#
-
--- 'Removes banned entries'
-CREATE TRIGGER IF NOT EXISTS banlist_cleanup
-   AFTER INSERT ON `$servtabname` FOR EACH ROW
-   BEGIN
-   DELETE `$servtabname` FROM `$servtabname`
-	   INNER JOIN `$bantabname` ON `$servtabname`.`host`
-	   BETWEEN `$bantabname`.`ip_start` AND `$bantabname`.`ip_end`;
-   -- Delet this
-   END#
-
--- 'Removes server entries older than 20 minutes'
-CREATE TRIGGER IF NOT EXISTS serverlist_cleanup
-   BEFORE INSERT ON `$servtabname` FOR EACH ROW
-   BEGIN
-   DELETE FROM $servtabname WHERE updated_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 20 MINUTE);
+   DELETE FROM `$bantabname` WHERE expire < CURRENT_TIMESTAMP AND expire <> NULL;
    END#
 
 DELIMITER ;
