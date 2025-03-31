@@ -343,8 +343,8 @@ function snitch_snitchv1(Array $data, String $url){
 			"host" => $dataRow["host"],
 			"port" => $dataRow["port"],
 			"servername" => $dataRow["servername"],
-			"rommname" => $dataRow["roomname"],
 			"version" => $dataRow["version"],
+			"rommname" => $dataRow["roomname"],
 			"origin" => $dataRow["_origin"],
 		];
 		$tmp = fopen('php://temp', 'r+');
