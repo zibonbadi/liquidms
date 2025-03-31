@@ -30,9 +30,9 @@ $config = ConfigModel::getConfig(); // Local var kludge
 $fetchjobs = [];
 foreach( $argv as $argno => $argval ){
    if($argval === $argv[0]){ continue; } // Skip filename invocation
-   if(array_key_exists($argval, $config["from"])){ $fetchjobs[$argval] = $config["fetch"][$argval]; }
+   if(array_key_exists($argval, $config["src"])){ $fetchjobs[$argval] = $config["fetch"][$argval]; }
 }
-if( empty($fetchjobs)){ $fetchjobs = $config["from"]; }
+if( empty($fetchjobs)){ $fetchjobs = $config["src"]; }
 
 
 

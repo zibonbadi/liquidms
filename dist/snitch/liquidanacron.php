@@ -30,9 +30,9 @@ $config = ConfigModel::getConfig(); // Local var kludge
 * @params:
 * -1 [JOB], --oneshot [JOB]: Run only once, w/o/ JOB, it will run all jobs.
 */
-$FLAGS = getopt(
-	"1::",
-);
+$posarg_idx = null;
+$FLAGS = getopt( "1::", [], $posarg_idx);
+$posargs = array_slice($argv, $posarg_idx);
 
 // Start "daemon"
 echo "[".date(DateTime::ISO8601, time())."] liquidanacron UP\n";
@@ -48,39 +48,27 @@ do{
 	$time_aftersnitch = NULL;
 	$time_afterall = NULL;
 
-	// Define FETCH schedule
-	foreach( $config["src"] as $job_i => $job_v){
+	/* Oneshot flag? -> Hijack the scheduler */ 
+	if( $FLAGS !== false && array_key_exists("1", $FLAGS)){
+		echo "[".date(DateTime::ISO8601, $time_before)."] ONESHOT mode. Only do one job.\n";
+	}
 
-		/* Oneshot flag? -> Hijack the scheduler */ 
-		if( $FLAGS !== false && array_key_exists("1", $FLAGS)){
-			switch(gettype($FLAGS["1"])){
-			case "bool":{
-				// No param -> Oneshot all jobs
-				$todo_fetch = $config["src"];
-				break 2;
+	// Build FETCH list
+	if($posargs != []){
+		// Filter out nonexistent jobs
+		foreach( $posargs as $jobname){
+			if(array_key_exists($jobname, $config["src"])){
+				$todo_fetch[$jobname] = $config["src"][$jobname];
 			}
-			case "string":{
-				if($job_i === $FLAGS["1"]){
-					echo "[".date(DateTime::ISO8601, $time_before)."] (ONESHOT) FETCH job added: {$job_i}\n";
-					$todo_fetch[$job_i] = $job_v;
-					break 2; // The only one just matched -> We can move on
-				}
-				break;
-			}
-			case "array":{
-				foreach($FLAGS["1"] as $flagjob){
-					if($job_i === $flagjob){
-						echo "[".date(DateTime::ISO8601, $time_before)."] (ONESHOT) FETCH job added: {$job_i}\n";
-						$todo_fetch[$job_i] = $job_v;
-					}
-				}
-				break;
-			}
-			default:{ break; }
-			}
-			continue;
 		}
+	}else{
+		// None defined - just use all of them
+		$todo_fetch = $config["src"];
+	}
 
+
+	// Define FETCH schedule
+	$todo_fetch = array_filter($todo_fetch, function($job_v, $job_i) use($timestamps,$time_before){
 		// Job valid for anacron?
 		if( array_key_exists("minute", $job_v) &&
 				( gettype($job_v["minute"]) == "integer" ) &&
@@ -95,19 +83,19 @@ do{
 			){
 				// Too early, skip
 				echo "[".date(DateTime::ISO8601, $time_before)." {$job_i}] FETCH job skipped. (too recent: {$timestamps["src"][$job_i]["updated_at"]})\n";
-				continue;
+				return false;
 			}else{
 				// No recent timestamp? WE'LL MAKE ONE!!
 				// (after the HTTP requests are done)
 				echo "[".date(DateTime::ISO8601, $time_before)." {$job_i}] FETCH job added to schedule:  \"{$job_i}\"\n";
-				$todo_fetch[$job_i] = $job_v;
+				return true;
 			}
 			
 		}else{
 			echo "[".date(DateTime::ISO8601, time())." {$job_i}] FETCH job has been skipped. (minute int missing or invalid)\n";
-			continue;
+			return false;
 		}
-	}
+	}, ARRAY_FILTER_USE_BOTH);
 
 	// Define SNITCH schedule
 	foreach( $config["dest"] as $job_i => $job_v){
