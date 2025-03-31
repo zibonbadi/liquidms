@@ -23,6 +23,7 @@ class ConfigModel{
 
 	private static $instance = null;
 	private static $config = [
+		"basepath" => "",
 		"db" => [
 			"dsn" => "liquidms",
 			"user" => "sonic",
@@ -63,6 +64,10 @@ class ConfigModel{
 
 		static function setConfig(Array $newconfig){
 			// Cleanup config block
+			if( self::child_assertType("basepath", $newconfig, "string") ){
+				self::$config["basepath"] = $newconfig["basepath"];
+			}
+
 			if( self::child_assertType("modules", $newconfig, "array") ){
 				foreach($newconfig["modules"] as $field_index=> $field_val){
 					if( self::child_assertType($field_index, $newconfig["modules"], "string") ){
