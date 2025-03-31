@@ -27,7 +27,7 @@ def state_main():
             match choice:
                 case "y"|"Y":
                     return states["genconfig"]["main"]
-                case "g"|"G":
+                case "s"|"S":
                     return states["gensql"]["main"]
                 case "q"|"Q":
                     return states["quit"]
