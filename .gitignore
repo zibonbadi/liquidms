@@ -10,6 +10,7 @@ fetch.crontab
 **/*.yaml
 !**/*.example
 
+.directory
 
 ### Python stuff ###
 # Byte-compiled / optimized / DLL files
