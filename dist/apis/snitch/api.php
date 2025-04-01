@@ -86,8 +86,9 @@ $router->with("{$basepath}", function() use ($router){
 		//$csvdata[] = str_getcsv($request->body());
 		$csvdata = [];
 		$files = $request->files();
+		$settings = ConfigModel::getConfig();
 
-		error_log($request->ip()." provided the following files:\n".yaml_emit($files->all()));
+		if($settings["loglevel"] == "verbose"){ error_log($request->ip()." provided the following files:\n".yaml_emit($files->all())); }
 
 		if(empty($files) ||
 		$files == NULL){
@@ -129,7 +130,7 @@ $router->with("{$basepath}", function() use ($router){
 				($netgame["origin"] == "localhost") ||
 				($netgame["origin"] == "127.0.0.1")
 			){
-				error_log("Removing invalid netgame \"{$netgame["servername"]}\"");
+				if($settings["loglevel"] == "verbose"){ error_log("Removing invalid netgame \"{$netgame["servername"]}\""); }
 				unset($csvdata[$netgameId]);
 			}
 		}
@@ -143,7 +144,7 @@ $router->with("{$basepath}", function() use ($router){
 			return;
 		}
 
-		error_log($request->ip()." snitched the following netgames:\n".yaml_emit($csvdata));
+		if($settings["loglevel"] == "verbose"){ error_log($request->ip()." snitched the following netgames:\n".yaml_emit($csvdata)); }
 
 		// I'll think of something
 		$dbresponse = LiquidMS\SRB2HTTP\NetgameModel::getInstance()->pushServers($csvdata);

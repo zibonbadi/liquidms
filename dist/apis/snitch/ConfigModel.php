@@ -24,6 +24,7 @@ class ConfigModel{
 	private static $instance = null;
 	private static $config = [
 		"basepath" => "",
+		"loglevel" => "quiet",
 		"db" => [
 			"dsn" => NULL,
 			"user" => NULL,
@@ -61,6 +62,10 @@ class ConfigModel{
 			// Cleanup config block
 			if( self::child_assertType("basepath", $newconfig, "string") ){
 				self::$config["basepath"] = $newconfig["basepath"];
+			}
+
+			if( self::child_assertType("loglevel", $newconfig, "string") ){
+				self::$config["loglevel"] = $newconfig["loglevel"];
 			}
 
 			if( self::child_assertType("db", $newconfig, "array") ){
