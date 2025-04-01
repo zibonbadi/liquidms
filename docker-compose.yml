@@ -18,7 +18,7 @@ services:
         source: docker/caddy/Caddyfile
         target: /etc/caddy/Caddyfile
       - type: bind
-        source: dist/
+        source: src/
         target: /srv
   api-srb2http: #has php-fpm with extensions and composer, check Dockerfile!
     restart: unless-stopped
@@ -32,7 +32,7 @@ services:
       - db 
     volumes:
       - type: bind
-        source: dist/apis/srb2http
+        source: src/apis/srb2http
         read_only: true
         target: /var/www/html
     ports:
@@ -52,7 +52,7 @@ services:
       - db 
     volumes:
       - type: bind
-        source: dist/apis/snitch
+        source: src/apis/snitch
         read_only: true
         target: /var/www/html
     ports:
@@ -68,7 +68,7 @@ services:
       PHP_MEMORY_LIMIT: 1024M
     volumes:
       - type: bind
-        source: dist/apis/srb2query
+        source: src/apis/srb2query
         target: /var/www/liquidms/
     ports:
       - "5029:5029" # PHP FastCGI port
@@ -80,12 +80,12 @@ services:
     environment:
       - PYTHONUNBUFFERED=0
     build: 
-      dockerfile: dist/apis/srb2legacy/Dockerfile
+      dockerfile: src/apis/srb2legacy/Dockerfile
     depends_on:
       - db
     volumes:
       - type: bind
-        source: dist/apis/srb2legacy
+        source: src/apis/srb2legacy
         target: /usr/src/app
     ports:
       - "28900:5029" # PHP FastCGI port
@@ -104,7 +104,7 @@ services:
     volumes:
       - type: bind
         read_only: true
-        source: dist/
+        source: src/
         target: /var/www/liquidms/
     networks:
       - liquidms-net
