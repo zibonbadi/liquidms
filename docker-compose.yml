@@ -39,7 +39,25 @@ services:
       - "9000:9000" # PHP FastCGI port
     networks:
       - liquidms-net
-      - external
+  api-srb2kart: #has php-fpm with extensions and composer, check Dockerfile!
+    restart: unless-stopped
+    build: 
+      dockerfile: docker/php.Dockerfile #installs necessary modules etc.
+    environment:
+      TZ: $TZ
+      PHP_MEMORY_LIMIT: 1024M
+    depends_on:
+      - caddy
+      - db 
+    volumes:
+      - type: bind
+        source: src/apis/srb2kart
+        read_only: true
+        target: /var/www/html
+    ports:
+      - "9000:9000" # PHP FastCGI port
+    networks:
+      - liquidms-net
   api-snitch: #has php-fpm with extensions and composer, check Dockerfile!
     restart: unless-stopped
     build: 
