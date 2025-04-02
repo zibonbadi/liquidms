@@ -67,6 +67,7 @@ def state_gensql_srb2http():
         'servtabname': f'{db_prefix}_servers',
         'versiontabname': f'{db_prefix}_versions',
         'bantabname': f'{db_prefix}_bans',
+        'prefix': db_prefix,
         'customroomlist': croom_cmd,
         'custompermabans': cpban_cmd,
     }
@@ -76,7 +77,58 @@ def state_gensql_srb2http():
     return states["gensql"]["main"]
 
 def state_gensql_srb2kart():
-    print("Not implemented yet.")
+    ofilename = input('SQL script name (default "docker/db/initdb.d/srb2kart.sql"): ') or 'docker/db/initdb.d/srb2kart.sql'
+    db_name = input('Database name (default "liquidms"): ') or "liquidms"
+    db_prefix = input('Table prefix (default "srb2kart"): ') or "srb2kart"
+
+    gamelist = []
+    cpbanlist = []
+
+    # --- Get custom games from user ---
+    print("-- Hosted games --")
+    while True:
+        game = input('Game handle (e.g. "SRB2Kart"; leave empty to skip): ') or None
+        if game == None:
+            break
+        version_name = input('Game version name (e.g. "v1.6"): ') or None
+        version_id = input('Game version ID (e.g. "10"): ') or None
+        print('Game version ID (empty line to end): ')
+        gamelist.append(f"('{game}', {version_id}, '{version_name}')")
+
+    # --- Get custom permabans from user ---
+    print("-- Custom permaban list --")
+    while True:
+        ip_start = input('Starting IP (empty to skip): ') or None
+        if ip_start == None:
+            break
+        ip_end = input('Ending IP: ') or ip_start
+        ban_comment = input('Comment (for administrative notice)')
+        cpbanlist.append(f"('{ip_start}', '{ip_end}', NULL, '{ban_comment}')")
+
+    # --- Create custom data CMDs ---
+    gamelist_cmd = "\n".join([ f"INSERT INTO `{db_prefix}_versions` (`game`, `version_id`, `version_name`) VALUES",
+                ",\n".join(gamelist),
+                "ON DUPLICATE KEY UPDATE game=VALUES(game), version_id=VALUES(version_id), version_name=VALUES(version_name);"
+                ]) if gamelist else ""
+
+    cpban_cmd = "\n".join([ f"INSERT INTO `{db_prefix}_bans` (`ip_first`,`ip_last`,`expire`,`comment`) VALUES",
+                ",\n".join(cpbanlist),
+                "ON DUPLICATE KEY",
+                "UPDATE _id=VALUES(_id), ip_first=VALUES(ip_first), ip_last=VALUES(ip_last), expire=VALUES(expire), comment=VALUES(comment);"
+                ]) if cpbanlist else ""
+
+    subst_vars = {
+        'dbname': db_name,
+        'servtabname': f'{db_prefix}_servers',
+        'versiontabname': f'{db_prefix}_versions',
+        'bantabname': f'{db_prefix}_bans',
+        'prefix': db_prefix,
+        'gamelist': gamelist_cmd,
+        'custompermabans': cpban_cmd,
+    }
+
+
+    _generate_sql(ofilename, 'configurepy/gensql_templates/srb2kart-template.sql', db_prefix, subst_vars)
     return states["gensql"]["main"]
 
 def state_gensql_srb2legacy():
