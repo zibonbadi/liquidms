@@ -22,36 +22,51 @@
 * --password=[PASS]: Database Password
 */
 $posarg_idx = null;
-$FLAGS = getopt("", [
+$FLAGS = getopt("f:", [
+"file:",
 "user:",
 "password:",
 "dsn:",
 ], $posarg_idx);
 
+$settings = [];
 $posargs = array_slice($argv, $posarg_idx);
 				
-// Sanity check
-if( array_key_exists("dsn", $FLAGS) ){ echo "No DSN string given.\n"; return false; }
-if( array_key_exists("user", $FLAGS) ){ echo "No user name string given.\n"; return false; }
-if( array_key_exists("password", $FLAGS) ){ echo "No password string given.\n"; return false; }
+if( array_key_exists("f", $FLAGS) ){  # Prefer BSD flag
+	$settings = yaml_parse_file($FLAGS["f"], -1); 
+}else if( array_key_exists("file", $FLAGS) ){
+	$settings = yaml_parse_file($FLAGS["file"], -1);
+}else{
+	// Get info from argv
+	
+	// Sanity check
+	if( !array_key_exists("dsn", $FLAGS) ){ echo "No DSN string given.\n"; return false; }
+	if( !array_key_exists("user", $FLAGS) ){ echo "No user name string given.\n"; return false; }
+	if( !array_key_exists("password", $FLAGS) ){ echo "No password string given.\n"; return false; }
 
-$query_a = [];
-foreach($posargs as $pa_name => $pa_value){ $query_a[$pa_name] = file_get_contents($pa_value); }
-$query = implode(";\n", $query_a);
+	$settings["db"] = [
+		"dsn" => $FLAGS["dsn"],
+		"user" => $FLAGS["user"],
+		"password" => $FLAGS["password"],
+	];
 
-$hdl = new \PDO( $FLAGS["dsn"], $FLAGS["user"], $FLAGS["password"] );
+	$query_a = [];
+	foreach($posargs as $pa_name => $pa_value){ $query_a[$pa_name] = file_get_contents($pa_value); }
+	$settings["query"] = implode(";\n", $query_a);
+}
 
+$hdl = new \PDO( $settings["db"]["dsn"], $settings["db"]["user"], $settings["db"]["password"] );
 $hdl->beginTransaction();
 
 try{
-	$statement = $hdl->prepare($query);
+	$statement = $hdl->prepare($settings["query"]);
 	$result = $statement->execute();
 	$hdl->commit();
 	if($result == false){ 
 			return [
 				"error" => $hdl::getCode(), 
 				"message" => $hdl::getMessage(),
-				"query" => $query,
+				"query" => $settings["query"],
 			];
 	}else{
 			return [
@@ -67,8 +82,7 @@ try{
 	return [
 			"error" => $e::getCode(), 
 			"message" => $e::getMessage(),
-			"query" => $query,
+			"query" => $settings["query"],
 	];
-}
 }
 ?>

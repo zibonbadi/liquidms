@@ -26,6 +26,18 @@ support [scheduled events][sqlevent].
 
     $ php run_sql.php --user=[USER] --password=[PASSWORD] --dsn=[DSN STRING] [SQL SCRIPT...]
 
+`-f[FILE] --file [FILE]`
+: Suppresses all other flags. Instead all info is loaded from *FILE*.
+  *FILE* is expected to be a YAML file with the following structure:
+
+```yaml
+db:
+    dsn: <DSN connection string>
+    user: <DB user>
+    password: <DB user's password>
+query: <QUERY STRING>
+```
+
 `user`
 : Database user.
 
