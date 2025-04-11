@@ -33,9 +33,11 @@ $settings = [];
 $posargs = array_slice($argv, $posarg_idx);
 				
 if( array_key_exists("f", $FLAGS) ){  # Prefer BSD flag
-	$settings = yaml_parse_file($FLAGS["f"], -1); 
+	foreach( yaml_parse_file($FLAGS["f"], -1) as $yfile)
+		$settings += $yfile;
 }else if( array_key_exists("file", $FLAGS) ){
-	$settings = yaml_parse_file($FLAGS["file"], -1);
+	foreach( yaml_parse_file($FLAGS["file"], -1) as $yfile)
+		$settings += $yfile;
 }else{
 	// Get info from argv
 	
