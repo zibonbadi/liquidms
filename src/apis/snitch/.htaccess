@@ -1,12 +1,5 @@
-DirectoryIndex index.php
-
 RewriteEngine On
 
-# Add trailing slash to stop confusing the shared hoster
-RewriteCond %{REQUEST_URI} /+[^.]+$
-RewriteRule ^(.+[^/])$ %{REQUEST_URI}/ [R=301,L]
-
-# Redirect EVERYTHING!
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . index.php [L]
+RewriteCond %{THE_REQUEST} /public/([^\s?]*) [NC]
+RewriteRule ^ %1 [L,NE,R=302]
+RewriteRule ^(.*)$ public/index.php?$1 [L,QSA]
