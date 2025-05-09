@@ -1,8 +1,5 @@
-# Redirect EVERYTHING!
-DirectoryIndex index.php
-
 RewriteEngine On
 
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . index.php [L]
+RewriteCond %{THE_REQUEST} /public/([^\s?]*) [NC]
+RewriteRule ^ %1 [L,NE,R=302]
+RewriteRule ^(.*)$ public/index.php?$1 [L,QSA]
