@@ -106,7 +106,7 @@ services:
         source: src/apis/srb2legacy
         target: /usr/src/app
     ports:
-      - "28900:5029" # PHP FastCGI port
+      - "28900:28900" # Standard SRB2Legacy port
     networks:
       - liquidms-net
       - external
