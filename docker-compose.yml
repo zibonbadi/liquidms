@@ -96,7 +96,7 @@ services:
   api-srb2legacy: 
     restart: unless-stopped
     environment:
-      - PYTHONUNBUFFERED=0
+      - PYTHONUNBUFFERED=1
     build: 
       dockerfile: src/apis/srb2legacy/Dockerfile
     depends_on:
