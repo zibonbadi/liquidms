@@ -89,6 +89,10 @@ class ConfigModel{
 					if( self::child_assertType("host", $peer_data, "string") ){
 						self::$config["src"][$peer_name]["host"] = $peer_data["host"];
 					}
+					if(
+						self::child_assertType("port", $peer_data, "integer") ){
+						self::$config["src"][$peer_name]["port"] = $peer_data["port"];
+					}
 					if( self::child_assertType("api", $peer_data, "string") ){
 						self::$config["src"][$peer_name]["api"] = $peer_data["api"];
 					}
@@ -99,6 +103,16 @@ class ConfigModel{
 					if(
 						self::child_assertType("http-header", $peer_data, "array") ){
 						self::$config["src"][$peer_name]["http-header"] = $peer_data["http-header"];
+					}
+					// SRB2 Legacy API
+
+					if(
+						self::child_assertType("protocol_version", $peer_data, "integer") ){
+						self::$config["src"][$peer_name]["protocol_version"] = $peer_data["protocol_version"];
+					}
+					if(
+						self::child_assertType("server_msg", $peer_data, "string") ){
+						self::$config["src"][$peer_name]["server_msg"] = $peer_data["server_msg"];
 					}
 				}
 			}

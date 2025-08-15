@@ -51,3 +51,10 @@ dest: # List of destinations to push to
     minute: x # Execute every x minutes. Values <1 will be skipped
 ...
 ```
+
+#### SRB2 Legacy API
+
+Fetch jobs running against the `srb2legacy` API require two additional arguments:
+
+1. `protocol_version: 12 | 21`: Use 1.09-style or 2.1-style master server protocol.
+2. `server_msg: GET_SERVER_MSG | GET_SHORT_SERVER_MSG | GET_EXT_SERVER_MESSAGE`: Determines the server message to send to the host. `GET_EXT_SERVER_MESSAGE` changes the response data structure to allow IPv6 support. It is thus incompatible with vanilla SRB2 clients and servers.
