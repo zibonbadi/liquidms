@@ -2,25 +2,7 @@
 # or use reverse proxy such as nginx or caddy to map localhost:16000 or liquidms:16000 to your URI
 name: liquidms
 services:
-  caddy: #caddy reverse-proxy for the FastCGI-sattelite
-    image: caddy:2.6.2-alpine
-    restart: unless-stopped
-    environment:
-      TZ: $TZ
-    ports:
-      - "443:443" # Provide SSL port
-      - "${LIQUIDMS_PORT}:80" #exposes LiquidMS's 80 port to .env port on the host machine
-    networks:
-      - liquidms-net
-      - external
-    volumes:
-      - type: bind
-        source: docker/caddy/Caddyfile
-        target: /etc/caddy/Caddyfile
-      - type: bind
-        source: src/
-        target: /srv
-  api-srb2http: #has php-fpm with extensions and composer, check Dockerfile!
+  http: #has php-fpm with extensions and composer, check Dockerfile!
     restart: unless-stopped
     build: 
       dockerfile: docker/php.Dockerfile #installs necessary modules etc.
@@ -28,55 +10,22 @@ services:
       TZ: $TZ
       PHP_MEMORY_LIMIT: 1024M
     depends_on:
-      - caddy
       - db 
     volumes:
       - type: bind
-        source: src/apis/srb2http
+        source: src/apis
         read_only: true
-        target: /var/www/html
-    ports:
-      - "9000:9000" # PHP FastCGI port
-    networks:
-      - liquidms-net
-  api-srb2kart: #has php-fpm with extensions and composer, check Dockerfile!
-    restart: unless-stopped
-    build: 
-      dockerfile: docker/php.Dockerfile #installs necessary modules etc.
-    environment:
-      TZ: $TZ
-      PHP_MEMORY_LIMIT: 1024M
-    depends_on:
-      - caddy
-      - db 
-    volumes:
+        target: /var/www/html/api
       - type: bind
-        source: src/apis/srb2kart
+        source: src/frontend
         read_only: true
-        target: /var/www/html
+        target: /var/www/html/web
     ports:
-      - "9000:9000" # PHP FastCGI port
+      - "443:443" # SSL/HTTPS
+      - "80:80" # HTTP
     networks:
       - liquidms-net
-  api-snitch: #has php-fpm with extensions and composer, check Dockerfile!
-    restart: unless-stopped
-    build: 
-      dockerfile: docker/php.Dockerfile #installs necessary modules etc.
-    environment:
-      TZ: $TZ
-      PHP_MEMORY_LIMIT: 1024M
-    depends_on:
-      - caddy
-      - db 
-    volumes:
-      - type: bind
-        source: src/apis/snitch
-        read_only: true
-        target: /var/www/html
-    ports:
-      - "9000:9000" # PHP FastCGI port
-    networks:
-      - liquidms-net
+      - external  
   api-srb2query: 
     restart: unless-stopped
     build: 
@@ -99,45 +48,38 @@ services:
       - PYTHONUNBUFFERED=1
     build: 
       dockerfile: src/apis/srb2legacy/Dockerfile
+    develop:
+      watch:
+        - action: rebuild
+          path: src/apis/srb2legacy/
+          target: /usr/src/app/
     depends_on:
       - db
-    volumes:
-      - type: bind
-        source: src/apis/srb2legacy
-        target: /usr/src/app
+    #volumes:
+    #  - type: bind
+    #    source: src/apis/srb2legacy
+    #    target: /usr/src/app/
     ports:
       - "28900:28900" # Standard SRB2Legacy port
-    networks:
-      - liquidms-net
-      - external
-  frontend: #has php-fpm with extensions and composer, check Dockerfile!
-    restart: unless-stopped
-    build: 
-      dockerfile: docker/php.Dockerfile #installs necessary modules etc.
-    environment:
-      TZ: $TZ
-      PHP_MEMORY_LIMIT: 1024M
-    depends_on:
-      - caddy
-    volumes:
-      - type: bind
-        read_only: true
-        source: src/
-        target: /var/www/liquidms/
     networks:
       - liquidms-net
       - external
   snitch: #has php-fpm with extensions and composer, check Dockerfile!
     build: 
       dockerfile: docker/snitch/Dockerfile #installs necessary modules etc.
+    develop:
+      watch:
+        - action: rebuild
+          path: src/liquidanacron/
+          target: /var/www/liquidms
     environment:
       TZ: $TZ
       PHP_MEMORY_LIMIT: 1024M
-    volumes:
-      - type: bind
-        read_only: true
-        source: docker/snitch/config.yaml
-        target: /var/www/liquidms/config.yaml
+    #volumes:
+    #  - type: bind
+    #    read_only: true
+    #    source: docker/snitch/config.yaml
+    #    target: /var/www/liquidms/config.yaml
     networks:
       - liquidms-net
       - external # Access external nodes

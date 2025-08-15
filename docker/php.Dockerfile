@@ -1,4 +1,4 @@
-FROM php:8.1-fpm
+FROM php:8.1-apache
 
 RUN apt-get update && apt-get install -y \
 	libonig-dev \
@@ -39,6 +39,8 @@ RUN docker-php-ext-install \
 
 RUN docker-php-ext-enable sockets pdo mbstring pdo_mysql pdo_odbc yaml
 
+# Enable RewriteEngine for Apaache HTTPd
+RUN a2enmod rewrite
 
 # check that everything was indeed installed
 RUN php -i|grep pdo \
