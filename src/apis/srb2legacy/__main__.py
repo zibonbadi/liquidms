@@ -123,7 +123,7 @@ class NetgameDB():
                 roomname = None
                 if int(sv_room) > 1 and int(sv_room) < 100:
                     # Get room name
-                    rooms = session.execute(f"SELECT * FROM {self.tbl_rooms} WHERE _id = {sv_room}")
+                    rooms = session.execute(sqlalchemy.text(f"SELECT * FROM {self.tbl_rooms} WHERE _id = {sv_room}"))
                     roomname = rooms.first().roomname
                 
                 print(f"SLOT INTO ROOM {sv_room} - {roomname}")
@@ -132,7 +132,7 @@ class NetgameDB():
                 sv_count = session.execute(sqlalchemy.text(f"SELECT COUNT(*) FROM {self.tbl_servers} WHERE host = '{request.ip}' AND port = {sv_port}"))
                 if sv_count.first()[0] < 1 and (type(ipaddress.ip_address(request.ip)) == IPv4Address or self.ipv6_support):
                     # Construct new netgame object
-                    session.execute(sqlalchemy.text(f"INSERT INTO {self.tbl_servers} (host, port, servername, room, version) VALUES ('{request.ip}', {urllib.parse.quote_plus(sv_port, errors='ignore')}, '{sv_name}', '{sv_ver}')"))
+                    session.execute(sqlalchemy.text(f"INSERT INTO {self.tbl_servers} (host, port, servername, roomname, version) VALUES ('{request.ip}', {urllib.parse.quote_plus(sv_port, errors='ignore')}, '{sv_name}', '{roomname}', '{sv_ver}')"))
                     print(f"ADDED NETGAME {f"{request.ip}:{sv_port}"} () TO DATABASE")
                 elif type(ipaddress.ip_address(request.ip)) == IPv4Address or self.ipv6_support:
                     session.execute(sqlalchemy.text(f"UPDATE {self.tbl_servers} SET host = '{request.ip}', port = {urllib.parse.quote_plus(sv_port, errors='ignore')}, servername = '{sv_name}', room = {sv_room}, version = '{sv_ver}' WHERE host = '{request.ip}' AND port = {sv_port}"))
