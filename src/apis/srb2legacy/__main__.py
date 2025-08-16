@@ -53,6 +53,9 @@ class UDPMessage():
         self.length = len(kwargs["data"]) if "data" in kwargs.keys() else 0
         self.data = kwargs["data"] if "data" in kwargs.keys() else None
     
+        self.protocol_version = 21
+        if self.room is None:
+            self.protocol_version = 12
 
     def __str__(self):
         keystring = ", ".join([f"{key}={value}" for key,value in self.__dict__.items() ])
@@ -60,11 +63,28 @@ class UDPMessage():
 
     def from_packet(self, packet):
         #self.packet = packet
+        # API v12 packets are shorter, let's analyze them first
+        self.id,self.type,self.length = struct.unpack('!lll',packet[:12])
+
+        # Header is 12 bytes long OR
+        # Message is a v12 server message
+        if len(packet) == 12 or \
+            (MessageType(self.type) in [MessageType.ADD_SERVER_MSG, MessageType.PING_SERVER_MSG, MessageType.ADD_SERVERv2_MSG, MessageType.REMOVE_SERVER_MSG] and self.length == len(packet[12:])):
+
+            self.protocol_version = 12
+            self.data = packet[12:]
+            return self
+
+        # Create and return API v21 packet instead
         self.id,self.type,self.room,self.length = struct.unpack('!llll',packet[:16])
+        self.protocol_version = 21
         self.data = packet[16:]
         return self
 
     def to_struct(self):
+        if self.protocol_version == 12:
+            # Return API v12 packet
+            return struct.pack(f"!lll{self.length}s", self.id, self.type, self.length, self.data)
         return struct.pack(f"!llll{self.length}s", self.id, self.type, self.room, self.length, self.data)
 
 
@@ -84,7 +104,7 @@ class NetgameDB():
 
         ipv4_regex = re.search(r"::ffff:([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})", ip)
 
-        if ipv4_regex.group(1):
+        if ipv4_regex != None and ipv4_regex.group(1):
             return IPv4Address(ipv4_regex.group(1))
         return IPv6Address(ip)
 
@@ -135,9 +155,14 @@ class NetgameDB():
         sv_room =   None
         sv_ver =    None
 
-        # HEAD == UINT32 signature
-        sv_head,sv_ip,sv_port,sv_name,sv_room,sv_ver = struct.unpack('<16s16s8s32sl8s', request.data)
-        
+        if request.protocol_version == 12:
+            # Shim API v12 servers into room 0
+            sv_head,sv_ip,sv_port,sv_name,sv_ver = struct.unpack('<16s16s8s32s8s', request.data)
+            sv_room = 0
+        else:
+            sv_head,sv_ip,sv_port,sv_name,sv_room,sv_ver = struct.unpack('<16s16s8s32sl8s', request.data)
+
+
         # Reformat output to human readable formats
         sv_port =   sv_port.split(b'\0')[0].decode('utf-8', errors="ignore")
         sv_name =    sv_name.replace(b"'",b"''").split(b'\0')[0].decode('utf-8', errors="ignore")
@@ -161,7 +186,7 @@ class NetgameDB():
                 sv_count = session.execute(sqlalchemy.text(f"SELECT COUNT(*) FROM {self.tbl_servers} WHERE host = '{request.ip}' AND port = {sv_port}"))
                 if sv_count.first()[0] < 1 and (type(ipaddress.ip_address(request.ip)) == IPv4Address or self.ipv6_support):
                     # Construct new netgame object
-                    session.execute(sqlalchemy.text(f"INSERT INTO {self.tbl_servers} (host, port, servername, roomname, version) VALUES ('{request.ip}', {urllib.parse.quote_plus(sv_port, errors='ignore')}, '{sv_name}', '{roomname}', '{sv_ver}')"))
+                    session.execute(sqlalchemy.text(f"INSERT INTO {self.tbl_servers} (host, port, servername, roomname, version) VALUES ('{request.ip}', {urllib.parse.quote_plus(sv_port, errors='ignore')}, '{sv_name}', {"NULL" if roomname == None else f"'{roomname}'"}, '{sv_ver}')"))
                     print(f"ADDED NETGAME {f"{request.ip}:{sv_port}"} () TO DATABASE")
                 elif type(ipaddress.ip_address(request.ip)) == IPv4Address or self.ipv6_support:
                     session.execute(sqlalchemy.text(f"UPDATE {self.tbl_servers} SET host = '{request.ip}', port = {urllib.parse.quote_plus(sv_port, errors='ignore')}, servername = '{sv_name}', room = {sv_room}, version = '{sv_ver}' WHERE host = '{request.ip}' AND port = {sv_port}"))
@@ -182,7 +207,12 @@ class NetgameDB():
         sv_room =   None
         sv_ver =    None
 
-        sv_head,sv_ip,sv_port,sv_name,sv_room,sv_ver = struct.unpack('!16s16s8s32sl8s', request.data)
+        if request.protocol_version == 12:
+            # Shim API v12 servers into room 0
+            sv_head,sv_ip,sv_port,sv_name,sv_ver = struct.unpack('!16s16s8s32s8s', request.data)
+            sv_room = 0
+        else:
+            sv_head,sv_ip,sv_port,sv_name,sv_room,sv_ver = struct.unpack('!16s16s8s32sl8s', request.data)
 
         # Truncate port
         sv_port =   sv_port.split(b'\0')[0].decode('utf-8', errors="ignore")
@@ -210,7 +240,13 @@ class NetgameDB():
         res = {
             "id":       0,
             "type":     MessageType.ANSWER_ASK_SERVER_MSG,
+            "room":     None if request.protocol_version == 12 else request.room,
         }
+
+        ip_length = 16
+        if MessageType(request.type) == MessageType.GET_EXT_SERVER_MSG:
+            ip_length = 40  # Emit IPv6 addresses
+
 
         servers = []
         try:
@@ -218,20 +254,57 @@ class NetgameDB():
             bans = await self.checkBans(request.ip, False) # Check for both hosting and join bans
             
             if len(bans) > 0:
-            
                 # User is banned -> return nothing
                 response = UDPMessage(id=res["id"], type=res["type"], data=b'')
                 response = response.to_struct()
                 return (-1, 0)
             
+            
+            # Universe query
+            query = f"SELECT host, port, servername, {self.tbl_rooms}._id AS roomid, {self.tbl_servers}.roomname, version FROM {self.tbl_servers} LEFT JOIN {self.tbl_rooms} ON {self.tbl_servers}.roomname = {self.tbl_rooms}.roomname AND {self.tbl_servers}.origin = {self.tbl_rooms}.origin"
+            if request.room == 1 :
+                # World query
+                query += f" WHERE {self.tbl_servers}.origin = 'localhost'"
+            elif request.room > 1:
+                # Custom room query
+                query += f" WHERE {self.tbl_rooms}._id = {request.room}"
 
             with Session(self.sqlengine) as session:
-                result = session.execute(sqlalchemy.text(f"SELECT host, port, servername, version FROM {self.tbl_servers}"))
+                result = session.execute(sqlalchemy.text(query))
                 for row in result:
                     mapped_ip = self.map6to4(row.host)
                     decoded_servername = urllib.parse.unquote_plus( row.servername+"%C3%80", errors="ignore" )
-                    if(type(mapped_ip) == IPv4Address or self.ipv6_support):
+                    if(type(mapped_ip) == IPv4Address or MessageType(request.type) == MessageType.GET_EXT_SERVER_MSG):
                         servers.append( bytes(f"{mapped_ip} {row.port} {decoded_servername} {row.version}\n\0", "utf-8") )
+                        """
+                        if request.protocol_version == 12:
+                            # API v12 struct
+                            servers.append( 
+                                struct.pack(f"<16s{ip_length}s8s32s8s", \
+                                                # Padding string
+                                                "".encode('utf-8', errors="ignore"), \
+                                                # Little Endian bc this protocol is cursed
+                                                str(mapped_ip)[:ip_length].encode('utf-8', errors="ignore"), \
+                                                str(row.port)[:8].encode('utf-8', errors="ignore"), \
+                                                decoded_servername[:32].encode('utf-8', errors="ignore"), \
+                                                row.version[:8].encode('utf-8', errors="ignore"),
+                                )
+                            )
+                        else: 
+                            # API v21 struct
+                            servers.append( 
+                                struct.pack(f"<16s{ip_length}s8s32sl8s", \
+                                                # Padding string
+                                                "".encode('utf-8', errors="ignore"), \
+                                                # Little Endian bc this protocol is cursed
+                                                str(mapped_ip)[:ip_length].encode('utf-8', errors="ignore"), \
+                                                str(row.port)[:8].encode('utf-8', errors="ignore"), \
+                                                decoded_servername[:32].encode('utf-8', errors="ignore"), \
+                                                row.roomid, # Dummy for room
+                                                row.version[:8].encode('utf-8', errors="ignore"),
+                                )
+                            )
+                        """
 
         except Exception as e:
             print(f"{request.ip} [{MessageType(request.type).name}] Internal server error: {e}")
@@ -241,7 +314,7 @@ class NetgameDB():
         response_size = 0
 
         for s in servers:
-            response = UDPMessage(id=res["id"], type=res["type"], data=s)
+            response = UDPMessage(id=res["id"], type=res["type"], room=res["room"], data=s)
             print(f"RESPONSE {response}")
             response = response.to_struct()
             print(f"RESPONSE DATA {response}")
@@ -249,7 +322,7 @@ class NetgameDB():
             writer.write(response)
             response_size += len(response)
 
-        response = UDPMessage(id=res["id"], type=res["type"], data=b'')
+        response = UDPMessage(id=res["id"], type=res["type"], room=res["room"], data=b'')
         print(f"RESPONSE {response}")
         response = response.to_struct()
         print(f"RESPONSE DATA {response}")

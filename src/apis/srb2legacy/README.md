@@ -143,9 +143,3 @@ typedef struct {
 Registering and removing netgames yields no response from the master server.
 
 `PING_SERVER_MSG` is issued periodically by the client as a keep-alive signal and to update the netgame info. LiquidMS treats it as idempotent to `ADD_SERVER_MSG`.
-
-TODO
-----
-
-- [ ] Add Banning support
-- [ ] Add API v12 (SRB2 v1.09.4) support
