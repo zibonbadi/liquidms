@@ -19,9 +19,8 @@ LiquidMS Legacy can be run with custom configuration files by specifying `config
 ### YAML Configuration
 
 ```YAML
-local_ip: localhost # Needs to match your server's outside hostname.
+hostname: localhost # Needs to match your server's outside hostname.
 port: 28900         # Publicly accessible server port
-ipv6: True          # Enable IPv6 extension GET_EXT_SERVERS_MSG
 buffer_size: 2048   # Buffer size to fetch from client
 max_timeout: 10
 db:
