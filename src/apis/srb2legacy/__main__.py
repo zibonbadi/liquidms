@@ -179,15 +179,13 @@ class NetgameDB():
                     # Get room name
                     rooms = session.execute(sqlalchemy.text(f"SELECT * FROM {self.tbl_rooms} WHERE _id = {sv_room}"))
                     roomname = rooms.first().roomname
-                
-                print(f"SLOT INTO ROOM {sv_room} - {roomname}")
 
                 # Check if netgame exists
                 sv_count = session.execute(sqlalchemy.text(f"SELECT COUNT(*) FROM {self.tbl_servers} WHERE host = '{request.ip}' AND port = {sv_port}"))
                 if sv_count.first()[0] < 1 and (type(ipaddress.ip_address(request.ip)) == IPv4Address or self.ipv6_support):
                     # Construct new netgame object
                     session.execute(sqlalchemy.text(f"INSERT INTO {self.tbl_servers} (host, port, servername, roomname, version) VALUES ('{request.ip}', {urllib.parse.quote_plus(sv_port, errors='ignore')}, '{sv_name}', {"NULL" if roomname == None else f"'{roomname}'"}, '{sv_ver}')"))
-                    print(f"ADDED NETGAME {f"{request.ip}:{sv_port}"} () TO DATABASE")
+                    print(f"ADDED NETGAME {f"{request.ip}:{sv_port}"} (\"{sv_name}\") TO DATABASE")
                 elif type(ipaddress.ip_address(request.ip)) == IPv4Address or self.ipv6_support:
                     session.execute(sqlalchemy.text(f"UPDATE {self.tbl_servers} SET host = '{request.ip}', port = {urllib.parse.quote_plus(sv_port, errors='ignore')}, servername = '{sv_name}', room = {sv_room}, version = '{sv_ver}' WHERE host = '{request.ip}' AND port = {sv_port}"))
                     print(f"UPDATED NETGAME {f"{request.ip}:{sv_port}"}")
@@ -437,9 +435,7 @@ class NetgameDB():
                                 )
             
             response = UDPMessage(id=res["id"], type=res["type"], room=res["room"], data=r_string)
-            print(f"RESPONSE {response}")
             response = response.to_struct()
-            print(f"RESPONSE DATA {response}")
             
             res_head.length = len(r_string)
             writer.write(res_head.to_struct()) # Yes this is stupid, but the protocol demands it
@@ -455,6 +451,7 @@ class NetgameDB():
 async def handle_client(reader, writer):
     
     packet = await reader.read(config["buffer_size"])
+    
     request = UDPMessage(ip=reader._transport.get_extra_info('peername')[0], port=reader._transport.get_extra_info('peername')[1]).from_packet(packet)
 
     logtuple = (0, 0)   # (Response code, transmission size)
@@ -565,7 +562,6 @@ if __name__ == '__main__':
     with open(args.config) as cfile:
         config = {**config, **yaml.load(cfile.read(), Loader=Loader) }
 
-    print(f"CONFIG: {config}")
     db = NetgameDB( config["db"] )
 
 
