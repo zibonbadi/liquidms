@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS `$bantabname` (
   `ip_end` VARBINARY(16) NOT NULL,
   `expire` DATETIME DEFAULT adddate(CURRENT_TIMESTAMP,1),
   `comment` VARCHAR(128),
+  `host_only` INT DEFAULT 1,
   PRIMARY KEY (`_id`)
 );
 

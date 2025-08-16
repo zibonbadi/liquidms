@@ -142,7 +142,7 @@ typedef struct {
 
 Registering and removing netgames yields no response from the master server.
 
-`PING_SERVER_MSG` is issued regularly by the client as a keep-alive signal and to update the netgame info regularly. LiquidMS treats it as idempotent to `ADD_SERVER_MSG`.
+`PING_SERVER_MSG` is issued periodically by the client as a keep-alive signal and to update the netgame info. LiquidMS treats it as idempotent to `ADD_SERVER_MSG`.
 
 TODO
 ----

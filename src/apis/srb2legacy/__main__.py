@@ -88,16 +88,45 @@ class NetgameDB():
             return IPv4Address(ipv4_regex.group(1))
         return IPv6Address(ip)
 
-    async def addServer(self, request:UDPMessage, writer):
+    async def checkBans(self, ip, host_only=None):
 
         """
-        sv_head =   str(request.data[00:16])
-        sv_ip =     str(request.data[16:32])
-        sv_port =   str(request.data[32:40])
-        sv_name =   str(request.data[40:72])
-        sv_room =   int(request.data[72:76])
-        sv_ver =    str(request.data[76:84])
+        host_only is a tri-state switch:
+        True => only host bans
+        False => only join bans
+        None => both
         """
+
+        if type(ipaddress.ip_address(ip)) == IPv4Address:
+            ip = "::ffff:"+ip
+
+        # Construct query based on host_only tristate switch
+        if host_only is None:
+            query = f"SELECT * FROM {self.tbl_bans} WHERE INET6_ATON('{ip}') BETWEEN ip_start AND ip_end AND expire > CURRENT_TIMESTAMP"
+        if host_only is False:
+            query = f"SELECT * FROM {self.tbl_bans} WHERE INET6_ATON('{ip}') BETWEEN ip_start AND ip_end AND expire > CURRENT_TIMESTAMP AND host_only = 0"
+        if host_only is True:
+            query = f"SELECT * FROM {self.tbl_bans} WHERE INET6_ATON('{ip}') BETWEEN ip_start AND ip_end AND expire > CURRENT_TIMESTAMP AND host_only != 0"
+
+        with Session(self.sqlengine) as session:
+            # Ask DB for ban entries
+            bans = session.execute(sqlalchemy.text(query))
+            
+            return [{
+                "ip_start": i.ip_start[:15]+'\0',
+                "ip_end": i.ip_end[:15]+'\0',
+                "expire": i.expire.strftime("%Y-%m-%dT%H:%M:%s"),
+                "reason": i.comment,
+                "host_only": i.host_only
+            } for i in bans]
+
+    async def addServer(self, request:UDPMessage, writer):
+        
+        bans = await self.checkBans(request.ip, True)
+        if len(bans) > 0:
+            # User is banned -> do nothing
+            return (-1, 0)
+        
 
         sv_head =   None
         sv_ip =     None
@@ -118,7 +147,7 @@ class NetgameDB():
 
         try:
             with Session(self.sqlengine) as session:
-                
+
                 # Check for valid room name
                 roomname = None
                 if int(sv_room) > 1 and int(sv_room) < 100:
@@ -185,6 +214,17 @@ class NetgameDB():
 
         servers = []
         try:
+
+            bans = await self.checkBans(request.ip, False) # Check for both hosting and join bans
+            
+            if len(bans) > 0:
+            
+                # User is banned -> return nothing
+                response = UDPMessage(id=res["id"], type=res["type"], data=b'')
+                response = response.to_struct()
+                return (-1, 0)
+            
+
             with Session(self.sqlengine) as session:
                 result = session.execute(sqlalchemy.text(f"SELECT host, port, servername, version FROM {self.tbl_servers}"))
                 for row in result:
@@ -266,6 +306,28 @@ class NetgameDB():
             }
 
         try:
+            
+            bans = await self.checkBans(request.ip)
+            bans_hosting = [i for i in bans if i["host_only"] != 0]
+            bans_join = [i for i in bans if i["host_only"] == 0]
+
+            if len(bans_join) > 0 or (MessageType(request.type) == MessageType.GET_ROOMS_HOST_MSG and len(bans_hosting) > 0):
+                # User is banned - exit early
+                res["type"] = MessageType.GET_BANNED_MSG
+                ban_msg = struct.pack("<16s16s16s32s255sl", \
+                                   # Padding string
+                                   "".encode('utf-8', errors="ignore"), \
+                                   bans[0]["ip_start"].encode('utf-8', errors="ignore"), \
+                                   bans[0]["ip_end"  ].encode('utf-8', errors="ignore"), \
+                                   bans[0]["expire"].encode('utf-8', errors="ignore"), \
+                                   bans[0]["reason"].encode('utf-8', errors="ignore"),
+                                   0    # Dummy value for "Hosting only"
+                                )
+                response = UDPMessage(id=res["id"], type=res["type"], room=res["room"], data=ban_msg)
+                writer.write(response.to_struct())
+                return (MessageType.GET_BANNED_MSG.name, len(ban_msg))
+
+            # All fine? -> Let's get the room list
             with Session(self.sqlengine) as session:
                 if res["room"] != 0: # SRB2HTTP-style single room queries, just in case
                     result = session.execute(sqlalchemy.text(f"SELECT _id, roomname, description, origin FROM {self.tbl_rooms} WHERE _id = {res["room"]} ORDER BY _id ASC"))
