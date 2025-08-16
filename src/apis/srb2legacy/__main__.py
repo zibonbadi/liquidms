@@ -187,7 +187,7 @@ class NetgameDB():
                     session.execute(sqlalchemy.text(f"INSERT INTO {self.tbl_servers} (host, port, servername, roomname, version) VALUES ('{request.ip}', {urllib.parse.quote_plus(sv_port, errors='ignore')}, '{sv_name}', {"NULL" if roomname == None else f"'{roomname}'"}, '{sv_ver}')"))
                     print(f"ADDED NETGAME {f"{request.ip}:{sv_port}"} (\"{sv_name}\") TO DATABASE")
                 elif type(ipaddress.ip_address(request.ip)) == IPv4Address or self.ipv6_support:
-                    session.execute(sqlalchemy.text(f"UPDATE {self.tbl_servers} SET host = '{request.ip}', port = {urllib.parse.quote_plus(sv_port, errors='ignore')}, servername = '{sv_name}', room = {sv_room}, version = '{sv_ver}' WHERE host = '{request.ip}' AND port = {sv_port}"))
+                    session.execute(sqlalchemy.text(f"UPDATE {self.tbl_servers} SET host = '{request.ip}', port = {urllib.parse.quote_plus(sv_port, errors='ignore')}, servername = '{sv_name}', roomname = {"NULL" if roomname == None else f"'{roomname}'"}, version = '{sv_ver}' WHERE host = '{request.ip}' AND port = {sv_port}"))
                     print(f"UPDATED NETGAME {f"{request.ip}:{sv_port}"}")
                 session.commit()
                 
