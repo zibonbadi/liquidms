@@ -43,7 +43,7 @@ INSTALLATION
 
 ```yaml
 ---
-basepath: /srb2kart # Base path this API is hosted under. Use this for subdirectory-based hosting 
+basepath: /api/srb2kart # Base path this API is hosted under. Use this for subdirectory-based hosting 
 db: # Database settings
   dsn: <DSN connection string>
   user: <Database user>

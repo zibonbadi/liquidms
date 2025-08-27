@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `$servtabname` (
   `port` SMALLINT(6) unsigned NOT NULL,
   `servername` VARCHAR(256) NOT NULL,
   `game` VARCHAR(32) DEFAULT NULL,
-  `version` VARCHAR(16) NOT NULL,
+--  `version` VARCHAR(16) NOT NULL,
   `origin` VARCHAR(64) NOT NULL DEFAULT 'localhost',
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`host`,`port`)

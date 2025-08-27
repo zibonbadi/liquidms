@@ -1,6 +1,6 @@
 <?php
-# LiquidMS - distributable SRB2 master server
-# Copyright (C) 2021-2024 Zibon Badi et al.
+# liquidMS - distributable SRB2 master server
+# Copyright (C) 2021-2025 Zibon Badi et al.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -15,15 +15,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-$maincontent = "";
-$import = $this->sharedData()->get('data');
+// Setup, configs etc.
+require_once __DIR__.'/vendor/autoload.php';
 
-foreach($import["data"] as $import_index => $import_value){
-	$maincontent .= $import_value["host"]." ".
-					$import_value["port"]." ".
-					$import_value["servername"]." ".
-					"\n";
-}
-echo "{$maincontent}";
+// Local utilities
+require_once __DIR__.'/ConfigModel.php';
 
+use LiquidMS\ConfigModel;
+use Klein\Klein;
+
+// Main router object
+$router = new Klein();
+$config = ConfigModel::getConfig();
+
+set_time_limit(10);
+
+require_once(__DIR__.'/api.php');
+
+// Start accepting requests
+$router->dispatch();
 ?>

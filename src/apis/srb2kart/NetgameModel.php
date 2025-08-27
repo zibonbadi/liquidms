@@ -1,6 +1,6 @@
 <?php
 # liquidMS - distributable SRB2 master server
-# Copyright (C) 2021-2022 Zibon Badi et al.
+# Copyright (C) 2021-2025 Zibon Badi et al.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -17,11 +17,12 @@
 
 namespace LiquidMS\SRB2Kart;
 
-require_once __DIR__.'/../../../vendor/autoload.php';
-require_once __DIR__.'/../DBSingleton.php';
-#require_once __DIR__.'/../fetch_common.php';
+require_once __DIR__.'/vendor/autoload.php';
+require_once __DIR__.'/DBSingleton.php';
 
 use LiquidMS\DBSingleton;
+use LiquidMS\ConfigModel;
+
 
 class NetgameModel{
 
@@ -64,23 +65,23 @@ class NetgameModel{
 			}
 		}
 
-		public static function getVersions(int $id = null){
+		public static function getVersions(string $game){
 
 				// Filter server block into distinct value arrays (step 2)
-				// - "[_id]"
+				// - "[modid]"
 				//   "[gameid]"
 				//   "[version]"
 
 				$rVal = [];
-				$query = "SELECT * FROM versions";
-				if($id != NULL){ $query .= " WHERE _id = {$id}"; }
-				#echo "($id) $query\n";
-				$serverdata = self::$db->query($query);
+				$vertable = ConfigModel::getConfig()["tables"]["versions"];
+				$query = "SELECT * FROM {$vertable} WHERE game = '{$game}'";
+				$serverdata = self::$db->execute($query);
 
 				return $serverdata;
 		}
 
 		public static function pushServers(Array $servers) {
+			$servtable = ConfigModel::getConfig()["tables"]["servers"];
 
 			// Generate insert values
 			$values = "";
@@ -88,17 +89,18 @@ class NetgameModel{
 			   $values .= "(\"".self::map4to6($netgame["host"])."\", \"{$netgame["port"]}\", \"{$netgame["servername"]}\", \"{$netgame["version"]}\", \"{$netgame["roomname"]}\", \"{$netgame["origin"]}\"),";
 			}
 			$values = rtrim($values,", \n\r\t");
-			$query = "INSERT INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`)"
+			$query = "INSERT INTO `{$servtable}` (`host`, `port`, `servername`, `version`, `roomname`, `origin`)"
 			."VALUES {$values}"
 			."ON DUPLICATE KEY UPDATE `host`=VALUES(host), `port`=VALUES(port), `servername`=VALUES(servername), `version`=VALUES(version), `roomname`=VALUES(roomname), `origin`=VALUES(origin)";
 
-			$serverdata = self::$db->query($query);
+			$serverdata = self::$db->execute($query);
 			return $serverdata;
 		}
 
-		public static function changeServer($op = 1, $ip = null, $netgameid = '127.0.0.1:5029', $title = 'SRB2 server', $version = '2.2.10', $roomname = null) { //Operation, Host, netgameID, servername, version, roomname.
+		public static function changeServer($op = 1, $ip = null, $netgameid = '127.0.0.1:5029', $title = 'SRB2Kart server', $game = null) {
 				//Creates an SQL query based of all the info we provided.
 				//Really dirty, could possibly get cleaned.
+				$servtable = ConfigModel::getConfig()["tables"]["servers"];
 
 				// Step 1:
 				// Check if the ID belongs to the IP issuing the request
@@ -116,45 +118,43 @@ class NetgameModel{
 				if($ip != NULL) {
 						switch($op){
 						case "create":{ //Create
-							$query = "REPLACE INTO `servers` (`host`, `port`, `servername`, `version`, `roomname`, `origin`) ".
-							"VALUES ('".self::map4to6($ip)."', '{$port}', '".str_replace("'","\'", $title)."', '{$version}', '{$roomname}', 'localhost')";
+							$query = "REPLACE INTO `{$servtable}` (`host`, `port`, `servername`, `game`, `origin`) ".
+							"VALUES (INET6_ATON('".self::map4to6($ip)."'), {$port}, '".str_replace("'","\'", $title)."', '{$game}', 'localhost')";
 							break;
 						}
 						case "update":{ //Update
-							$query = "UPDATE `servers` SET `servername` = '".str_replace("'","\'", $title)."' WHERE `servers`.`host` = '"
-										.self::map4to6($ip)."' AND `servers`.`port` = '{$port}'";
+							$set_query = "SET `servername` = `servername`";
+							if($title != NULL){ $set_query = "SET `servername` = '".str_replace("'","\'", $title)."' "; }
+							$query = "UPDATE `{$servtable}` {$set_query} WHERE `{$servtable}`.`host` = INET6_ATON('".self::map4to6($ip)."') AND `{$servtable}`.`port` = '{$port}'";
 							 break;
 						}
 						case "delete":
 						default:{ //Remove
-							$query = "DELETE FROM `servers` WHERE `servers`.`host` = '".self::map4to6($ip)."' AND `servers`.`port` = '{$port}'";
+							$query = "DELETE FROM `{$servtable}` WHERE `{$servtable}`.`host` = INET6_ATON('".self::map4to6($ip)."') AND `{$servtable}`.`port` = '{$port}'";
 							break;
 						}
 						}
 				}
 				#error_log("OP: $op;\n$query");
-				$serverdata = self::$db->query($query);
+				$serverdata = self::$db->execute($query);
 				return $serverdata;
 		}
 
-		public function getServers($room = null){
-
+		public function getServers($game = null, $version = null){
+				$servtable = ConfigModel::getConfig()["tables"]["servers"];
+				
 				// Filter server block into distinct value arrays (step 2)
 				// - - "[server line]"
 				//   - "[IP]"
 				//   - "[port]"
 				//   - "[name]"
-				//   - "[version]
-				$querycondition = "";
-				if(intval($room) == 1){ 
-					$querycondition = "WHERE servers.origin = 'localhost'";
-				}else if($room != NULL){ 
-					$querycondition = "WHERE rooms._id = {$room}";
-				}
-				$query = "SELECT host, port, servername, rooms._id AS roomid, rooms.roomname, version, servers.origin FROM servers INNER JOIN rooms ON servers.roomname = rooms.roomname AND rooms.origin = servers.origin {$querycondition};";
-				#echo $query."\n";
+
+				$qcs = [];
+				if($game != NULL){ $qcs +=[ "game = '{$game}'"]; }
+				$querycondition = "WHERE ".implode(" AND ", $qcs);
+
+				$query = "SELECT INET6_NTOA(host) AS host, port, servername, game, origin FROM {$servtable} {$querycondition};";
 				$serverdata = self::$db->execute($query);
-				#var_dump($serverdata);
 
 				foreach($serverdata["data"] as $netgameId => $netgame){
 					$serverdata["data"][$netgameId]["host"] = self::map6to4($netgame["host"]);
@@ -162,38 +162,21 @@ class NetgameModel{
 
 				return $serverdata;
 		}
-		public static function getRooms(int $room = null){
+		public static function getGames(string $game = null, int $version = null){
+				$servtable = ConfigModel::getConfig()["tables"]["servers"];
 
 				// Filter server block into distinct value arrays (step 2)
 				// - - "[server line]"
 				//   - "[IP]"
 				//   - "[port]"
 				//   - "[name]"
-				//   - "[version]"
 
 				$rVal = [];
 				$filter = "";
-				if($room != NULL){ $filter = " WHERE _id = {$room}"; }
-				$query = "SELECT _id AS roomid, roomname, origin, description FROM rooms {$filter} ORDER BY _id;";
-				#echo $query."\n";
-				$serverdata = self::$db->query($query);
-
-				return $serverdata;
-		}
-
-		public static function getWorldRooms(){
-
-				// Filter server block into distinct value arrays (step 2)
-				// - - "[server line]"
-				//   - "[IP]"
-				//   - "[port]"
-				//   - "[name]"
-				//   - "[version]"
-
-				$rVal = [];
-				$query = "SELECT _id AS roomid, roomname, origin, description FROM rooms WHERE origin = 'localhost'";
-				#echo $query."\n";
-				$serverdata = self::$db->query($query);
+				if($game != NULL){ $filter = " WHERE _id = {$game}"; }
+				#$query = "SELECT _id AS roomid, roomname, origin, description FROM {$servtable} {$filter} ORDER BY _id DESC;";
+				$query = "SELECT DISTINCT game FROM {$servtable} ORDER BY game;";
+				$serverdata = self::$db->execute($query);
 
 				return $serverdata;
 		}
