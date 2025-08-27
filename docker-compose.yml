@@ -25,7 +25,7 @@ services:
       - "80:80" # HTTP
     networks:
       - liquidms-net
-      - external  
+      - default  
   api-srb2query: 
     restart: unless-stopped
     build: 
@@ -41,7 +41,7 @@ services:
       - "5029:5029" # PHP FastCGI port
     networks:
       - liquidms-net
-      - external
+      - default
   api-srb2legacy: 
     restart: unless-stopped
     environment:
@@ -63,7 +63,7 @@ services:
       - "28900:28900" # Standard SRB2Legacy port
     networks:
       - liquidms-net
-      - external
+      - default
   snitch: #has php-fpm with extensions and composer, check Dockerfile!
     build: 
       dockerfile: docker/snitch/Dockerfile #installs necessary modules etc.
@@ -82,7 +82,7 @@ services:
     #    target: /var/www/liquidms/config.yaml
     networks:
       - liquidms-net
-      - external # Access external nodes
+      - default # Access external nodes
   db:
     restart: always
     image: mariadb:latest
@@ -101,4 +101,3 @@ services:
 networks:
   liquidms-net:
     internal: true
-  external:
