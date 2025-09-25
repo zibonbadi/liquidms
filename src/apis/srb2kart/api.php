@@ -203,6 +203,7 @@ $router->with("{$basepath}/servers", function() use ($router){
 			$request->ip();
 
 			$new_title = NULL;
+			if(array_key_exists('title', $info)){ $new_title = rawurlencode($info['title']); }
 			if(array_key_exists('contact', $info)){ $new_title = rawurlencode($info['contact']); }
 
 			$response = NetgameModel::getInstance()->changeServer("update", $request->ip(), $request->serverid, $new_title, null);
