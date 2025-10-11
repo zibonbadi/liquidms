@@ -17,6 +17,7 @@
 
 require_once __DIR__.'/ConfigModel.php';
 require_once __DIR__.'/SRB2HTTP/NetgameModel.php'; 
+require_once __DIR__.'/SRB2Kart/NetgameModel.php'; 
 /*
 if( in_array("srb2http", array_map('strtolower',$config["apis"])) ) { require_once __DIR__.'/modules/SRB2HTTP/NetgameModel.php'; }
 if( in_array("srb2kart", array_map('strtolower',$config["apis"])) { require_once __DIR__.'/modules/SRB2Kart/NetgameModel.php'; }
@@ -35,11 +36,28 @@ if(LiquidMS\ConfigModel::getConfig()["basepath"]){ $basepath = '/'.trim(ConfigMo
 $router->with("{$basepath}", function() use ($router){
 
 	$router->respond('GET', '/?', function($request, $response){
+		
+		$use_srb2http = array_key_exists("srb2http", LiquidMS\ConfigModel::getConfig()["apis"]);
+		$use_srb2kart = array_key_exists("srb2kart", LiquidMS\ConfigModel::getConfig()["apis"]);
+		
 		// Get all known netgames as a CSV table (e.g. for snitching to other nodes)
 		$response->header('Content-Type','text/csv;header=absent');
 		$apiver = $request->headers()->get("X-liquidms-snitch-version");
-		$servers = LiquidMS\SRB2HTTP\NetgameModel::getInstance()->getServers();
-		if($servers["error"] == 0){
+		if($use_srb2http){
+			$servers_srb2http = LiquidMS\SRB2HTTP\NetgameModel::getInstance()->getServers();
+			if($servers_srb2http["error"] != 0){
+				$response->code(500);
+				return;
+			}
+		}
+
+		if($use_srb2kart){
+			$servers_srb2kart = LiquidMS\SRB2Kart\NetgameModel::getInstance()->getServers();
+			if($servers_srb2kart["error"] != 0){
+				$response->code(500);
+				return;
+			}
+		}
 
 		switch($apiver){
 		case "2":{
@@ -51,9 +69,10 @@ $router->with("{$basepath}", function() use ($router){
 		case NULL:
 		default:{
 			// No header; -> legacy API
-			if($servers["rows"] > 0){
-				$out = fopen('php://output', 'w');
-				foreach($servers["data"] as $server){
+			$out = fopen('php://output', 'w');
+				
+			if($use_srb2http && $servers_srb2http["rows"] > 0){
+				foreach($servers_srb2http["data"] as $server){
 					if(($server["origin"] == "localhost") || ($server["origin"] == "127.0.0.1")){ $server["origin"] = $_SERVER["SERVER_NAME"]; }
 					// Reordering to guarantee API-compliant output
 					fputcsv($out, [
@@ -67,17 +86,32 @@ $router->with("{$basepath}", function() use ($router){
 					);
 				}
 				//$response->json($servers["data"]);
-			}else{
+			}
+			if($use_srb2kart && $servers_srb2kart["rows"] > 0){
+				foreach($servers_srb2kart["data"] as $server){
+					if(($server["origin"] == "localhost") || ($server["origin"] == "127.0.0.1")){ $server["origin"] = $_SERVER["SERVER_NAME"]; }
+					// Reordering to guarantee API-compliant output
+					fputcsv($out, [
+						"host" => $server["host"],
+						"port" => $server["port"],
+						"servername" => $server["servername"],
+						"version" => "SRB2Kart",
+						"roomname" => $server["game"],
+						"origin" => $server["origin"],
+						"_api" => "srb2kart"
+					]
+					);
+				}
+				//$response->json($servers["data"]);
+			}
+			/*
+			else{
 				#$response->code(404);
 				$response->body("");
 			}
+			*/
 			break;
 		}
-		}
-		}else{
-			$response->code(500);
-			$response->json($servers);
-			//return "\n";
 		}
 	});
 
@@ -105,6 +139,8 @@ $router->with("{$basepath}", function() use ($router){
 			$csvlines = explode("\n",rtrim(file_get_contents($file['tmp_name']),"\n"));
 			$csvdata_raw = array_map('str_getcsv', $csvlines);
 			foreach($csvdata_raw as $csvnetgameId => $csvnetgame){
+				# Sanitize null
+				if( count($csvnetgame) < 1 || ($csvnetgame[0] == null) ){ continue; }
 				$csvdata[] = [
 					"host" => $csvnetgame[0],
 					"port" => $csvnetgame[1],
@@ -146,9 +182,20 @@ $router->with("{$basepath}", function() use ($router){
 
 		if($settings["loglevel"] == "verbose"){ error_log($request->ip()." snitched the following netgames:\n".yaml_emit($csvdata)); }
 
-		// I'll think of something
-		$dbresponse = LiquidMS\SRB2HTTP\NetgameModel::getInstance()->pushServers($csvdata);
+		$csvdata_srb2kart = array_filter($csvdata, function($v){ return strtolower($v["version"]) == "_srb2kart";});
+		$csvdata_srb2http = array_filter($csvdata, function($v){ return strtolower($v["version"]) != "_srb2kart";});
 
+		// SRB2HTTP logic
+		if(array_key_exists("srb2http", $settings["apis"]) && count($csvdata_srb2http) > 0){
+			// I'll think of something
+			$dbresponse = LiquidMS\SRB2HTTP\NetgameModel::getInstance()->pushServers($csvdata_srb2http);
+		}
+		// SRB2Kart logic
+		if(array_key_exists("srb2kart", $settings["apis"]) && count($csvdata_srb2kart) > 0){
+			// I'll think of something
+			$dbresponse = LiquidMS\SRB2Kart\NetgameModel::getInstance()->pushServers($csvdata_srb2kart);
+		}
+		
 		if( $dbresponse["error"] == 0 ){
 			if( $dbresponse["rows"] > 0 ){
 				// For now, just mirror what got parsed for testing

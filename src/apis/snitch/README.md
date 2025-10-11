@@ -40,18 +40,17 @@ db: # Database settings
   user: <Database user>
   password: <Database user's password>
 apis: # List of APIs to serve
-  srb2_server:
-    api: srb2http
+  srb2http:
     tables:
       bans: srb2http_bans
       servers: srb2http_servers
       versions: srb2http_versions
       rooms: srb2http_rooms
-  srb2kart_server:
-    api: srb2kart
+  srb2kart:
     tables:
       bans: srb2kart_bans
       servers: srb2kart_servers
+      versions: srb2kart_versions
 ...
 ```
 

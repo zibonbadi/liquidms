@@ -114,6 +114,12 @@ class ConfigModel{
 						self::child_assertType("server_msg", $peer_data, "string") ){
 						self::$config["src"][$peer_name]["server_msg"] = $peer_data["server_msg"];
 					}
+
+					// SRB2Kart API
+					if(
+						self::child_assertType("api_version", $peer_data, "string") ){
+						self::$config["src"][$peer_name]["api_version"] = $peer_data["api_version"];
+					}
 				}
 			}
 

@@ -30,8 +30,7 @@ class ConfigModel{
 			"user" => NULL,
 			"password" => NULL,
 		],
-		"apis" => [
-		],
+		"apis" => [],
 		"netgame_query_limit" => [
 			"n" => 20,
 			"seconds" => 1,
@@ -81,18 +80,13 @@ class ConfigModel{
 			}
 
 			if( self::child_assertType("apis", $newconfig, "array") ){
-				$newarray = [];
-				foreach($newconfig["apis"] as $endpoint => $api) {
-					switch($api["api"]){
-						case "srb2legacy":
-						case "srb2kart":
-						case "srb2http":{
-							$newarray[$endpoint] = $api;
-							break;
-						}
-					}
+
+				if( self::child_assertType("srb2http", $newconfig["apis"], "array") ){
+					self::$config["apis"]["srb2http"] = $newconfig["apis"]["srb2http"];
 				}
-				self::$config["apis"] = $newarray;
+				if( self::child_assertType("srb2kart", $newconfig["apis"], "array") ){
+					self::$config["apis"]["srb2kart"] = $newconfig["apis"]["srb2kart"];
+				}
 			}
 
 			if( self::child_assertType("netgame_query_limit", $newconfig, "array") ){

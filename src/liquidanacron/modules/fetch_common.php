@@ -61,7 +61,7 @@ function fetchUpdate(array $config, array $jobs = []){
 		switch($jobval["api"]){
 		case "snitchv2":{ $sv_new = fetchUpdate_snitchv2($config ,$currentjob); break; }
 		case "snitch":{ $sv_new = fetchUpdate_snitchv1($config ,$currentjob); break; }
-		#case "kart":{ $sv_new = fetchUpdate_kart($config ,$currentjob); break; }
+		case "srb2kart":{ $sv_new = fetchUpdate_srb2kart($config ,$currentjob); break; }
 		case "srb2http": { $sv_new = fetchUpdate_v1($config ,$currentjob); break; }
 		case "srb2legacy": { $sv_new = fetchUpdate_srb2legacy($config ,$currentjob); break; }
 		default: {
@@ -94,7 +94,8 @@ function fetchUpdate_snitchv1(array $config, array $job = []){
 
 	$rVal = [];
 	if (($handle = fopen(rtrim($job["host"], "/"), "r")) !== FALSE) {
-		while(($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+		while(($data = fgetcsv($handle, null, ",")) !== FALSE) {
+			if ($data != null and $data[0] != NULL) {
 				$row = [];
 				$row["host"] = $data[0];
 				$row["port"] = $data[1];
@@ -105,6 +106,7 @@ function fetchUpdate_snitchv1(array $config, array $job = []){
 				$row["_origin"] = $data[5];
 			$row["_api"] = "snitch";
 				$rVal[] = $row;
+			}
 		}
 		fclose($handle);
 	}
@@ -416,6 +418,66 @@ function fetchUpdate_srb2legacy(array $config, array $job = []){
    return $rVal;
 }
 
+
+function fetchUpdate_srb2kart(array $config, array $job = []){
+   $rVal = []; // Return value
+
+   // Get stream context for header configs
+   $stream_context = null;
+   if(array_key_exists("http-header",$job)){ 
+	   $stream_context = fetchUpdate_mkContext("GET", $job["http-header"]);
+   }else{
+	   $stream_context = fetchUpdate_mkContext("GET");
+   }
+
+   $res_server = file_get_contents(
+		   rtrim($job["host"], "/")."?v=".$job["api_version"],
+		   false,
+		   $stream_context
+		   );
+
+	$res_server = explode("\n", $res_server);
+	
+
+	foreach($res_server as $rowid =>  $rowdata){
+
+
+   		
+		$newrow = [];
+		#$rowfields = explode(" ",$rowdata);
+		preg_match_all('/^([^\s]*)\s+([^\s]*)\s+(.*)/', $rowdata, $rowfields, PREG_SET_ORDER);
+
+		// Build return value conforming entry
+		$newrow["_api"] = "srb2kart";
+		$newrow["host"] = $rowfields[0][1];
+		$newrow["port"] = intval($rowfields[0][1]);
+		$newrow["servername"] = $rowfields[0][2];
+		$newrow["version"] = "_srb2kart";
+		$newrow["roomname"] = "";
+		$newrow["_origin"] = parse_url($job["host"])["host"]; // Extract hostname from URL
+
+		// Insert entry
+		$rVal[] = $newrow;
+	}
+
+   // Below: return value structure in YAML format (one server).
+   // Defaults and examples are noted in paretheses:
+   //
+   // ---
+   // - host: "[Server IP address (127.0.0.1)]"
+   //   port: [Port (5029)]
+   //   servername: "[Server name (SRB2kart%20server)]"
+   //   version: "_srb2kart" to denote it being from the Kart API
+   //   roomname: Game name
+   //   origin: "[Room origin (ms.kartkrew.org)]"
+   // ...
+   //
+   // The field "origin" is optional. If empty, it indicates a server
+   // registered to the node's world.
+   return $rVal;
+}
+
+
 /*
  * SNITCH functions
  */
@@ -423,7 +485,8 @@ function fetchUpdate_srb2legacy(array $config, array $job = []){
 function snitch(Array $data, Array $dests){
 
 	$rowCount = count($data);
-	$srb2http_cache = [];
+	$srb2http_count= 0;
+	$srb2kart_count= 0;
 
 	echo "[".date(DateTime::ISO8601, time())."] Processing {$rowCount} rows of data...\n";
 
@@ -436,11 +499,15 @@ function snitch(Array $data, Array $dests){
 	 * Cache SRB2-filtered Netgames (for Snitch V1/legacy)
 	**/
 	foreach($data as $netgame_i => $netgame_v){
+		echo "NETGAME API #$netgame_i => ".$netgame_v["_api"]."\n";
 		if($netgame_v["_api"] === "srb2http" || $netgame_v["_api"] === "srb2legacy")
-			$srb2http_cache[] = $netgame_v;
+			$srb2http_count++;
+		if($netgame_v["_api"] === "srb2kart" || $netgame_v["_api"] === "srb2legacy")
+			$srb2kart_count++;
 	}
+	echo "[".date(DateTime::ISO8601, time())."] Cached SRB2HTTP-related netgames (".$srb2http_count." netgames)\n";
+	echo "[".date(DateTime::ISO8601, time())."] Cached SRB2Kart-related netgames (".$srb2kart_count." netgames)\n";
 
-	echo "[".date(DateTime::ISO8601, time())."] Cached SRB2HTTP-related netgames (".count($srb2http_cache)." netgames)\n";
 
 	foreach($dests as $dest_i => $dest_v){
 		switch($dest_v["api"]){
@@ -452,7 +519,7 @@ function snitch(Array $data, Array $dests){
 		case "snitch_v1":
 		case "snitch":{
 			echo "[".date(DateTime::ISO8601, time())."] SNITCH \"{$dest_v["host"]}\"...\n";
-			echo snitch_snitchv1($srb2http_cache, $dest_v["host"]);
+			echo snitch_snitchv1($data, $dest_v["host"]);
 			break;
 		}
 		default: {

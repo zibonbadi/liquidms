@@ -120,7 +120,7 @@ RUN chmod +x /scripts/install_odbc.sh /scripts/install_config.sh
 
 #install liquidMS as an app
 #it must be already cloned from "https://github.com/zibonbadi/liquidms.git"
-COPY dist/snitch /var/www/liquidms
+COPY src/liquidanacron /var/www/liquidms
 #COPY docker/snitch/fetch.crontab /etc/crontabs/liquidms_fetch
 #RUN cat /etc/crontabs/liquidms_fetch >> /etc/crontabs/root
 
