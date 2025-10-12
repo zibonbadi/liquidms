@@ -44,6 +44,8 @@ src: # List of fetch jobs
     host: <URL/hostname of API server>
     api: srb2http|srb2legacy|srb2kart|snitch # API to pull from
     minute: x
+    api_version: "2" | "2.2" # Must be a string. Only used by srb2kart API
+    srb2kart_game: SRB2Kart|RingRacers|etc. # Only used by srb2kart API
 dest: # List of destinations to push to
   some_destination:
     host: <URL to Snitch API>

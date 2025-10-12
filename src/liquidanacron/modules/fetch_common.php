@@ -104,7 +104,7 @@ function fetchUpdate_snitchv1(array $config, array $job = []){
 				$row["roomname"] = $data[4];
 				$row["origin"] = $data[5];
 				$row["_origin"] = $data[5];
-			$row["_api"] = "snitch";
+				$row["_api"] = "snitch";
 				$rVal[] = $row;
 			}
 		}
@@ -450,10 +450,10 @@ function fetchUpdate_srb2kart(array $config, array $job = []){
 		// Build return value conforming entry
 		$newrow["_api"] = "srb2kart";
 		$newrow["host"] = $rowfields[0][1];
-		$newrow["port"] = intval($rowfields[0][1]);
-		$newrow["servername"] = $rowfields[0][2];
+		$newrow["port"] = intval($rowfields[0][2]);
+		$newrow["servername"] = $rowfields[0][3];
 		$newrow["version"] = "_srb2kart";
-		$newrow["roomname"] = "";
+		$newrow["roomname"] = $job["srb2kart_game"];
 		$newrow["_origin"] = parse_url($job["host"])["host"]; // Extract hostname from URL
 
 		// Insert entry

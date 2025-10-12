@@ -120,6 +120,10 @@ class ConfigModel{
 						self::child_assertType("api_version", $peer_data, "string") ){
 						self::$config["src"][$peer_name]["api_version"] = $peer_data["api_version"];
 					}
+					if(
+						self::child_assertType("srb2kart_game", $peer_data, "string") ){
+						self::$config["src"][$peer_name]["srb2kart_game"] = $peer_data["srb2kart_game"];
+					}
 				}
 			}
 
