@@ -199,7 +199,8 @@ class NetgameDB():
                 session.commit()
                 
         except Exception as e:
-            print(f"{request.ip} [{MessageType(request.type).name}] Internal server error: {e}")
+            import traceback
+            print(f"{request.ip} [{MessageType(request.type).name}] Internal server error: {traceback.format_exc()}")
 
         return (0, 0)
 
@@ -232,7 +233,8 @@ class NetgameDB():
                 session.commit()
 
         except Exception as e:
-            print(f"{request.ip} [{MessageType(request.type).name}] Internal server error: {e}")
+            import traceback
+            print(f"{request.ip} [{MessageType(request.type).name}] Internal server error: {traceback.format_exc()}")
 
         return (0, 0)
 
@@ -312,7 +314,8 @@ class NetgameDB():
                         """
 
         except Exception as e:
-            print(f"{request.ip} [{MessageType(request.type).name}] Internal server error: {e}")
+            import traceback
+            print(f"{request.ip} [{MessageType(request.type).name}] Internal server error: {traceback.format_exc()}")
             
         #print(f"TOTAL SERVERS: {servers}")
 
@@ -414,7 +417,8 @@ class NetgameDB():
                 for row in result:
                     rooms[row._id] = (row.roomname, row.description, row.origin)
         except Exception as e:
-            print(f"{request.ip} [{MessageType(request.type).name}] Internal server error: {e}")
+            import traceback
+            print(f"{request.ip} [{MessageType(request.type).name}] Internal server error: {traceback.format_exc()}")
 
 
         response_size = 0
@@ -463,44 +467,52 @@ async def handle_client(reader, writer):
 
     logtuple = (0, 0)   # (Response code, transmission size)
 
-    match request.type:
-        ### Metadata endpoints ###
-        case MessageType.GET_VERSION_MSG:            
-            logtuple = await db.getVersion(request, writer)
+    try:        
 
-        case MessageType.GET_MOTD_MSG:
-            print(f"{MessageType(request.type).name} Not implemented yet!")
-            logtuple = await db.getMotd(request, writer)
-        
-        case MessageType.GET_ROOMS_MSG | MessageType.GET_ROOMS_HOST_MSG:
-            logtuple = await db.getRooms(request, writer)
-        
-        ### Netgame management logic ###
-        case MessageType.ADD_SERVER_MSG | MessageType.PING_SERVER_MSG | MessageType.ADD_SERVERv2_MSG:
-            logtuple = await db.addServer(request, writer)
-        case MessageType.REMOVE_SERVER_MSG:
-            logtuple = await db.removeServer(request, writer)          
+        match request.type:
+            ### Metadata endpoints ###
+            case MessageType.GET_VERSION_MSG:            
+                logtuple = await db.getVersion(request, writer)
+
+            case MessageType.GET_MOTD_MSG:
+                print(f"{MessageType(request.type).name} Not implemented yet!")
+                logtuple = await db.getMotd(request, writer)
             
-        case MessageType.ASK_SERVER_MSG:
-            print(f"{MessageType(request.type).name} Not implemented yet!")
-            logtuple = await db.askServer(request, writer)
-
-        case MessageType.GET_SERVER_MSG | MessageType.GET_SHORT_SERVER_MSG | MessageType.GET_EXT_SERVER_MSG:
-            logtuple = await db.getServer(request, writer)
-        case _:
-            print(f"Request type {request.type} Not supported!")
-            print(f"\tPacket data: {packet}")
+            case MessageType.GET_ROOMS_MSG | MessageType.GET_ROOMS_HOST_MSG:
+                logtuple = await db.getRooms(request, writer)
             
-            # Send dummy response to avoid game crashes
-            response = UDPMessage(id=request.id, type=request.type, data=b'').to_struct()
-            writer.write(response)
-            
+            ### Netgame management logic ###
+            case MessageType.ADD_SERVER_MSG | MessageType.PING_SERVER_MSG | MessageType.ADD_SERVERv2_MSG:
+                logtuple = await db.addServer(request, writer)
+            case MessageType.REMOVE_SERVER_MSG:
+                logtuple = await db.removeServer(request, writer)          
+                
+            case MessageType.ASK_SERVER_MSG:
+                print(f"{MessageType(request.type).name} Not implemented yet!")
+                logtuple = await db.askServer(request, writer)
 
-    #response = struct.pack('!llls', id, type, length)
-    #response = struct.pack('!ccccc', id, type, length)
+            #case MessageType.GET_SERVER_MSG | MessageType.GET_SHORT_SERVER_MSG | MessageType.GET_EXT_SERVER_MSG:
+            case MessageType.GET_SERVER_MSG:
+                logtuple = await db.getServer(request, writer)
+            case MessageType.GET_SHORT_SERVER_MSG | MessageType.GET_EXT_SERVER_MSG:
+                logtuple = await db.getServer_short(request, writer)
+            case _:
+                print(f"Request type {request.type} Not supported!")
+                print(f"\tPacket data: {packet}")
+                
+                # Send dummy response to avoid game crashes
+                response = UDPMessage(id=request.id, type=request.type, data=b'').to_struct()
+                writer.write(response)
+                
 
-    await writer.drain()
-    writer.close()
+
+        await writer.drain()
+        writer.close()
+        await writer.wait_closed()
+
+    except Exception as e:
+        import traceback
+        print(f"{request.ip} [{MessageType(request.type).name}] Client handling error: {traceback.format_exc()}")
 
     timestamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H-%M-%S')
     print(f"{reader._transport.get_extra_info('peername')[0]} [{timestamp}] \"{MessageType(request.type).name} {request}\" {logtuple[0]} {logtuple[1]}")
