@@ -1,5 +1,5 @@
 import enum,struct,datetime,socket,logging,re,urllib,ipaddress # Built-in libs
-from ipaddress import IPv4Address, IPv6Address
+from ipaddress import ip_address, IPv4Address, IPv6Address
 import yaml,sqlalchemy # External libs
 #from .message import UDPMessage  # Custom modules
 
@@ -102,11 +102,18 @@ class NetgameDB():
     
     def map6to4(self, ip):
 
-        ipv4_regex = re.search(r"::ffff:([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})", ip)
+        if type(ip) == bytes:
+            return ip_address(ip)
 
-        if ipv4_regex != None and ipv4_regex.group(1):
-            return IPv4Address(ipv4_regex.group(1))
-        return IPv6Address(ip)
+        if type(ip) == str:
+            ipv4_regex = re.search(r"::ffff:([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})", ip)
+
+            if ipv4_regex != None and ipv4_regex.group(1):
+                return IPv4Address(ipv4_regex.group(1))
+            return IPv6Address(ip)
+        
+        # Fallback output - This should cause errors
+        return None
 
     async def checkBans(self, ip, host_only=None):
 
