@@ -243,7 +243,7 @@ class NetgameDB():
         
         return (0, 0)
 
-    async def getServer(self, request, writer):
+    async def getServer_short(self, request, writer):
         res = {
             "id":       0,
             "type":     MessageType.ANSWER_ASK_SERVER_MSG,
@@ -282,8 +282,6 @@ class NetgameDB():
                     mapped_ip = self.map6to4(row.host)
                     decoded_servername = urllib.parse.unquote_plus( row.servername+"%C3%80", errors="ignore" )
                     if(type(mapped_ip) == IPv4Address or MessageType(request.type) == MessageType.GET_EXT_SERVER_MSG):
-                        servers.append( bytes(f"{mapped_ip} {row.port} {decoded_servername} {row.version}\n\0", "utf-8") )
-                        """
                         if request.protocol_version == 12:
                             # API v12 struct
                             servers.append( 
@@ -307,11 +305,10 @@ class NetgameDB():
                                                 str(mapped_ip)[:ip_length].encode('utf-8', errors="ignore"), \
                                                 str(row.port)[:8].encode('utf-8', errors="ignore"), \
                                                 decoded_servername[:32].encode('utf-8', errors="ignore"), \
-                                                row.roomid, # Dummy for room
+                                                row.roomid if type(row.roomid) == int else 0, # Dummy for room
                                                 row.version[:8].encode('utf-8', errors="ignore"),
                                 )
                             )
-                        """
 
         except Exception as e:
             import traceback
@@ -323,17 +320,69 @@ class NetgameDB():
 
         for s in servers:
             response = UDPMessage(id=res["id"], type=res["type"], room=res["room"], data=s)
-            print(f"RESPONSE {response}")
             response = response.to_struct()
-            print(f"RESPONSE DATA {response}")
 
             writer.write(response)
             response_size += len(response)
 
         response = UDPMessage(id=res["id"], type=res["type"], room=res["room"], data=b'')
-        print(f"RESPONSE {response}")
         response = response.to_struct()
-        print(f"RESPONSE DATA {response}")
+
+        writer.write(response)
+        response_size += len(response)
+        
+        return (MessageType.ANSWER_ASK_SERVER_MSG.name, response_size)
+        
+    async def getServer(self, request, writer):
+        res = {
+            "id":       0,
+            "type":     MessageType.ANSWER_ASK_SERVER_MSG,
+            "room":     None if request.protocol_version == 12 else request.room,
+        }
+
+        servers = []
+        try:
+
+            bans = await self.checkBans(request.ip, False) # Check for both hosting and join bans
+            
+            if len(bans) > 0:
+                # User is banned -> return nothing
+                response = UDPMessage(id=res["id"], type=res["type"], data=b'')
+                response = response.to_struct()
+                return (-1, 0)
+            
+            
+            # Universe query
+            query = f"SELECT host, port, servername, {self.tbl_rooms}._id AS roomid, {self.tbl_servers}.roomname, version FROM {self.tbl_servers} LEFT JOIN {self.tbl_rooms} ON {self.tbl_servers}.roomname = {self.tbl_rooms}.roomname AND {self.tbl_servers}.origin = {self.tbl_rooms}.origin"
+            if request.room == 1 :
+                # World query
+                query += f" WHERE {self.tbl_servers}.origin = 'localhost'"
+            elif request.room > 1:
+                # Custom room query
+                query += f" WHERE {self.tbl_rooms}._id = {request.room}"
+
+            with Session(self.sqlengine) as session:
+                result = session.execute(sqlalchemy.text(query))
+                for row in result:
+                    mapped_ip = self.map6to4(row.host)
+                    decoded_servername = urllib.parse.unquote_plus( row.servername+"%C3%80", errors="ignore" )
+                    if(type(mapped_ip) == IPv4Address or MessageType(request.type) == MessageType.GET_EXT_SERVER_MSG):
+                        servers.append( bytes(f"{mapped_ip} {row.port} {decoded_servername} {row.version}\n\0", "utf-8") )
+
+        except Exception as e:
+            import traceback
+            print(f"{request.ip} [{MessageType(request.type).name}] Internal server error: {traceback.format_exc()}")
+
+        response_size = 0
+        for s in servers:
+            response = UDPMessage(id=res["id"], type=res["type"], room=res["room"], data=s)
+            response = response.to_struct()
+
+            writer.write(response)
+            response_size += len(response)
+
+        response = UDPMessage(id=res["id"], type=res["type"], room=res["room"], data=b'')
+        response = response.to_struct()
 
         writer.write(response)
         response_size += len(response)
@@ -349,9 +398,7 @@ class NetgameDB():
         }
 
         response = UDPMessage(id=res["id"], type=res["type"], data=res["data"])
-        print(f"RESPONSE {response}")
         response = response.to_struct()
-        print(f"RESPONSE DATA {response}")
 
         writer.write(response)
 
@@ -366,9 +413,7 @@ class NetgameDB():
         }
 
         response = UDPMessage(id=res["id"], type=res["type"], data=res["data"])
-        print(f"RESPONSE {response}")
         response = response.to_struct()
-        print(f"RESPONSE DATA {response}")
 
         writer.write(response)
 
