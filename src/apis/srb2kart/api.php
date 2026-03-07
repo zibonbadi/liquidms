@@ -30,27 +30,39 @@ $router->with("{$basepath}/games", function() use ($router){
 	$router->respond('GET', '/?', function($request, $response, $service){
 			/* Version guard */
 			$apiversion = $request->param('v');
-			switch($apiversion){
-			case "2.2":
-			case "2":
-				{ break; }
-			default:{
-				$response->code(404);
-				return "Unknown API version\n";
-				break;
+			if(!str_ends_with($apiversion, "-liquid")){
+				switch($apiversion){
+				case "2.2":
+				case "2":
+					{ break; }
+				default:{
+					$response->code(404);
+					return "Unknown API version\n";
+					break;
+				}
+				}
 			}
+			
+			$import = NetgameModel::getInstance()->getVersions(NULL);
+			if( $import["error"] == 0 ){
+				// Secret LiquidMS-specific game support listing.
+				// Might be useful for snitching some day...
+				$maincontent = "";
+				foreach($import["data"] as $ver_index => $ver_value){
+						$maincontent .= $ver_value["game"]." ".
+										$ver_value["version_id"]." ".
+										$ver_value["version_name"]."\n";
+				}
+				if($import["rows"] < 1){
+						$response->code(404);
+						$maincontent = "No such version\n";
+				}
+				return "${maincontent}";
+			}else{
+				$response->code(500);
+				$service->render(__DIR__."/ErrorView.php", ["response" => $servers]);
 			}
 
-			// Server test kludge. The game seems to ping every listed server and
-			// filter by response. Listing dummy servers is thus not possible.
-			$servers = NetgameModel::getInstance()->getServers();
-			$rooms = NetgameModel::getInstance()->getRooms();
-				if( ($servers["error"] == 0) && ($rooms["error"] == 0) ){ $service->render(__DIR__."/SRB2HTTP/MultiroomView.php", ["data" => $servers, "rooms" => $rooms]);
-				}else{
-					$response->code(403);
-					if( ($servers["error"] != 0)){ $service->render(__DIR__."/ErrorView.php", ["response" => $servers]); };
-					if( ($rooms["error"] != 0)){ $service->render(__DIR__."/ErrorView.php", ["response" => $rooms]); };
-				}
 	});
 
 	$router->respond('GET', '/[:gameId]/version', function($request, $response){

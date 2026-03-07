@@ -65,7 +65,7 @@ class NetgameModel{
 			}
 		}
 
-		public static function getVersions(string $game){
+		public static function getVersions(string $game = null){
 
 				// Filter server block into distinct value arrays (step 2)
 				// - "[modid]"
@@ -74,7 +74,10 @@ class NetgameModel{
 
 				$rVal = [];
 				$vertable = ConfigModel::getConfig()["tables"]["versions"];
-				$query = "SELECT * FROM {$vertable} WHERE game = '{$game}'";
+				$query = "SELECT * FROM {$vertable}";
+				if( $game != NULL){
+					$query .= " WHERE game = '{$game}'";
+				}
 				$serverdata = self::$db->execute($query);
 
 				return $serverdata;
