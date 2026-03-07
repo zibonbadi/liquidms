@@ -33,8 +33,10 @@ $router->with("{$basepath}/games", function() use ($router){
 			if(!str_ends_with($apiversion, "-liquid")){
 				switch($apiversion){
 				case "2.2":
-				case "2":
-					{ break; }
+				case "2":{
+					return "Missing application name\n";
+					break;
+				}
 				default:{
 					$response->code(404);
 					return "Unknown API version\n";
