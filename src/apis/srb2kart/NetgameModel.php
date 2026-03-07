@@ -154,7 +154,10 @@ class NetgameModel{
 
 				$qcs = [];
 				if($game != NULL){ $qcs +=[ "game = '{$game}'"]; }
-				$querycondition = "WHERE ".implode(" AND ", $qcs);
+				$querycondition = "";
+				if(count($qcs) > 0){
+					$querycondition = "WHERE ".implode(" AND ", $qcs);
+				}
 
 				$query = "SELECT INET6_NTOA(host) AS host, port, servername, game, origin FROM {$servtable} {$querycondition};";
 				$serverdata = self::$db->execute($query);

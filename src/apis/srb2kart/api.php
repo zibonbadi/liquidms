@@ -101,7 +101,7 @@ $router->with("{$basepath}/games", function() use ($router){
 			}
 	});
 		
-	$router->respond('GET', '/[:gameId]/servers', function($request, $response, $service){
+	$router->respond('GET', '/games/[:gameId]/servers', function($request, $response, $service){
 		/* TODO: Add LiquidMS-extended full game query */
 		/* Version guard */
 		$apiversion = $request->param('v', "");
@@ -124,7 +124,15 @@ $router->with("{$basepath}/games", function() use ($router){
 		/* LiquidMS mode? NOW we're talkin' */
 
 		$response->code(400);
-		return "Welcome subnaut\n";
+		
+		$servers = NetgameModel::getInstance()->getServers($request->gameId, NULL);
+		if( $servers["error"] == 0 ){
+			$service->render(__DIR__."/KartView.php", ["data" => $servers, "room" => $request->gameId]);
+		}else{
+			$response->code(500);
+			$service->render(__DIR__."/ErrorView.php", ["response" => $servers]);
+		}
+
 	});
 
 	$router->respond('GET', '/[:gameId]/[:versionId]/servers', function($request, $response, $service){
@@ -205,7 +213,16 @@ $router->with("{$basepath}/servers", function() use ($router){
 		/* LiquidMS mode? NOW we're talkin' */
 
 		$response->code(400);
-		return "Welcome subnaut\n";
+		
+		$servers = NetgameModel::getInstance()->getServers(NULL, NULL);
+
+		if( $servers["error"] == 0 ){
+			$service->render(__DIR__."/KartView.php", ["data" => $servers]);
+		}else{
+			$response->code(500);
+			$service->render(__DIR__."/ErrorView.php", ["response" => $servers]);
+		}
+
 	});
 
 
