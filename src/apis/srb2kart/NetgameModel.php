@@ -86,7 +86,7 @@ class NetgameModel{
 			// Generate insert values
 			$values = "";
 			foreach( $servers as $netgameId => $netgame){
-			   $values .= "(\"".self::map4to6($netgame["host"])."\", \"{$netgame["port"]}\", \"{$netgame["servername"]}\", \"{$netgame["version"]}\", \"{$netgame["roomname"]}\", \"{$netgame["origin"]}\"),";
+			   $values .= "(INET6_ATON('".self::map4to6($netgame["host"])."')', \"{$netgame["port"]}\", \"{$netgame["servername"]}\", \"{$netgame["version"]}\", \"{$netgame["roomname"]}\", \"{$netgame["origin"]}\"),";
 			}
 			$values = rtrim($values,", \n\r\t");
 			$query = "INSERT INTO `{$servtable}` (`host`, `port`, `servername`, `version`, `roomname`, `origin`)"
