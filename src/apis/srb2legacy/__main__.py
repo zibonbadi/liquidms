@@ -102,15 +102,15 @@ class NetgameDB():
     
     def map6to4(self, ip):
 
+        base_ip = ip
         if type(ip) == bytes:
-            return ip_address(ip)
+            base_ip = str(ip_address(ip))
 
-        if type(ip) == str:
-            ipv4_regex = re.search(r"::ffff:([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})", ip)
+        ipv4_regex = re.search(r"::ffff:([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})", base_ip)
 
-            if ipv4_regex != None and ipv4_regex.group(1):
-                return IPv4Address(ipv4_regex.group(1))
-            return IPv6Address(ip)
+        if ipv4_regex != None and ipv4_regex.group(1):
+            return IPv4Address(ipv4_regex.group(1))
+        return IPv6Address(ip)
         
         # Fallback output - This should cause errors
         return None
