@@ -366,8 +366,7 @@ class NetgameDB():
                 for row in result:
                     mapped_ip = self.map6to4(row.host)
                     decoded_servername = urllib.parse.unquote_plus( row.servername+"%C3%80", errors="ignore" )
-                    if(type(mapped_ip) == IPv4Address or MessageType(request.type) == MessageType.GET_EXT_SERVER_MSG):
-                        servers.append( bytes(f"{mapped_ip} {row.port} {decoded_servername} {row.version}\n\0", "utf-8") )
+                    servers.append( bytes(f"{mapped_ip} {row.port} {decoded_servername} {row.version}\n\0", "utf-8") )
 
         except Exception as e:
             import traceback
