@@ -486,6 +486,7 @@ function snitch(Array $data, Array $dests){
 
 	$rowCount = count($data);
 	$srb2http_count= 0;
+	$srb2legacy_count= 0;
 	$srb2kart_count= 0;
 
 	echo "[".date(DateTime::ISO8601, time())."] Processing {$rowCount} rows of data...\n";
@@ -500,12 +501,15 @@ function snitch(Array $data, Array $dests){
 	**/
 	foreach($data as $netgame_i => $netgame_v){
 		echo "NETGAME API #$netgame_i => ".$netgame_v["_api"]."\n";
-		if($netgame_v["_api"] === "srb2http" || $netgame_v["_api"] === "srb2legacy")
+		if($netgame_v["_api"] === "srb2http")
 			$srb2http_count++;
-		if($netgame_v["_api"] === "srb2kart" || $netgame_v["_api"] === "srb2legacy")
+		if($netgame_v["_api"] === "srb2legacy")
+			$srb2legacy_count++;
+		if($netgame_v["_api"] === "srb2kart")
 			$srb2kart_count++;
 	}
 	echo "[".date(DateTime::ISO8601, time())."] Cached SRB2HTTP-related netgames (".$srb2http_count." netgames)\n";
+	echo "[".date(DateTime::ISO8601, time())."] Cached SRB2Legacy-related netgames (".$srb2legacy_count." netgames)\n";
 	echo "[".date(DateTime::ISO8601, time())."] Cached SRB2Kart-related netgames (".$srb2kart_count." netgames)\n";
 
 
