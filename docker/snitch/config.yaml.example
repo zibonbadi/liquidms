@@ -1,0 +1,34 @@
+---
+src:
+  vanilla:
+    host: "https://example.invalid/msendpoint"
+    api: srb2http
+    minute: 11
+  kart-v7:
+    host: "https://example.invalidi/games/SRB2Kart/7/servers"
+    api: kart
+    kart-apiversion: 2
+    minute: 7
+  ringracers-v4:
+    host: "https://example.invalid/api/games/RingRacers/4/servers"
+    api: kart
+    kart-apiversion: 2
+    minute: 7
+  lq1: ## Snitch V1 IS DEPRECATED!! Use "snitch_v2" if possible
+    host: "https://example.invalid/liquidms/snitch"
+    api: snitch
+    minute: 7
+  lq2:
+    host: "https://example.invalid/liquidms/snitch/2"
+    api: snitch_v2
+    minute: 7
+dest: ## Only API "snitch"/"snitch_v2" supported as dest; skip everything else
+  lq1: ## Snitch V1 IS DEPRECATED!! Use "snitch_v2" if possible
+    host: "https://example.invalid/liquidms/snitch"
+    api: snitch
+    minute: 7
+  lq2:
+    host: "https://example.invalid/liquidms/snitch/2"
+    api: snitch_v2
+    minute: 7
+...

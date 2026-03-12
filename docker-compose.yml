@@ -1,88 +1,103 @@
 # either port forward/allow 16000 port so you can connect to it over IP directly
 # or use reverse proxy such as nginx or caddy to map localhost:16000 or liquidms:16000 to your URI
-version: "3.8"
+name: liquidms
 services:
-  caddy: #caddy reverse-proxy for the FastCGI-sattelite
-    hostname: liquidms
+  http: #has php-fpm with extensions and composer, check Dockerfile!
     restart: unless-stopped
     build: 
-      context: .
-      dockerfile: Dockerfile_caddy # hook Caddy into sattelite
-    environment:
-      TZ: $TZ
-    ports:
-      - "${LIQUIDMS_PORT_HTTPS}:443" # Provide SSL port
-      - "${LIQUIDMS_PORT}:80" #exposes LiquidMS's 80 port to .env port on the host machine
-    depends_on:
-      - satellite # connect up
-    networks:
-      - liquidms-net
-      - external
-  satellite: #has php-fpm with extensions and composer, check Dockerfile!
-    hostname: liquidms
-    restart: unless-stopped
-    build: 
-      context: .
-      dockerfile: Dockerfile_satellite #also installs ODBC driver
-      args:
-        ODBC_HOST: $ODBC_HOST
-        ODBC_PORT: $ODBC_PORT
-        MYSQL_DATABASE: $MYSQL_DATABASE
-        MYSQL_USER: $MYSQL_USER
-        MYSQL_PASSWORD: $MYSQL_PASSWORD
-        MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      dockerfile: docker/php.Dockerfile #installs necessary modules etc.
     environment:
       TZ: $TZ
       PHP_MEMORY_LIMIT: 1024M
-    ports:
-      - "5029:5029" # make SRB2Query work
     depends_on:
-      - db #installs and runs database first before starting liquidms
+      - db 
+    volumes:
+      - type: bind
+        source: src/apis
+        read_only: true
+        target: /var/www/html/api
+      - type: bind
+        source: src/frontend
+        read_only: true
+        target: /var/www/html/web
+    ports:
+      - "443:443" # SSL/HTTPS
+      - "80:80" # HTTP
     networks:
       - liquidms-net
-      - external
+      - default  
+  api-srb2query: 
+    restart: unless-stopped
+    build: 
+      dockerfile: docker/php.Dockerfile #installs necessary modules etc.
+    environment:
+      TZ: $TZ
+      PHP_MEMORY_LIMIT: 1024M
+    volumes:
+      - type: bind
+        source: src/apis/srb2query
+        target: /var/www/liquidms/
+    ports:
+      - "5029:5029" # PHP FastCGI port
+    networks:
+      - liquidms-net
+      - default
+  api-srb2legacy: 
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    build: 
+      dockerfile: src/apis/srb2legacy/Dockerfile
+    develop:
+      watch:
+        - action: rebuild
+          path: src/apis/srb2legacy/
+          target: /usr/src/app/
+    depends_on:
+      - db
+    #volumes:
+    #  - type: bind
+    #    source: src/apis/srb2legacy
+    #    target: /usr/src/app/
+    ports:
+      - "28900:28900" # Standard SRB2Legacy port
+    networks:
+      - liquidms-net
+      - default
   snitch: #has php-fpm with extensions and composer, check Dockerfile!
-    hostname: liquidms
     build: 
-      context: .
-      dockerfile: Dockerfile_snitch #also installs ODBC driver
-      args:
-        ODBC_HOST: $ODBC_HOST
-        ODBC_PORT: $ODBC_PORT
-        MYSQL_DATABASE: $MYSQL_DATABASE
-        MYSQL_USER: $MYSQL_USER
-        MYSQL_PASSWORD: $MYSQL_PASSWORD
-        MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      dockerfile: docker/snitch/Dockerfile #installs necessary modules etc.
+    develop:
+      watch:
+        - action: rebuild
+          path: src/liquidanacron/
+          target: /var/www/liquidms
     environment:
       TZ: $TZ
       PHP_MEMORY_LIMIT: 1024M
+    #volumes:
+    #  - type: bind
+    #    read_only: true
+    #    source: docker/snitch/config.yaml
+    #    target: /var/www/liquidms/config.yaml
     networks:
       - liquidms-net
-      - external # Access external nodes
+      - default # Access external nodes
   db:
-    restart: unless-stopped
-    build:
-      context: .
-      dockerfile: Dockerfile_mariadb #also installs ODBC driver
-      args:
-        ODBC_HOST: $ODBC_HOST
-        ODBC_PORT: $ODBC_PORT
-        MYSQL_DATABASE: $MYSQL_DATABASE
-        MYSQL_USER: $MYSQL_USER
-        MYSQL_PASSWORD: $MYSQL_PASSWORD
-        MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+    restart: always
+    image: mariadb:latest
     environment:
       TZ: $TZ
       MYSQL_DATABASE: $MYSQL_DATABASE
       MYSQL_USER: $MYSQL_USER
       MYSQL_PASSWORD: $MYSQL_PASSWORD
       MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
-    ports:
-      - "${ODBC_PORT}:3306" # Make MariaDB accessible across the Docker network
+    volumes:
+      - type: bind
+        source: docker/db/initdb.d
+        target: /docker-entrypoint-initdb.d
     networks:
       - liquidms-net
-
 networks:
   liquidms-net:
     internal: true
-  external:

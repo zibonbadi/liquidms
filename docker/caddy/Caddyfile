@@ -1,0 +1,63 @@
+{
+	debug
+	log {
+		output stdout
+	}
+}
+
+*.localhost {
+	encode gzip zstd
+	tls internal
+}
+
+# Caddy needs the entire dist/ to work.
+# APIs are addressed using subdomains w/ fake roots to /var/www/html
+
+http://srb2.localhost {
+	#tls internal
+	root * /srv/apis/srb2http
+	php_fastcgi api-srb2http:9000 {
+		root /var/www/html
+	}
+	file_server
+}
+
+srb2kart.localhost {
+	uri strip_prefix /srb2kart
+	root * /var/www/liquidms/apis/srb2kart
+	php_fastcgi api-srb2kart:9000 {
+		root /var/www/html
+	}
+	file_server
+}
+
+srb2query.localhost {
+	uri strip_prefix /srb2query
+	root * /var/www/liquidms/apis/srb2query
+	php_fastcgi api-srb2query:9000
+	file_server
+}
+
+### Ring Racers' API is just the SRB2Kart API under a different path ###
+#ringracers.localhost {
+	#root * /var/www/liquidms/apis/ringracers/public
+	#php_fastcgi api-ringracers:9000
+	#file_server
+#}
+
+msfrontend.localhost {
+	root * /var/www/liquidms/apis/frontend
+	php_fastcgi frontend:9000
+	file_server
+}
+
+
+http://snitch.localhost {
+	#tls internal
+	root * /srv/apis/snitch
+	php_fastcgi api-snitch:9000 {
+		root /var/www/html
+	}
+	file_server
+}
+
