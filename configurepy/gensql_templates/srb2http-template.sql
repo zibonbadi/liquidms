@@ -97,7 +97,7 @@ DELIMITER #
 CREATE PROCEDURE IF NOT EXISTS liquidms.$prefix_rebuild_roomlist ()
 BEGIN
 DELETE FROM `$roomtabname` WHERE _id > 99;
-INSERT INTO `$roomtabname` (`_id`,`roomname`,`origin`) SELECT DISTINCT ROW_NUMBER() OVER ()+100 AS `_id`,`roomname`,`origin` FROM `$servtabname` WHERE `origin` <> 'localhost' GROUP BY `roomname`;
+INSERT INTO `$roomtabname` (`_id`,`roomname`,`origin`) SELECT ROW_NUMBER() OVER ()+100 AS `_id`,`roomname`,`origin` FROM `$servtabname` WHERE `origin` <> 'localhost' GROUP BY `origin`,`roomname` ORDER BY `origin`,`roomname`;
 DELETE FROM `$roomtabname` WHERE roomname = '' OR origin = '' ;
 END#
 
