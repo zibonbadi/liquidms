@@ -19,10 +19,6 @@ Robo Blast 2 Kart/Dr. Robotnik's Ring Racers HTTP Master Server API
 LiquidMS, it supports mirroring other master servers through the *LiquidMS
 Snitch API* (version 2+).
 
-Special thanks to GoldenTails whose [RevEngMS][GoldenTails] served as a
-reference to this project.  
-
-[GoldenTails]: <https://git.do.srb2.org/Golden/RevEngMS>
 [kartspec_v2]: <https://web.archive.org/web/20250401161203/https://ms.kartkrew.org/tools/api/2/>
 [kartspec_v2.2]: <https://web.archive.org/web/20250401160905/https://ms.kartkrew.org/tools/api/2.2/>
 
