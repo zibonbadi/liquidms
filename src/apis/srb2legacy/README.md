@@ -34,7 +34,49 @@ motd: |
   Some MOTD
 ```
 
+### Database table description
+
 The LiquidMS SRB2Legacy server is designed to integrate into databases of the LiquidMS SRB2HTTP API. As such it's database structure and configuration is identical to that of the LiqudMS SRB2HTTP API.
+
+#### Bans table
+
+| Field     | Type         | Null | Key | Default                                | Extra          |
+|-----------|--------------|------|-----|----------------------------------------|----------------|
+| _id       | int(11)      | NO   | PRI | NULL                                   | auto_increment |
+| ip_start  | binary(16)   | NO   |     | NULL                                   |                |
+| ip_end    | binary(16)   | NO   |     | NULL                                   |                |
+| expire    | datetime     | YES  |     | (current_timestamp() + interval 1 day) |                |
+| host_only | int(11)      | YES  |     | 1                                      |                |
+| comment   | varchar(128) | YES  |     | NULL                                   |                |
+
+#### Rooms table
+
+| Field       | Type        | Null | Key | Default                                               | Extra |
+|-------------|-------------|------|-----|-------------------------------------------------------|-------|
+| _id         | int(11)     | NO   | UNI | NULL                                                  |       |
+| roomname    | varchar(32) | NO   | PRI | NULL                                                  |       |
+| origin      | varchar(32) | NO   | PRI | localhost                                             |       |
+| description | text        | YES  |     | 'Powered by LiquidMS: DO NOT REGISTER NETGAMES HERE.' |       |
+
+#### Servers table
+
+| Field      | Type                 | Null | Key | Default             | Extra                         |
+|------------|----------------------|------|-----|---------------------|-------------------------------|
+| host       | binary(16)           | NO   | PRI | NULL                |                               |
+| port       | smallint(6) unsigned | NO   | PRI | NULL                |                               |
+| servername | varchar(256)         | NO   |     | NULL                |                               |
+| version    | varchar(16)          | NO   |     | NULL                |                               |
+| roomname   | varchar(32)          | YES  |     | NULL                |                               |
+| origin     | varchar(64)          | NO   |     | localhost           |                               |
+| updated_at | datetime             | YES  |     | current_timestamp() | on update current_timestamp() |
+
+#### Versions table
+
+| Field  | Type        | Null | Key | Default | Extra          |
+|--------|-------------|------|-----|---------|----------------|
+| modid  | int(11)     | NO   | PRI | NULL    | auto_increment |
+| gameid | int(11)     | NO   |     | 1       |                |
+| name   | varchar(32) | YES  |     | NULL    |                |
 
 ### Caveats
 

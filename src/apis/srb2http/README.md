@@ -61,6 +61,48 @@ motd: |
 ...
 ```
 
+### Database table description
+
+#### Bans table
+
+| Field     | Type         | Null | Key | Default                                | Extra          |
+|-----------|--------------|------|-----|----------------------------------------|----------------|
+| _id       | int(11)      | NO   | PRI | NULL                                   | auto_increment |
+| ip_start  | binary(16)   | NO   |     | NULL                                   |                |
+| ip_end    | binary(16)   | NO   |     | NULL                                   |                |
+| expire    | datetime     | YES  |     | (current_timestamp() + interval 1 day) |                |
+| host_only | int(11)      | YES  |     | 1                                      |                |
+| comment   | varchar(128) | YES  |     | NULL                                   |                |
+
+#### Rooms table
+
+| Field       | Type        | Null | Key | Default                                               | Extra |
+|-------------|-------------|------|-----|-------------------------------------------------------|-------|
+| _id         | int(11)     | NO   | UNI | NULL                                                  |       |
+| roomname    | varchar(32) | NO   | PRI | NULL                                                  |       |
+| origin      | varchar(32) | NO   | PRI | localhost                                             |       |
+| description | text        | YES  |     | 'Powered by LiquidMS: DO NOT REGISTER NETGAMES HERE.' |       |
+
+#### Servers table
+
+| Field      | Type                 | Null | Key | Default             | Extra                         |
+|------------|----------------------|------|-----|---------------------|-------------------------------|
+| host       | binary(16)           | NO   | PRI | NULL                |                               |
+| port       | smallint(6) unsigned | NO   | PRI | NULL                |                               |
+| servername | varchar(256)         | NO   |     | NULL                |                               |
+| version    | varchar(16)          | NO   |     | NULL                |                               |
+| roomname   | varchar(32)          | YES  |     | NULL                |                               |
+| origin     | varchar(64)          | NO   |     | localhost           |                               |
+| updated_at | datetime             | YES  |     | current_timestamp() | on update current_timestamp() |
+
+#### Versions table
+
+| Field  | Type        | Null | Key | Default | Extra          |
+|--------|-------------|------|-----|---------|----------------|
+| modid  | int(11)     | NO   | PRI | NULL    | auto_increment |
+| gameid | int(11)     | NO   |     | 1       |                |
+| name   | varchar(32) | YES  |     | NULL    |                |
+
 ### Caveats
 
 #### Be careful with room descriptions and MOTDs
@@ -141,4 +183,4 @@ All endpoints are assumed to be hosted under `${BASEPATH}`:
 LiquidMS automatically creates a private room `World` under `/rooms/1`.
 This is used to output all *world* netgames, meaning netgames from across
 all rooms which aren't mirrored from other servers. This room does not need
-to be define in your database.
+to be defined in your database.

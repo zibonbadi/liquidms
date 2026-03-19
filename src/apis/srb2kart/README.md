@@ -59,6 +59,39 @@ motd: |
 ...
 ```
 
+### Database table description
+
+#### Bans table
+
+| Field    | Type          | Null | Key | Default                                | Extra          |
+|----------|---------------|------|-----|----------------------------------------|----------------|
+| _id      | int(11)       | NO   | PRI | NULL                                   | auto_increment |
+| ip_start | varbinary(16) | NO   |     | NULL                                   |                |
+| ip_end   | varbinary(16) | NO   |     | NULL                                   |                |
+| expire   | datetime      | YES  |     | (current_timestamp() + interval 1 day) |                |
+| comment  | varchar(128)  | YES  |     | NULL                                   |                |
+
+#### Servers table
+
+| Field      | Type                 | Null | Key | Default             | Extra                         |
+|------------|----------------------|------|-----|---------------------|-------------------------------|
+| host       | varbinary(16)        | NO   | PRI | NULL                |                               |
+| port       | smallint(6) unsigned | NO   | PRI | NULL                |                               |
+| servername | varchar(256)         | NO   |     | NULL                |                               |
+| game       | varchar(32)          | YES  |     | NULL                |                               |
+| origin     | varchar(64)          | NO   |     | localhost           |                               |
+| updated_at | datetime             | YES  |     | current_timestamp() | on update current_timestamp() |
+
+#### Versions table
+
+| Field  | Type        | Null | Key | Default | Extra          |
+|--------|-------------|------|-----|---------|----------------|
+| modid  | int(11)     | NO   | PRI | NULL    | auto_increment |
+| gameid | int(11)     | NO   |     | 1       |                |
+| name   | varchar(32) | YES  |     | NULL    |                |
+
+
+
 ### Caveats
 
 #### Fetch from the Snitch API if possible
