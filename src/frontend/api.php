@@ -68,6 +68,11 @@ $router->with("$basepath/api", function() use ($router){
 		$response->header('Content-Type', 'application/javascript');
 		$response->sendHeaders(true);
 
+		if(!array_key_exists($request->service, $config["services"])){
+			$response->code(404);
+			$response->json(NULL);
+			return;
+		}
 		switch($config["services"][$request->service]["_api"]){
 			case "SRB2HTTP": {			
 				require_once __DIR__.'/SRB2HTTP/NetgameModel.php';
@@ -83,6 +88,7 @@ $router->with("$basepath/api", function() use ($router){
 			}
 			default:{
 				$response->code(404);
+				$response->json(NULL);
 				break;
 			}
 		}
