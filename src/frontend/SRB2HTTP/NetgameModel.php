@@ -74,16 +74,21 @@ class NetgameModel{
 				//   - "[port]"
 				//   - "[name]"
 				//   - "[version]
-				$query = "SELECT INET6_NTOA(host) AS host, port, servername, roomname, origin FROM {$servtable};";
-				#echo $query."\n";
+				$query = "SELECT INET6_NTOA(host) AS host, port, servername, version, roomname, origin FROM {$servtable};";
+				
 				$serverdata = self::$db->execute($query);
-				#var_dump($serverdata);
+				foreach($serverdata["data"] as $netgameId => $netgame){
+					$serverdata["data"][$netgameId] = [
+						"host" => self::map6to4($netgame["host"]),
+						"port" => $netgame["port"],
+						"servername" => $netgame["servername"],
+						"version" => $netgame["version"],
+						"roomname" => $netgame["roomname"],
+						"origin" => $netgame["origin"],
+					];
+				};
 
-				#foreach($serverdata["data"] as $netgameId => $netgame){
-					#$serverdata["data"][$netgameId]["host"] = self::map6to4($netgame["host"]);
-				#};
-
-				return var_export($serverdata);
+				return $serverdata;
 		}
 
 		private static function db_execute(string $query){
