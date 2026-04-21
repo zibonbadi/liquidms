@@ -219,7 +219,7 @@ export default class SRB2HTTPTableComponent extends HTMLElement{
 			if(metadata.fileinfo.length > 0){
 				details += `<details><summary>Addons</summary><ul>`;
 				for(let file of metadata.fileinfo){
-					if(metadata.httpsource){ details += `<li><a href="${metadata.httpsource}${file.name}">${file.name}</a></li>`; }
+					if(metadata.httpsource){ details += `<li><a href="${metadata.httpsource}${file.name}" target="_blank">${file.name}</a></li>`; }
 					else{ details += `<li>${file.name}</li>`; }
 				}
 				details += `</ul>`;
