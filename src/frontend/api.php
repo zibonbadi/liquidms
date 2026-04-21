@@ -65,7 +65,7 @@ $router->with("$basepath/api", function() use ($router){
 
 	$router->respond('GET', "/dbquery/[:service]/?", function($request, $response, $service){
 		$config = ConfigModel::getConfig();
-		$response->header('Content-Type', 'application/javascript');
+		$response->header('Content-Type', 'application/json');
 		$response->sendHeaders(true);
 
 		if(!array_key_exists($request->service, $config["services"])){
@@ -125,33 +125,15 @@ $router->with("$basepath/api", function() use ($router){
 			#$netgame["hostname"] = $ng_hdl;
 
 			// Guarantee form, fill with dummy data
-			$out = [
-				"hostname" => "127.0.0.1",
-				"port" => "5029",
-				"cheats" => false,
-				"dedicated" => false,
-				"gametype" => "Query Failure",
-				"level" => [
-					"md5sum" => 00000,
-				"level" => "Query failure",
-				],
-				"title" => "Query failure",
-				"mods" => false,
-				"players" => [
-					"max" => 0,
-				"list" => [],
-				],
-				"version" => [
-					"major" => 0,
-				"minor" => 0,
-				"patch" => 0,
-				"name" => "No contest",
-				],
-				];
-			if($netgame){ $out = $netgame; }
+			$out = NULL;
+			if($netgame){
+				$out = $netgame;
+				$out["fileinfo"] = $srb2conn->Fileinfo();
+			}
 			else{ $response->code(404); }
 
-			$response->json(urlsanitize($out));
+			#$response->json(urlsanitize($out));
+			$response->json($out);
 		}else{
 			$response->code(400);
 			$response->json([

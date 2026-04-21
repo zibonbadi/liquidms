@@ -1,0 +1,154 @@
+<?php $config = $this->sharedData()->get('config'); ?>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+:root{
+	/* --color-bg: url('/browse/img/bg.svg'); */
+	--main-bg: url('<?php echo $config["basepath"]; ?>/img/bg.svg') rgba(255, 220, 21, 1);
+	/* --color-bg: teal; */
+	--color-text: black;
+	--table-text: #ccc;
+	--table-head-text: yellow;
+	--table-bg: #003d;
+	--table-bg2: #114d;
+	--table-bg-head: #002f;
+	--table-locked-bg: #447d;
+	--table-bg-hover: #335;
+	--netgame-bg: #003d;
+	--netgame-locked-bg: #447d;
+	/* --netgame-bg: #35d1ff77; */
+	--netgame-bg-hover: #335;
+	--netgame-text: white;
+	--netgame-title-text: yellow;
+	--netgame-border: 3pt solid #444;
+}
+
+@media screen and (prefers-color-scheme: dark){
+	:root{
+		/* --main-bg: #000; */
+		--main-bg: url('<?php echo $config["basepath"]; ?>/img/bg-dark.svg') rgba(0,0,24, 1);
+		--color-text: white;
+		--netgame-border: 3pt solid #444;
+	}
+}
+
+@media screen and (prefers-color-scheme: light){
+	caption{ 
+		padding: 0.75em;
+		max-width: fit-content;
+		color: var(--table-head-text);
+		background: var(--table-bg-head); 
+		position: sticky;
+		top: 0;
+		border-bottom: 1pt solid var(--table-text);
+	}
+}
+
+.info{
+	border: var(--netgame-border);
+	padding: 1em;
+	background: var(--table-bg);
+	margin-left: auto;
+	margin-right: auto;
+	color: var(--table-text);
+	max-width: fit-content;
+}
+
+
+.hidden{
+	display: none;
+}
+
+body{
+color: var(--color-text);
+background: var(--main-bg);
+background-size: cover;
+background-attachment: fixed;
+font-family: sans-serif;
+font-size: 12pt;
+}
+pre{ font-family: 'Press Start 2P', monospace; }
+
+a{
+	color: #88ccff;
+	text-decoration: none;
+}
+a:visited{ color: #3355ff; }
+
+h1,p,pre,img,ul,ol{
+max-width: min(100%, 60em);
+margin: 1em auto;
+display: block;
+width: max-content;
+}
+h1{
+	font-family: 'Press Start 2P', sans-serif;
+	text-shadow: 0.07em 0.1em 0 black;
+	color: white;
+}
+a{
+	color: #3355ff;
+	text-decoration: none;
+}
+a:hover{
+	color: #88ccff;
+}
+
+input[type="text"]{
+	background: #3355ff;
+	border: 3pt solid #8888ff;
+	color: #88ccff;
+	box-shadow: 0 0.3em #000;
+	cursor: pointer;
+	display: inline-block;
+	font-family: 'Press Start 2P', sans-serif;
+	font-size: 16pt;
+	text-decoration: none;
+	padding: 0.5em 1em;
+	width: 100%;
+	box-sizing: border-box;
+	margin-left: 1.5em;
+	margin-right: 1.5em;
+	margin-bottom: 1.5em;
+	margin-top: 1.5em;
+}
+
+table,tr,td{ border: none; }
+
+table{
+	border: var(--netgame-border);
+	margin: 2em;
+}
+table,tbody{
+	background: var(--table-bg);
+	margin-left: auto;
+	margin-right: auto;
+	color: var(--table-text);
+	max-width: fit-content;
+}
+
+th,thead{
+	color: var(--table-head-text);
+	background: var(--table-bg-head); 
+	position: sticky;
+	top: 0;
+	border-bottom: 1pt solid var(--table-text);
+}
+td,th{ 
+	padding: 0.75em;
+	max-width: fit-content;
+}
+th{
+	cursor: pointer;
+}
+tr:nth-child(2n of :not(.hidden)){ background: var(--table-bg2); }
+@media(any-hover: hover) and (pointer: fine){
+	tbody>tr:hover{ background: var(--table-bg-hover); }
+	th:hover{ background: var(--table-bg-hover); }
+}
+
+caption{
+	font-family: 'Press Start 2P', sans-serif;
+	font-size: larger;
+	padding: 0.5em;
+	text-shadow: 0.07em 0.1em 0 black;
+	color: var(--netgame-title-text);
+}

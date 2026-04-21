@@ -7,8 +7,8 @@
 	    "ext-pdo": "*",
 	    "ext-sockets": "*",
 	    "ext-yaml": "*",
-	    "klein/klein": "*",
-	    "php": ">=8.1"
+	    "unocha/klein": "*",
+	    "php": ">=8.5"
 	},
 	"license": "AGPL-3.0-or-later",
 	"authors": [
