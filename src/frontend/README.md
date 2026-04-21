@@ -18,10 +18,11 @@ The *LiquidMS web frontend* serves as a convenient way to browse netgames known 
 INSTALLATION
 ------------
 
-1. Copy this folder to where you wanna host your server.
-2. Create `config.yaml` to configure your server (see below)
-3. (optional: Configure your HTTP server using the local `.htaccess` or similar)
-4. Profits :3
+1. Install PHP dependencies: `composer install`
+2. Copy this folder to where you wanna host your server.
+3. Create `config.yaml` to configure your server (see below)
+4. (optional: Configure your HTTP server using the local `.htaccess` or similar)
+5. Profits :3
 
 ### Sample `config.yaml`
 
