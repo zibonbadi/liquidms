@@ -22,6 +22,17 @@ $config = $this->sharedData()->get('config');
 <!DOCTYPE html>
 <html>
 <head>
+<!-- Search engine and preview metadata -->
+<meta name="title" content="LiquidMS">
+<meta name="generator" content="LiquidMS">
+<meta name="creator" content="Zibon Badi">
+<meta name="creator" content="Liquid Underground">
+<meta name="description" content="Search netgames on LiquidMS - the federated master server.">
+<meta name="keywords" content="masterserver, srb2, srb2ms">
+<meta name="robots" content="index, follow">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="language" content="English">
+<!-- Styles and favicon -->
 <link rel="icon" type="image/svg" href="<?php echo "{$config["basepath"]}/favicon.svg";?>">
 <link rel="stylesheet" href="<?php echo "{$config["basepath"]}/css/main.css";?>">
 <meta name="viewport" content="width=device-width, initial-scale=1">
