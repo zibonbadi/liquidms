@@ -3,8 +3,35 @@
 LiquidMS Snitch API
 =====================
 
-SUMMARY
--------
+DEPRECATION NOTICE
+------------------
+
+LiquidMS Snitch is **DEPRECATED** and should **not** be hosted. Instead, you should host the [Chaosnet] API.
+
+
+### Migration
+
+This Snitch endpoint will continue to work. However, it will now return the HTTP headers `Deprecation` and `X-LiquidMS-Deprecated`.
+
+To migrate your LiquidAnacron config to chaosnet, simply use `api: chaosnet` and point your jobs to the peer's INBOX/OUTBOX URL. Read more in the [LiquidAnacron manual]
+
+[LiquidAnacron manual]: ../../liquidanacron/README.md
+
+### *Why is Snitch being deprecated?*
+
+Snitch was originally designed as a simple proof-of-concept to demonstrate LiquidMS'
+distributed hosting capabilites and is tied to the data structures of the [SRB2HTTP]
+and [SRB2Kart] APIs. Chaosnet is instead designed around [ActivityPub], which is a
+stable, well-known web standard that provides much more flexibility to support non-SRB2 APIs.
+
+[ActivityPub]: https://www.w3.org/TR/activitypub/
+[Chaosnet]: ../chaosnet/README.md
+[SRB2HTTP]: ../srb2http/README.md
+[SRB2Kart]: ../srb2kart/README.md
+
+
+LEGAL NOTICE
+------------
 
 This PHP webserver is part of [LiquidMS] and should not be distributed
 separately.  LiquidMS and this API server are licensed under the [GNU
@@ -13,6 +40,9 @@ AFFERO GENERAL PUBLIC LICENSE Version 3][gnuaffero].
 [LiquidMS]: <https://github.com/zibonbadi/liquidms/>
 [gnuaffero]: <https://www.gnu.org/licenses/agpl-3.0.en.html>
 
+
+SUMMARY
+-------
 The *LiquidMS Snitch API server* provides you with endpoints to serve
 LiquidMS' *Snitch API*. This API allows LiquidMS to mirror other master
 servers and synchronise with other LiquidMS servers, using a *Snitch script*.

@@ -36,6 +36,9 @@ if(LiquidMS\ConfigModel::getConfig()["basepath"]){ $basepath = '/'.trim(ConfigMo
 $router->with("{$basepath}", function() use ($router){
 
 	$router->respond('GET', '/?', function($request, $response){
+		$response->header('X-LiquidMS-Deprecated', 'true');
+		$response->header('X-LiquidMS-Deprecation-Message', 'Snitch V1 is deprecated. Use Chaosnet (the Snitch V2 ActivityPub API) instead. See /api/chaosnet');
+		$response->header('Deprecation', 'version="1", sunset="Sun, 01 Jan 2028 00:00:00 GMT"');
 		
 		$use_srb2http = array_key_exists("srb2http", LiquidMS\ConfigModel::getConfig()["apis"]);
 		$use_srb2kart = array_key_exists("srb2kart", LiquidMS\ConfigModel::getConfig()["apis"]);
@@ -116,6 +119,11 @@ $router->with("{$basepath}", function() use ($router){
 	});
 
 	$router->respond('POST', '/?', function($request, $response, $service){
+		// DEPRECATED: Use Chaosnet (/api/chaosnet/inbox) instead
+		$response->header('X-LiquidMS-Deprecated', 'true');
+		$response->header('X-LiquidMS-Deprecation-Message', 'Snitch V1 is deprecated. Use Chaosnet (the Snitch V2 ActivityPub API) instead. See /api/chaosnet');
+		$response->header('Deprecation', 'version="1", sunset="Sun, 01 Jan 2028 00:00:00 GMT"');
+
 		// Provide some CSV text and it'll get parsed into tables
 		//$csvdata[] = str_getcsv($request->body());
 		$csvdata = [];
