@@ -48,8 +48,8 @@ LiquidMS' *Snitch API*. This API allows LiquidMS to mirror other master
 servers and synchronise with other LiquidMS servers, using a *Snitch script*.
 
 
-INSTALLATION
-------------
+INSTALLATION AND CONFIGURATION
+------------------------------
 
 1. Copy this folder to where you wanna host your server.
 2. Create `config.yaml` to configure your server (see below)

@@ -99,7 +99,7 @@ class DBSingleton{
 			return self::getInstance()::$connection;
 		}
 
-		public static function execute(string $query){
+		public static function execute(string $query, array $params = []){
 
 				// Sanity check
 				if( self::getInstance()::$dsn == null ){ echo "No DSN string given in config.\n"; return false; }
@@ -111,7 +111,7 @@ class DBSingleton{
 
 				try{
 					$statement = $hdl->prepare($query);
-					$result = $statement->execute();
+					$result = $statement->execute($params);
 					$hdl->commit();
 					if($result == false){ 
 							return [

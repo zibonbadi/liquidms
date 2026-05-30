@@ -30,6 +30,7 @@ class ConfigModel{
 			"user" => NULL,
 			"password" => NULL,
 		],
+		"node_actor_uri" => NULL,
 		"apis" => [],
 		"netgame_query_limit" => [
 			"n" => 20,
@@ -78,7 +79,11 @@ class ConfigModel{
 					self::$config["db"]["password"] = $newconfig["db"]["password"];
 				}
 			}
-
+			
+			if( self::child_assertType("node_actor_uri", $newconfig, "string") ){
+					self::$config["node_actor_uri"] = $newconfig["node_actor_uri"];
+			}
+			
 			if( self::child_assertType("apis", $newconfig, "array") ){
 
 				if( self::child_assertType("srb2http", $newconfig["apis"], "array") ){

@@ -16,16 +16,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 require_once __DIR__.'/ConfigModel.php';
-require_once __DIR__.'/SRB2HTTP/NetgameModel.php'; 
-require_once __DIR__.'/SRB2Kart/NetgameModel.php'; 
-/*
-if( in_array("srb2http", array_map('strtolower',$config["apis"])) ) { require_once __DIR__.'/modules/SRB2HTTP/NetgameModel.php'; }
-if( in_array("srb2kart", array_map('strtolower',$config["apis"])) { require_once __DIR__.'/modules/SRB2Kart/NetgameModel.php'; }
-if( in_array("srb2legacy", array_map('strtolower',$config["apis"])) {
-	# TODO: Figure out how to pull legacy server data
-	# (Most likely saved in DB, but requires custom NetgameModel)
-}
-*/
+require_once __DIR__.'/ChaosNet/GameModel.php';
+
 
 use \LiquidMS\ConfigModel;
 
@@ -40,81 +32,34 @@ $router->with("{$basepath}", function() use ($router){
 		$response->header('X-LiquidMS-Deprecation-Message', 'Snitch V1 is deprecated. Use Chaosnet (the Snitch V2 ActivityPub API) instead. See /api/chaosnet');
 		$response->header('Deprecation', 'version="1", sunset="Sun, 01 Jan 2028 00:00:00 GMT"');
 		
-		$use_srb2http = array_key_exists("srb2http", LiquidMS\ConfigModel::getConfig()["apis"]);
-		$use_srb2kart = array_key_exists("srb2kart", LiquidMS\ConfigModel::getConfig()["apis"]);
-		
 		// Get all known netgames as a CSV table (e.g. for snitching to other nodes)
 		$response->header('Content-Type','text/csv;header=absent');
 		$apiver = $request->headers()->get("X-liquidms-snitch-version");
-		if($use_srb2http){
-			$servers_srb2http = LiquidMS\SRB2HTTP\NetgameModel::getInstance()->getServers();
-			if($servers_srb2http["error"] != 0){
-				$response->code(500);
-				return;
-			}
+
+		$netgames = LiquidMS\ChaosNet\GameModel::getSRB2Games();
+
+		// Check database errors
+		if($netgames["error"] != 0){
+			$response->code(500);
+			return;
 		}
 
-		if($use_srb2kart){
-			$servers_srb2kart = LiquidMS\SRB2Kart\NetgameModel::getInstance()->getServers();
-			if($servers_srb2kart["error"] != 0){
-				$response->code(500);
-				return;
-			}
-		}
-
-		switch($apiver){
-		case "2":{
-			// new API -> check version
-			$response->body($apiver);
-			break;
-		}
-		case "1":
-		case NULL:
-		default:{
-			// No header; -> legacy API
-			$out = fopen('php://output', 'w');
-				
-			if($use_srb2http && $servers_srb2http["rows"] > 0){
-				foreach($servers_srb2http["data"] as $server){
-					if(($server["origin"] == "localhost") || ($server["origin"] == "127.0.0.1")){ $server["origin"] = $_SERVER["SERVER_NAME"]; }
-					// Reordering to guarantee API-compliant output
-					fputcsv($out, [
-						"host" => $server["host"],
-						"port" => $server["port"],
-						"servername" => $server["servername"],
-						"version" => $server["version"],
-						"roomname" => $server["roomname"],
-						"origin" => $server["origin"],
-					]
-					);
-				}
-				//$response->json($servers["data"]);
-			}
-			if($use_srb2kart && $servers_srb2kart["rows"] > 0){
-				foreach($servers_srb2kart["data"] as $server){
-					if(($server["origin"] == "localhost") || ($server["origin"] == "127.0.0.1")){ $server["origin"] = $_SERVER["SERVER_NAME"]; }
-					// Reordering to guarantee API-compliant output
-					fputcsv($out, [
-						"host" => $server["host"],
-						"port" => $server["port"],
-						"servername" => $server["servername"],
-						"version" => "SRB2Kart",
-						"roomname" => $server["game"],
-						"origin" => $server["origin"],
-						"_api" => "srb2kart"
-					]
-					);
-				}
-				//$response->json($servers["data"]);
-			}
-			/*
-			else{
-				#$response->code(404);
-				$response->body("");
-			}
-			*/
-			break;
-		}
+		// No header; -> legacy API
+		$out = fopen('php://output', 'w');
+		
+		foreach($netgames["data"] as $netgame){
+			if(($netgame["origin"] == "localhost") || ($netgame["origin"] == "127.0.0.1")){ $netgame["origin"] = $_SERVER["SERVER_NAME"]; }
+			// Reordering to guarantee API-compliant output
+			fputcsv($out, [
+				"host"			=>	$netgame["host"],
+				"port"			=>	$netgame["port"],
+				"servername"	=>	$netgame["servername"],
+				"version"		=>	$netgame["version"],
+				"roomname"		=>	$netgame["roomname"],
+				"origin"		=>	$netgame["origin"],
+			],
+			",", '"', "\\" 
+			);
 		}
 	});
 
@@ -142,26 +87,34 @@ $router->with("{$basepath}", function() use ($router){
 			return;
 		}
 
+		// Construct snitch V1 data array from CSV
 		foreach( $files as $fileId => $file){
-			//Formatting
+
+			//Split CSV data by line, then parse the line array
 			$csvlines = explode("\n",rtrim(file_get_contents($file['tmp_name']),"\n"));
-			$csvdata_raw = array_map('str_getcsv', $csvlines);
-			foreach($csvdata_raw as $csvnetgameId => $csvnetgame){
+			foreach($csvlines as $i => $row){
+				
+				# Parse current CSV line into a nice and tidy array
+				$netgame_arr = str_getcsv($row, ',', '"','\\');
+			
 				# Sanitize null
-				if( count($csvnetgame) < 1 || ($csvnetgame[0] == null) ){ continue; }
+				if( count($netgame_arr) < 1 || ($netgame_arr[0] == null) ){ continue; }
 				$csvdata[] = [
-					"host" => $csvnetgame[0],
-					"port" => $csvnetgame[1],
-					"servername" => $csvnetgame[2],
-					"version" => $csvnetgame[3],
-					"roomname" => $csvnetgame[4],
-					"origin" => $csvnetgame[5],
+					"host" => $netgame_arr[0],
+					"port" => $netgame_arr[1],
+					"servername" => $netgame_arr[2],
+					"version" => $netgame_arr[3],
+					"roomname" => $netgame_arr[4],
+					"origin" => $netgame_arr[5] ?? NULL,
 				];
 			}
+
 		}
 
+		// Iterate previously-constructed data array
+		$games = [];
 		foreach($csvdata as $netgameId => $netgame){
-			// Check entries. Keep halal ones, discard the rest
+			// Check entries. Keep halal ones, skip the rest
 			if(
 				($netgame["host"] == "localhost") ||
 				($netgame["host"] == "127.0.0.1") ||
@@ -175,11 +128,51 @@ $router->with("{$basepath}", function() use ($router){
 				($netgame["origin"] == "127.0.0.1")
 			){
 				if($settings["loglevel"] == "verbose"){ error_log("Removing invalid netgame \"{$netgame["servername"]}\""); }
-				unset($csvdata[$netgameId]);
+				continue;
 			}
+
+			$game_obj = NULL;
+			if($netgame["version"] == "SRB2Kart"){
+				// SRB2Kart Game
+				$game_obj = [
+					"name" => LiquidMS\ChaosNet\GameModel::normalizeName($netgame["servername"]),
+					"host"		 => $netgame["host"],
+					"port"		 => $netgame["port"],
+					"api_name" => "srb2kart",
+					"api_data" => [
+						"host"		=> $netgame["host"],
+						"port"		=> $netgame["port"],
+						"contact" 	=> $netgame["servername"],
+						"game"	 	=> $netgame["roomname"],
+					],
+					"external_origin" => $netgame["origin"] ?? NULL,
+					"origin_node" => $settings["node_actor_uri"] ?? NULL,
+				];
+			}else{
+				// SRB2HTTP game				
+				$game_obj = [
+					"name" => LiquidMS\ChaosNet\GameModel::normalizeName($netgame["servername"]),
+					"host"		 => $netgame["host"],
+					"port"		 => $netgame["port"],
+					"api_name" => "srb2http",
+					"api_data" => [
+						"host"		 => $netgame["host"],
+						"port"		 => $netgame["port"],
+						"servername" => $netgame["servername"],
+						"version"	 => $netgame["version"],
+						"roomname"	 => $netgame["roomname"],
+					],
+					"external_origin" => $netgame["origin"] ?? NULL,
+					"origin_node" => $settings["node_actor_uri"] ?? NULL,
+				];
+			}
+
+			// Add to collection if valid netgame
+			if($game_obj != NULL){ $games[] = $game_obj; }
+
 		}
 
-		if(empty($csvdata) || $csvdata == NULL){
+		if(empty($games) || $games == NULL){
 			$response->code(400);
 			$response->json( [
 			"status" => $response->code(),
@@ -188,22 +181,15 @@ $router->with("{$basepath}", function() use ($router){
 			return;
 		}
 
-		if($settings["loglevel"] == "verbose"){ error_log($request->ip()." snitched the following netgames:\n".yaml_emit($csvdata)); }
+		if($settings["loglevel"] == "verbose"){ error_log($request->ip()." snitched the following netgames:\n".json_encode($games)); }
 
-		$csvdata_srb2kart = array_filter($csvdata, function($v){ return strtolower($v["version"]) == "_srb2kart";});
-		$csvdata_srb2http = array_filter($csvdata, function($v){ return strtolower($v["version"]) != "_srb2kart";});
+		// Upsert all valid netgames
+		foreach($games as $i => $netgame){
+			// Empty string actor to make it fail to default
+			$dbresponse = LiquidMS\ChaosNet\GameModel::upsertGame($netgame, $netgame["origin_node"] ?? "localhost");
+		}
 
-		// SRB2HTTP logic
-		if(array_key_exists("srb2http", $settings["apis"]) && count($csvdata_srb2http) > 0){
-			// I'll think of something
-			$dbresponse = LiquidMS\SRB2HTTP\NetgameModel::getInstance()->pushServers($csvdata_srb2http);
-		}
-		// SRB2Kart logic
-		if(array_key_exists("srb2kart", $settings["apis"]) && count($csvdata_srb2kart) > 0){
-			// I'll think of something
-			$dbresponse = LiquidMS\SRB2Kart\NetgameModel::getInstance()->pushServers($csvdata_srb2kart);
-		}
-		
+		// Check for database funkiness
 		if( $dbresponse["error"] == 0 ){
 			if( $dbresponse["rows"] > 0 ){
 				// For now, just mirror what got parsed for testing
