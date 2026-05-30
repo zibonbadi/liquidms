@@ -692,7 +692,7 @@ function snitch_chaosnet(Array $data, String $url){
 		$apiName = $netgame["game_api_name"] ?? "unknown";
 		$name = $netgame["name"] ?? "Unknown";
 
-		$apiData = $netgame["game_api_data"]
+		$apiData = $netgame["game_api_data"];
 
 		$game = [
 			"type" => "Game",
@@ -712,7 +712,7 @@ function snitch_chaosnet(Array $data, String $url){
 		
 		$origin_node = $netgame["origin_node"] ?? null;
 		if($origin_node !== null && $origin_node !== "" && $origin_node !== "localhost"){
-			$game["origin_node"] = $origin;
+			$game["origin_node"] = $origin_node;
 		}
 
 		$items[] = $game;
