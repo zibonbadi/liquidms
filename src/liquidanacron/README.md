@@ -3,8 +3,8 @@
 LiquidAnacron - LiquidMS Snitch Script
 ======================================
 
-SUMMARY
--------
+LEGAL NOTICE
+------------
 
 This PHP script is part of [LiquidMS] and should not be distributed
 separately.  LiquidMS and this script are licensed under the
@@ -13,9 +13,12 @@ separately.  LiquidMS and this script are licensed under the
 [LiquidMS]: <https://github.com/zibonbadi/liquidms/>
 [gnuaffero]: <https://www.gnu.org/licenses/agpl-3.0.en.html>
 
+SUMMARY
+-------
+
 *LiquidAnacron* is a script to pull netgame information from various
 Master Server APIs and pass it to one or more LiquidMS servers
-using the *Snitch API*.
+using the *[Snitch]* or *[Chaosnet]* API.
 
 USAGE
 -----
@@ -42,17 +45,28 @@ Below you can find a sample file which explains the available options:
 src: # List of fetch jobs
   some_fetch_job:
     host: <URL/hostname of API server>
-    api: srb2http|srb2legacy|srb2kart|snitch # API to pull from
+    api: srb2http|srb2legacy|srb2kart|snitch|chaosnet # API to pull from
     minute: x
     api_version: "2" | "2.2" # Must be a string. Only used by srb2kart API
     srb2kart_game: SRB2Kart|RingRacers|etc. # Only used by srb2kart API
 dest: # List of destinations to push to
-  some_destination:
+  snitch_peer:
     host: <URL to Snitch API>
-    api: snitch # API to push to. Only `snitch` and `snitch_v2` (future) are supported
+    api: snitch|chaosnet # API to push to. Only `snitch` and `chaosnet` are supported
     minute: x # Execute every x minutes. Values <1 will be skipped
 ...
 ```
+
+### Migrating from Snitch to Chaosnet
+
+The [Snitch] API is **deprecated** and using `GET|POST` against it's endpoint will return the HTTP headers `Deprecation` and `X-LiquidMS-Deprecated` accordingly.
+
+Since [Chaosnet] is based on [ActivityPub], it uses separate endpoints to `GET` and `POST` data. Configure configure your `dest` jobs to `POST /api/chaosnet/inbox` and your `src` jobs to `GET /api/chaosnet/outbox` or `GET /api/chaosnet/collection` respectively.
+
+[ActivityPub]: https://www.w3.org/TR/activitypub/
+[Chaosnet]: ../src/apis/chaosnet/README.md
+[Snitch]: ../src/apis/snitch/README.md
+
 
 #### SRB2 Legacy API
 

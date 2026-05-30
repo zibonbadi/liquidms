@@ -1,6 +1,6 @@
 <?php
-# LiquidMS - distributable SRB2 master server
-# Copyright (C) 2021-2024 Zibon Badi et al.
+# LiquidMS - federated master server
+# Copyright (C) 2021-2026 Zibon Badi et al.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,6 +14,13 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+function normalizeName(string $name): string{
+	$name = urldecode($name);
+	$name = preg_replace('/[[:cntrl:]]/', '', $name);
+	$name = mb_convert_encoding($name, 'UTF-8', 'UTF-8');
+	return $name;
+}
 
 function fetchUpdate_mkContext(String $method, array|null $headers = []){
    // Emergency exit; return null in case the data is bad
@@ -41,16 +48,26 @@ function fetchUpdate_mkContext(String $method, array|null $headers = []){
 }
 
 function fetchUpdate(array $config, array $jobs = []){
-	// Internal data is gonna (somewhat) resemble the raw data from within
-	// "netgames" of the SnitchV2 specification. Reason for this is that it
-	// handles api-specific data structures agnostically.
+	// Internal data is gonna (somewhat) resemble the JSON data from ChaosNet's
+	// Game objects, just without the ActivityPub stuff.
 	//
-	// ```YAML
-	// - _api: blah # Required
-	//   _origin: local.invalid # Not required; absence implies world
-	//   someapispecificthing: 127.0.0.1
-	// - ...
+	// ```JSON
+	// [{
+	// 	"name": "My Server" # non-printable chars stripped, URL-encoded
+	// 	"game_host": "203.0.113.42" # non-printable chars stripped, URL-encoded
+	// 	"game_port": 5029
+	// 	"game_api_name": "whateverapi" # internal codename
+	// 	"game_api_data": {} # API-dependent. Handled by adapter.
+	// 	"external_origin": "hostname" | null # non-printable chars stripped, URL-encoded
+	// 	"origin_node": "node URI" # non-printable chars stripped, URL-encoded
+	//	"updated": "ISO 8601 timestamp" # When in doubt, just add time()
+	// }, ...]
 	// ```
+	//
+	// Reason for this is that it handles api-specific
+	// data structures agnostically.
+	//
+	// Instead, we let each fetch_*/snitch_* adapter handle the data structure.
 	
 	$rVal = []; // Return value
 
@@ -59,10 +76,10 @@ function fetchUpdate(array $config, array $jobs = []){
 		$sv_new = [];
 		$currentjob = $config["src"][$jobname];
 		switch($jobval["api"]){
-		case "snitchv2":{ $sv_new = fetchUpdate_snitchv2($config ,$currentjob); break; }
-		case "snitch":{ $sv_new = fetchUpdate_snitchv1($config ,$currentjob); break; }
+		case "chaosnet":{ $sv_new = fetchUpdate_chaosnet($config ,$currentjob); break; }
+		case "snitch":{ $sv_new = fetchUpdate_snitchapi($config ,$currentjob); break; }
 		case "srb2kart":{ $sv_new = fetchUpdate_srb2kart($config ,$currentjob); break; }
-		case "srb2http": { $sv_new = fetchUpdate_v1($config ,$currentjob); break; }
+		case "srb2http": { $sv_new = fetchUpdate_srb2http($config ,$currentjob); break; }
 		case "srb2legacy": { $sv_new = fetchUpdate_srb2legacy($config ,$currentjob); break; }
 		default: {
 			echo "[".date(DateTime::ISO8601, time())."] Invalid API \"{$jobval["api"]}\". Job skipped.\n";
@@ -73,110 +90,154 @@ function fetchUpdate(array $config, array $jobs = []){
 		$rVal = array_merge($rVal, $sv_new);
 	}
 
-   // Below: return value structure in YAML format (one server).
-   // Defaults and examples are noted in parentheses:
-   //
-   // ---
-   // - host: "[Server IP address (127.0.0.1)]"
-   //   port: [Port (5029)]
-   //   servername: "[Server name (SRB2%20server)]"
-   //   version: "[Server version (2.2.9)]"
-   //   roomname: "[Room name ("Casual", "World", etc.)]"
-   //   origin: "[Room origin (mb.srb2.org)]"
-   // ...
-   //
-   // The field "origin" is optional. If empty, it indicates a server
-   // registered to the node's world.
    return $rVal;
 }
 
-function fetchUpdate_snitchv1(array $config, array $job = []){
+//// FETCH functions ////
+
+function fetchUpdate_snitchapi(array $config, array $job = []){
+
+	// === Snitch API source ===
+	// "game_api_name" => "snitch" is not to be treated as a real API name.
+	// Instead the adapters should try to resolve
+	// the netgames' API to `srb2http` or `srb2kart`
 
 	$rVal = [];
 	if (($handle = fopen(rtrim($job["host"], "/"), "r")) !== FALSE) {
 		while(($data = fgetcsv($handle, null, ",")) !== FALSE) {
 			if ($data != null and $data[0] != NULL) {
-				$row = [];
-				$row["host"] = $data[0];
-				$row["port"] = $data[1];
-				$row["servername"] = $data[2];
-				$row["version"] = $data[3];
-				$row["roomname"] = $data[4];
-				$row["origin"] = $data[5];
-				$row["_origin"] = $data[5];
-				$row["_api"] = "snitch";
-				$rVal[] = $row;
+				$game_obj = [
+					"name" => normalizeName($data[2]),
+					"game_host"		 => $data[0],
+					"game_port"		 => $data[1],
+					# Making Snitch transparent to ChaosNet
+					# Are we dealing with hax (version == "SRB2Kart") ?
+					"game_api_name"	=> ($data[3] == "SRB2Kart") ? "srb2kart": "srb2http",
+					# Make Snitch transparent -> treat Snitch as origin_node
+					"external_origin" => $data[5] ?? NULL,
+					"origin_node"	  => rtrim($job["host"], "/"),
+				];
+
+				if($data[3] == "SRB2Kart"){
+					// SRB2Kart Game
+					$game_obj["game_api_data"] = [
+						"host"		 => $data[0],
+						"port"		 => $data[1],
+						"contact" => $data[2],
+						"game"	 => $data[4],
+					];
+				}else{
+					// SRB2HTTP game
+					$game_obj["game_api_data"] = [
+						"host"		 => $data[0],
+						"port"		 => $data[1],
+						"servername" => $data[2],
+						"version"	 => $data[3],
+						"roomname"	 => $data[4],
+					];
+				}
+
+				$rVal[] = $game_obj;
 			}
 		}
 		fclose($handle);
 	}
-	#var_dump($rVal);
 
-	// Below: return value structure in YAML format (one server).
-	// Defaults and examples are noted in paretheses:
-	//
-	// ---
-	// - host: "[Server IP address (127.0.0.1)]"
-	//   port: [Port (5029)]
-	//   servername: "[Server name (SRB2%20server)]"
-	//   version: "[Server version (2.2.9)]"
-	//   roomname: "[Room name ("Casual", "World", etc.)]"
-	//   origin: "[Room origin (mb.srb2.org)]"
-	// ...
-	//
-	// The field "origin" is optional. If empty, it indicates a server
-	// registered to the node's world.
 	return $rVal;
-
 }
 
-function fetchUpdate_snitchv2(array $config, array $job = []){
 
-   // SETUP: Stream context & vars
-   $rVal = []; // Empty dataset -> safe to pass on
-   $stream_context = null;
-   if(array_key_exists("http-header",$job)){ 
-	   $stream_context = fetchUpdate_mkContext("GET", $job["http-header"]);
-   }else{
-	   $stream_context = fetchUpdate_mkContext("GET");
-   }
+function fetchUpdate_chaosnet(array $config, array $job = []){
+	$rVal = [];
 
-	// 1. Get JSON from SnitchV2
-   $response = file_get_contents(
-		   rtrim($job["host"], "/"),
-		   false,
-		   $stream_context
-		   );
-	if ($response !== FALSE) {
-	
-		// 2. Parse into ~~object~~ associative array
-		$res_o = json_decode($response, true);
-		
-		if ($res_o !== NULL) {
-			// 3a. Validate API
-			switch($res_o["api_version"]){
-			case "2.0":{
-				// 3b. Unwrap
-				$rVal = $res_o["netgames"];
-				break;
-			}
-			default:{break;}
-			}
-		}else{
-			echo "[".date(DateTime::ISO8601, time())."] ERROR: Invalid response JSON. Job skipped. \n";
-		}
+	$stream_context = null;
+	if(array_key_exists("http-header",$job)){
+		$stream_context = fetchUpdate_mkContext("GET", $job["http-header"]);
 	}else{
-		echo "[".date(DateTime::ISO8601, time())."] ERROR: HTTP request failed. Job skipped.\n";
+		$stream_context = fetchUpdate_mkContext("GET");
 	}
 
-	// 4. Profit
-	// The field "origin/"_origin" is optional. If empty, it indicates a server
-	// registered to the node's world.
-	return $rVal;
+	$baseUrl = rtrim($job["host"], "/");
+	$page = 1;
+	$pagesize = 200;
+	$seen = [];
 
+	do{
+		$url = "{$baseUrl}/collection?page={$page}&pagesize={$pagesize}";
+		$response = file_get_contents($url, false, $stream_context);
+		if($response === FALSE){
+			echo "[".date(DateTime::ISO8601, time())."] ERROR: HTTP request failed for {$url}\n";
+			break;
+		}
+
+		$collection = json_decode($response, true);
+		if($collection === NULL){
+			echo "[".date(DateTime::ISO8601, time())."] ERROR: Invalid JSON from {$url}\n";
+			break;
+		}
+
+		$items = $collection["items"] ?? [];
+		if(!is_array($items) || empty($items)){
+			break;
+		}
+
+		foreach($items as $item){
+			if(!is_array($item)){ continue; }
+
+			$host = $item["game_host"] ?? "";
+			$port = $item["game_port"] ?? 0;
+			$gameName = $item["name"] ?? "unknown";
+			$apiName = $item["game_api_name"] ?? "unknown";
+			$apiData = $item["game_api_data"] ?? [];
+			
+			// Skip redundant entries //
+			$dedupKey = "{$host}:{$port}:{$apiName}";
+			if(isset($seen[$dedupKey])){ continue; }
+			$seen[$dedupKey] = true;
+
+			// Now that we know the dedupKey, fill in the SHA256 ID
+			$gameId = $item["id"] ?? hash("sha256", "{$host}|{$host}|{$apiName}");
+
+			// Use full ChaosNet object for completeness' sake
+			$row = $item;
+			// Fill in critical fields
+			$row["id"] = $gameId;
+			$row["name"] = $gameName;
+			$row["game_host"] = $host;
+			$row["game_port"] = $port;
+			$row["game_api_name"] = $apiName;
+			$row["game_api_data"] = $apiData;
+			//$row["updated"] is being handled by $row = $item;
+
+			/*
+			$row = [
+				"_api" => $apiName,
+				"_origin" => $item["external_origin"] ?? $item["origin_node"] ?? parse_url($job["host"])["host"] ?? "",
+				"host" => $host,
+				"port" => $port,
+				"servername" => $item["name"] ?? $apiData["name"] ?? $apiData["servername"] ?? "Unknown",
+				"version" => $apiData["version"] ?? $item["game_api_version"] ?? "",
+				"roomname" => $apiData["roomname"] ?? $apiData["room"] ?? "",
+			];
+			foreach($item as $k => $v){
+				if(!in_array($k, ["host", "port", "api_name", "name", "external_origin", "origin_node", "path", "updated", "type", "id", "game_host", "game_port", "game_api_name", "game_api_data", "game_api_version"])){
+					$row[$k] = $v;
+				}
+			}
+			*/
+
+			$rVal[] = $row;
+		}
+
+		$page++;
+		$totalItems = $collection["totalItems"] ?? 0;
+		$maxPages = max(1, (int)ceil($totalItems / $pagesize));
+	}while($page <= $maxPages);
+
+	return $rVal;
 }
 
-function fetchUpdate_v1(array $config, array $job = []){
+function fetchUpdate_srb2http(array $config, array $job = []){
    $rVal = []; // Return value
 
    // Get stream context for header configs
@@ -226,11 +287,6 @@ function fetchUpdate_v1(array $config, array $job = []){
 	   // Break Server lists into Lines and feed the array
 
 	   // Filter server block into distinct value arrays (step 2)
-	   // - - "[server line]"
-	   //   - "[IP]"
-	   //   - "[port]"
-	   //   - "[name]"
-	   //   - "[version]"
 	   $serversplit = explode("\n",rtrim($roomdata[2],"\n"));
 
 	   foreach($serversplit as $rowid =>  $rowdata){
@@ -238,7 +294,7 @@ function fetchUpdate_v1(array $config, array $job = []){
 		   $rowfields = explode(" ",$rowdata);
 
 		   // Figure out server name
-		   $roomname = "Dummy name";
+		   $roomname = NULL;
 		   foreach($rooms as $r_infoid =>  $r_infodata){
 			   if($roomdata[1] == $r_infodata[1]){
 				   $roomname = $r_infodata[2];
@@ -246,34 +302,29 @@ function fetchUpdate_v1(array $config, array $job = []){
 			   }
 		   }
 
-		   // Build return value conforming entry
-		   $newrow["_api"] = "srb2http";
-		   $newrow["host"] = $rowfields[0];
-		   $newrow["port"] = intval($rowfields[1]);
-		   $newrow["servername"] = $rowfields[2];
-		   $newrow["version"] = $rowfields[3];
-		   $newrow["roomname"] = $roomname;
-		   $newrow["_origin"] = parse_url($job["host"])["host"]; // Extract hostname from URL
+		   // Build Game object
+		   $game_obj = [
+				"name" => normalizeName($rowfields[2]),
+				"game_host"		 => $rowfields[0],
+				"game_port"		 => $rowfields[1],
+				"game_api_name"	=> "srb2http",
+				"game_api_data" => [
+					"host"		 => $rowfields[0],
+					"port"		 => $rowfields[1],
+					"servername" => $rowfields[2],
+					"version"	 => $rowfields[3],
+					"roomname"	 => $roomname,
+				],
+				# Make Snitch transparent -> treat Snitch as origin_node
+				"external_origin" => parse_url($job["host"])["host"],
+				"origin_node"	  => NULL,
+			];
 
-		   // Insert entry
-		   $rVal[] = $newrow;
-	   }
+			// Insert Game into list
+			$rVal[] = $game_obj;
+		}
    }
 
-   // Below: return value structure in YAML format (one server).
-   // Defaults and examples are noted in paretheses:
-   //
-   // ---
-   // - host: "[Server IP address (127.0.0.1)]"
-   //   port: [Port (5029)]
-   //   servername: "[Server name (SRB2%20server)]"
-   //   version: "[Server version (2.2.9)]"
-   //   roomname: "[Room name ("Casual", "World", etc.)]"
-   //   origin: "[Room origin (mb.srb2.org)]"
-   // ...
-   //
-   // The field "origin" is optional. If empty, it indicates a server
-   // registered to the node's world.
    return $rVal;
 }
 
@@ -411,6 +462,26 @@ function fetchUpdate_srb2legacy(array $config, array $job = []){
 		   "roomname" => $rooms[$res["body"]["room"]]["name"],
 		   "_origin" => $job["host"], // Extract hostname from URL
 		];
+
+		$game_obj = [
+			"name" => normalizeName(res["body"]["servername"]),
+			"game_host"		 => $res["body"]["ip"],
+			"game_port"		 => $res["body"]["port"],
+			# SRB2Legacy's data structure is identical to SRB2HTTP
+			"game_api_name"	=> "srb2http",
+			"game_api_data" => [
+				"host"		 => $res["body"]["ip"],
+				"port"		 => $res["body"]["port"],
+				"servername" => $res["body"]["servername"],
+				"version"	 => $res["body"]["version"],
+				"roomname"	 => $rooms[$res["body"]["room"]]["name"],
+			],
+			# Make Snitch transparent -> treat Snitch as origin_node
+			"external_origin" => $job["jost"],
+			"origin_node"	  => NULL,
+		];
+		$rVal[] = $game_obj;
+
    }while($bytes_recv > 0);
 
    // Close connection
@@ -441,39 +512,29 @@ function fetchUpdate_srb2kart(array $config, array $job = []){
 
 	foreach($res_server as $rowid =>  $rowdata){
 
-
-   		
 		$newrow = [];
 		#$rowfields = explode(" ",$rowdata);
 		preg_match_all('/^([^\s]*)\s+([^\s]*)\s+(.*)/', $rowdata, $rowfields, PREG_SET_ORDER);
 
-		// Build return value conforming entry
-		$newrow["_api"] = "srb2kart";
-		$newrow["host"] = $rowfields[0][1];
-		$newrow["port"] = intval($rowfields[0][2]);
-		$newrow["servername"] = $rowfields[0][3];
-		$newrow["version"] = "_srb2kart";
-		$newrow["roomname"] = $job["srb2kart_game"];
-		$newrow["_origin"] = parse_url($job["host"])["host"]; // Extract hostname from URL
-
-		// Insert entry
-		$rVal[] = $newrow;
+		// Build Game object for return value
+		$game_obj = [
+			"name" => normalizeName($rowfields[0][3]),
+			"game_host"		 => $rowfields[0][1],
+			"game_port"		 => $rowfields[0][2],
+			"game_api_name"	=> "srb2kart",
+			"game_api_data" => [
+				"host"		 => $rowfields[0][1],
+				"port"		 => $rowfields[0][2],
+				"contact" => $rowfields[0][3],
+				"game"	 => $job["srb2kart_game"],
+			],
+			# Make Snitch transparent -> treat Snitch as origin_node
+			"external_origin" => parse_url($job["host"])["host"],
+			"origin_node"	  => NULL,
+		];
+		$rVal[] = $game_obj;
 	}
 
-   // Below: return value structure in YAML format (one server).
-   // Defaults and examples are noted in paretheses:
-   //
-   // ---
-   // - host: "[Server IP address (127.0.0.1)]"
-   //   port: [Port (5029)]
-   //   servername: "[Server name (SRB2kart%20server)]"
-   //   version: "_srb2kart" to denote it being from the Kart API
-   //   roomname: Game name
-   //   origin: "[Room origin (ms.kartkrew.org)]"
-   // ...
-   //
-   // The field "origin" is optional. If empty, it indicates a server
-   // registered to the node's world.
    return $rVal;
 }
 
@@ -496,34 +557,33 @@ function snitch(Array $data, Array $dests){
 		return;
 	}
 
-	/**
-	 * Cache SRB2-filtered Netgames (for Snitch V1/legacy)
-	**/
-	foreach($data as $netgame_i => $netgame_v){
-		echo "NETGAME API #$netgame_i => ".$netgame_v["_api"]."\n";
-		if($netgame_v["_api"] === "srb2http")
-			$srb2http_count++;
-		if($netgame_v["_api"] === "srb2legacy")
-			$srb2legacy_count++;
-		if($netgame_v["_api"] === "srb2kart")
-			$srb2kart_count++;
-	}
-	echo "[".date(DateTime::ISO8601, time())."] Cached SRB2HTTP-related netgames (".$srb2http_count." netgames)\n";
-	echo "[".date(DateTime::ISO8601, time())."] Cached SRB2Legacy-related netgames (".$srb2legacy_count." netgames)\n";
-	echo "[".date(DateTime::ISO8601, time())."] Cached SRB2Kart-related netgames (".$srb2kart_count." netgames)\n";
 
+	/**
+	 * Count cached netgames by MS API
+	 */
+	$api_counter = [];
+	foreach($data as $netgame_i => $netgame_v){
+		if(!array_key_exists($netgame_v["game_api_name"], $api_counter)){
+			$api_counter[$netgame_v["game_api_name"]] = 0;
+		}
+		$api_counter[$netgame_v["game_api_name"]]++;
+	}
+
+	// List API cache counters
+	foreach($api_counter as $api => $count){}
+		echo "[".date(DateTime::ISO8601, time())."] Cached ".$count." netgames from API \"".$api."\".";
+	}
 
 	foreach($dests as $dest_i => $dest_v){
 		switch($dest_v["api"]){
-		case "snitch_v2":{
-			echo "[".date(DateTime::ISO8601, time())."] SNITCH SnitchV2 is not implemented yet!\n";
-			#echo snitch_snitchv2();
+		case "chaosnet":{
+			echo "[".date(DateTime::ISO8601, time())."] PUSH -> CHAOSNET \"{$dest_v["host"]}\"...\n";
+			echo snitch_chaosnet($data, $dest_v["host"]);
 			break;
 		}
-		case "snitch_v1":
 		case "snitch":{
-			echo "[".date(DateTime::ISO8601, time())."] SNITCH \"{$dest_v["host"]}\"...\n";
-			echo snitch_snitchv1($data, $dest_v["host"]);
+			echo "[".date(DateTime::ISO8601, time())."] PUSH -> SNITCH \"{$dest_v["host"]}\"...\n";
+			echo snitch_snitchapi($data, $dest_v["host"]);
 			break;
 		}
 		default: {
@@ -536,7 +596,7 @@ function snitch(Array $data, Array $dests){
 
 }
 
-function snitch_snitchv1(Array $data, String $url){
+function snitch_snitchapi(Array $data, String $url){
 	$csvContent = "";
 	$http_response = "";
 	$multipart_boundary = '--------------------------'.microtime(true);
@@ -547,18 +607,43 @@ function snitch_snitchv1(Array $data, String $url){
 		// Create data
 		#echo "[".date(DateTime::ISO8601, time())."] Processing row {$dataIndex}...\n";
 
+		$dRow_clean = NULL;
+		switch($dataRow){
+			case "srb2http":{
+				// Clean, beautiful SRB2HTTP rows
+				$dRow_clean = [
+					"host" => $dataRow["game_api_data"]["host"] ?? $dataRow["game_host"],
+					"port" => $dataRow["game_api_data"]["port"] ?? $dataRow["game_port"],
+					"servername" => $dataRow["game_api_data"]["servername"] ?? ["name"],
+					"version" => $dataRow["game_api_data"]["version"],
+					"roomname" => $dataRow["game_api_data"]["roomname"],
+					"origin" => $dataRow["external_origin"],
+				];
+				break;
+			}
+			case "srb2kart":{	
+				// Hacky SRB2Kart rows	
+				$dRow_clean = [
+					"host" => $dataRow["game_api_data"]["host"] ?? $dataRow["game_host"],
+					"port" => $dataRow["game_api_data"]["port"] ?? $dataRow["game_port"],
+					"servername" => $dataRow["game_api_data"]["contact"] ?? ["name"],
+					"version" => "SRB2Kart",
+					"rommname" => $dataRow["game_api_data"]["game"],
+					"origin" => $dataRow["external_origin"],
+				];
+				break;
+			}
+			default:{
+				// Unsupported API -> Skip
+				continue;
+				break;
+			}
+		}
+
+
 		// Write CSV to var. Iterative opening may
 		// be slower, but guarantees clean output
 		
-		// Cleanup bc the intermediate array changed
-		$dRow_clean = [
-			"host" => $dataRow["host"],
-			"port" => $dataRow["port"],
-			"servername" => $dataRow["servername"],
-			"version" => $dataRow["version"],
-			"rommname" => $dataRow["roomname"],
-			"origin" => $dataRow["_origin"],
-		];
 		$tmp = fopen('php://temp', 'r+');
 		$csvChars = fputcsv($tmp, $dRow_clean);
 		rewind($tmp);
@@ -586,6 +671,90 @@ function snitch_snitchv1(Array $data, String $url){
 	curl_close($creq);
 
 	return $http_response."\n";
+}
+
+function snitch_chaosnet(Array $data, String $url){
+	$config = \LiquidMS\ConfigModel::getConfig();
+
+	$nodeActor = $config["node_actor_uri"] ?? null;
+	if($nodeActor === null){
+		$nodeHost = $config["node_host"] ?? null;
+		# Later: Skip "id" when no node_host available
+		if($nodeHost !== NULL)
+			$nodeActor = "https://{$nodeHost}";
+	}
+
+	$items = [];
+	foreach($data as $netgame){
+		$gameHost = $netgame["game_host"] ?? "";
+		$gamePort = $netgame["game_port"] ?? 0;
+		$apiName = $netgame["game_api_name"] ?? "unknown";
+		$name = $netgame["name"] ?? "Unknown";
+
+		$apiData = $netgame["game_api_data"]
+
+		$game = [
+			"type" => "Game",
+			"id" => hash("sha256", "{$gameHost}|{$gamePort}|{$apiName}"),
+			"name" => $name,
+			"game_host" => $gameHost,
+			"game_port" => (int)$gamePort,
+			"game_api_name" => $apiName,
+			"game_api_data" => $apiData,
+			"updated" => $netgame["updated"] ?? date(DateTime::ISO8601, time())
+		];
+
+		$ext_origin = $netgame["external_origin"] ?? null;
+		if($ext_origin !== null && $ext_origin !== "" && $ext_origin !== "localhost"){
+			$game["external_origin"] = $ext_origin;
+		}
+		
+		$origin_node = $netgame["origin_node"] ?? null;
+		if($origin_node !== null && $origin_node !== "" && $origin_node !== "localhost"){
+			$game["origin_node"] = $origin;
+		}
+
+		$items[] = $game;
+	}
+
+	if(empty($items)){
+		return "[".date(DateTime::ISO8601, time())."] No netgames to snitch to \"{$url}\".\n";
+	}
+
+	$deliverActivity = [
+		"@context" => "https://www.w3.org/ns/activitystreams",
+		"type" => "Deliver",
+		"object" => [
+			"type" => "OrderedCollection",
+			"items" => $items,
+		],
+	];
+
+	# Skip "id" field when no node_host available
+	if($nodeActor !== null && $nodeActor !== "" && $nodeActor !== "localhost"){
+		$deliverActivity["actor"] = $nodeActor;
+	}
+
+	$payload = json_encode($deliverActivity, JSON_UNESCAPED_SLASHES);
+
+	$ch = curl_init();
+	curl_setopt_array($ch, [
+		CURLOPT_URL => $url,
+		CURLOPT_POST => true,
+		CURLOPT_POSTFIELDS => $payload,
+		CURLOPT_HTTPHEADER => [
+			"Content-Type: application/activity+json",
+			"Content-Length: " . strlen($payload),
+		],
+		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_TIMEOUT => 30,
+	]);
+
+	$http_response = curl_exec($ch);
+	$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	curl_close($ch);
+
+	return "[".date(DateTime::ISO8601, time())."] ChaosNet snitch to {$url} returned {$http_code}: {$http_response}\n";
 }
 
 ?>

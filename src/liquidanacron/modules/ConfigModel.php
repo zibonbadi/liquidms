@@ -32,6 +32,8 @@ class ConfigModel{
 			"n" => 20,
 			"seconds" => 1,
 		],
+		"node_host" => null,
+		"node_actor_uri" => null,
 		"fetchmode" => "snitch", // Either "fetch" or "snitch"
 		"src" => [],
 		"dest" => [],
@@ -82,6 +84,13 @@ class ConfigModel{
 						$newconfig["fetchmode"] == "snitch")
 			  ){
 				self::$config["fetchmode"] = $newconfig["fetchmode"];
+			}
+
+			if( self::child_assertType("node_host", $newconfig, "string") ){
+				self::$config["node_host"] = $newconfig["node_host"];
+			}
+			if( self::child_assertType("node_actor_uri", $newconfig, "string") ){
+				self::$config["node_actor_uri"] = $newconfig["node_actor_uri"];
 			}
 
 			if( self::child_assertType("src", $newconfig, "array") ){

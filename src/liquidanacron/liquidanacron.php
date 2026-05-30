@@ -107,6 +107,7 @@ do{
 				continue 2; # Skip this one
 			}
 			# Good APIs
+			case "chaosnet":
 			case "snitch":
 			case "snitch_v2": {
 				break;
