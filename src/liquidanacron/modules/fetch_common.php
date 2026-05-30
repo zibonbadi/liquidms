@@ -570,8 +570,8 @@ function snitch(Array $data, Array $dests){
 	}
 
 	// List API cache counters
-	foreach($api_counter as $api => $count){}
-		echo "[".date(DateTime::ISO8601, time())."] Cached ".$count." netgames from API \"".$api."\".";
+	foreach($api_counter as $api => $count){
+		echo "[".date(DateTime::ISO8601, time())."] Cached ".$count." netgames from API \"".$api."\".\n";
 	}
 
 	foreach($dests as $dest_i => $dest_v){
