@@ -1,0 +1,29 @@
+{
+    "name": "zibonbadi/liquidms-chaosnet",
+    "description": "Chaosnet API - ActivityPub-based netgame synchronization for LiquidMS",
+    "type": "project",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/optimacros/klein.php/",
+            "no-api": true
+        }
+    ],
+    "require": {
+        "ext-mbstring": "*",
+        "ext-pdo": "*",
+        "ext-yaml": "*",
+        "klein/klein": "dev-dev-php8",
+        "php": ">=8.1"
+    },
+    "license": "AGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "zibonbadi",
+            "email": "zibonbadi@users.noreply.github.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    }
+}
