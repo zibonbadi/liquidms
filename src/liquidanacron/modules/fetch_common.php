@@ -608,7 +608,7 @@ function snitch_snitchapi(Array $data, String $url){
 		#echo "[".date(DateTime::ISO8601, time())."] Processing row {$dataIndex}...\n";
 
 		$dRow_clean = NULL;
-		switch($dataRow){
+		switch($dataRow["game_api_name"]){
 			case "srb2http":{
 				// Clean, beautiful SRB2HTTP rows
 				$dRow_clean = [
@@ -635,7 +635,7 @@ function snitch_snitchapi(Array $data, String $url){
 			}
 			default:{
 				// Unsupported API -> Skip
-				continue;
+				continue 2;
 				break;
 			}
 		}
@@ -643,14 +643,15 @@ function snitch_snitchapi(Array $data, String $url){
 
 		// Write CSV to var. Iterative opening may
 		// be slower, but guarantees clean output
-		
-		$tmp = fopen('php://temp', 'r+');
-		$csvChars = fputcsv($tmp, $dRow_clean);
-		rewind($tmp);
-		$csvContent .= fread($tmp, $csvChars);
-		fclose($tmp);
+		if($dRow_clean != NULL){
+			$tmp = fopen('php://memory', 'r+');
+			if( !fputcsv($tmp, $dRow_clean, ",", '"', "\\") ){ continue; }
+			rewind($tmp);
+			$csvContent .= stream_get_contents($tmp);
+			fclose($tmp);
+		}
 	}
-	rtrim($csvContent, "\n");
+	$csvContent = rtrim($csvContent, "\n");
 
 	/*/ NEW METHOD: cURL /*/
 
