@@ -100,12 +100,12 @@ $router->with("{$basepath}", function() use ($router){
 				# Sanitize null
 				if( count($netgame_arr) < 1 || ($netgame_arr[0] == null) ){ continue; }
 				$csvdata[] = [
-					"host" => $netgame_arr[0],
-					"port" => $netgame_arr[1],
-					"servername" => $netgame_arr[2],
-					"version" => $netgame_arr[3],
-					"roomname" => $netgame_arr[4],
-					"origin" => $netgame_arr[5] ?? NULL,
+					"host"			=>	$netgame_arr[0],
+					"port"			=>	$netgame_arr[1],
+					"servername"	=>	$netgame_arr[2],
+					"version"		=>	$netgame_arr[3],
+					"roomname"		=>	$netgame_arr[4],
+					"origin"		=>	$netgame_arr[5] ?? NULL,
 				];
 			}
 

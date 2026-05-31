@@ -148,7 +148,7 @@ class GameModel{
 			":port" => $port,
 			":api_name" => $apiName,
 			":api_data" => $apiDataJson,
-			":external_origin" => $externalOrigin,
+			":external_origin" => $externalOrigin ?? $game["external_origin"] ?? NULL,
 			":origin_node" => $finalOriginNode,
 			":path" => $pathJson,
 		]);
