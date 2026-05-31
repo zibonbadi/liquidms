@@ -104,7 +104,7 @@ function fetchUpdate_snitchapi(array $config, array $job = []){
 
 	$rVal = [];
 	if (($handle = fopen(rtrim($job["host"], "/"), "r")) !== FALSE) {
-		while(($data = fgetcsv($handle, null, ",")) !== FALSE) {
+		while(($data = fgetcsv($handle, null, ",", '"', "\\")) !== FALSE) {
 			if ($data != null and $data[0] != NULL) {
 				$game_obj = [
 					"name" => normalizeName($data[2]),
