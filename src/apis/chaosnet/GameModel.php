@@ -67,24 +67,22 @@ class GameModel{
 	}
 
 	public static function upsertGame(array $game, string $originNode, ?string $externalOrigin = null, array $path = []): array{
-		$host = $game["host"] ?? "";
-		$port = (int)($game["port"] ?? 0);
-		$apiName = $game["api_name"] ?? $game["_api"] ?? "unknown";
+		
+		$host = $game["game_host"] ?? "";
+		$port = (int)($game["game_port"] ?? 0);
+		$apiName = $game["game_api_name"] ?? "unknown";
 		$id = self::generateId($host, $port, $apiName);
 
-		$apiData = $game["api_data"] ?? [];
-		foreach($game as $k => $v){
-			if(!in_array($k, ["host", "port", "api_name", "_api", "_origin", "external_origin", "origin_node", "path", "id"])){
-				$apiData[$k] = $v;
-			}
-		}
+		$apiData = $game["game_api_data"] ?? [];
 
+		/*
 		$name = self::normalizeName($apiData["name"] ?? $apiData["servername"] ?? "");
 		$apiData["name"] = $name;
-
+		*/
+		
 		$pathJson = json_encode($path);
 		$apiDataJson = json_encode($apiData);
-
+		
 		$existing = DBSingleton::execute("SELECT origin_node, path FROM chaosnet_netgames WHERE id = :id", [":id" => $id]);
 		$finalOriginNode = $originNode;
 		$finalPath = $path;
@@ -118,7 +116,7 @@ class GameModel{
 			":port" => $port,
 			":api_name" => $apiName,
 			":api_data" => $apiDataJson,
-			":external_origin" => $externalOrigin,
+			":external_origin" => $externalOrigin ?? $game["external_origin"] ?? NULL,
 			":origin_node" => $finalOriginNode,
 			":path" => $pathJson,
 		]);
