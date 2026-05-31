@@ -78,7 +78,32 @@ class DBSingleton{
 
 		try{
 			$statement = $hdl->prepare($query);
-			$result = $statement->execute($params);
+
+			// Explicitly derive param types from PHP types because PDO is stupid
+			foreach($params as $param => $var){
+				switch(gettype($var)){
+					case "boolean":{
+						$statement->bindValue($param, $var, \PDO::PARAM_BOOL);
+						break;
+					}
+					case "integer":{
+						$statement->bindValue($param, $var, \PDO::PARAM_INT);
+						break;
+					}
+					case "NULL":{
+						$statement->bindValue($param, $var, \PDO::PARAM_NULL);
+						break;
+					}
+					case "string":
+					default:{
+						$statement->bindValue($param, $var, \PDO::PARAM_STR);
+						break;
+					}
+				}
+			}
+
+			// *NOW* we get to execute...
+			$result = $statement->execute();
 			$hdl->commit();
 			if($result == false){
 				return [
