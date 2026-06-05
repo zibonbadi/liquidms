@@ -34,6 +34,7 @@ class GameModel{
 		$name = urldecode($name);
 		$name = preg_replace('/[[:cntrl:]]/', '', $name);
 		$name = mb_convert_encoding($name, 'UTF-8', 'UTF-8');
+		$name = urlencode($name);
 		return $name;
 	}
 
