@@ -19,6 +19,7 @@ function normalizeName(string $name): string{
 	$name = urldecode($name);
 	$name = preg_replace('/[[:cntrl:]]/', '', $name);
 	$name = mb_convert_encoding($name, 'UTF-8', 'UTF-8');
+	$name = rawurlencode($name);
 	return $name;
 }
 
