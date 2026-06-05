@@ -71,6 +71,7 @@ class GameModel{
 		
 		$host = $game["game_host"] ?? "";
 		$port = (int)($game["game_port"] ?? 0);
+		$name = self::normalizeName($game["name"]) ?? "";
 		$apiName = $game["game_api_name"] ?? "unknown";
 		$id = self::generateId($host, $port, $apiName);
 
@@ -100,11 +101,12 @@ class GameModel{
 			$pathJson = json_encode($finalPath);
 		}
 
-		$query = "INSERT INTO chaosnet_netgames (id, host, port, api_name, api_data, external_origin, origin_node, path)
-		          VALUES (:id, :host, :port, :api_name, :api_data, :external_origin, :origin_node, :path)
+		$query = "INSERT INTO chaosnet_netgames (id, host, port, name, api_name, api_data, external_origin, origin_node, path)
+		          VALUES (:id, :host, :port, :name, :api_name, :api_data, :external_origin, :origin_node, :path)
 		          ON DUPLICATE KEY UPDATE
 		            host = VALUES(host),
 		            port = VALUES(port),
+		            name = VALUES(name),
 		            api_name = VALUES(api_name),
 		            api_data = VALUES(api_data),
 		            external_origin = VALUES(external_origin),
@@ -115,6 +117,7 @@ class GameModel{
 			":id" => $id,
 			":host" => $host,
 			":port" => $port,
+			":name" => $name,
 			":api_name" => $apiName,
 			":api_data" => $apiDataJson,
 			":external_origin" => $externalOrigin ?? $game["external_origin"] ?? NULL,

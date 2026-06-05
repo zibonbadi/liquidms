@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS `chaosnet_netgames` (
   `id`              VARCHAR(64)  NOT NULL,
   `host`            VARCHAR(45)  NOT NULL,
   `port`            SMALLINT UNSIGNED NOT NULL,
+  `name` VARCHAR(256) DEFAULT NULL,
   `api_name`        VARCHAR(32)  NOT NULL,
   `api_data`        JSON         DEFAULT NULL,
   `external_origin` VARCHAR(256) DEFAULT NULL,
