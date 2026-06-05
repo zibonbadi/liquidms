@@ -79,7 +79,7 @@ $router->with("{$basepath}/versions", function() use ($router){
 						$response->code(404);
 						$maincontent = "No such version\n";
 					}
-					return "${maincontent}";
+					return "{$maincontent}";
 				}else{
 					$response->code(500);
 					$service->render(__DIR__."/ErrorView.php", ["response" => $servers]);
@@ -149,7 +149,7 @@ $router->with("{$basepath}/rooms", function() use ($router){
 
 							=MOTD=
 
-							${motd}
+							{$motd}
 
 
 							1
@@ -161,7 +161,7 @@ $router->with("{$basepath}/rooms", function() use ($router){
 
 							=MOTD=
 
-							${motd}
+							{$motd}
 
 
 							{$maincontent}
