@@ -49,7 +49,7 @@ class GameModel{
 		$games = [];
 		foreach($result["data"] as $row){
 			$apiData = json_decode($row["api_data"] ?? "{}", true);
-			$name = self::normalizeName($apiData["name"] ?? "");
+			$name = self::normalizeName($row["name"] ?? "");
 			$games[] = self::rowToGameObject($row, $name);
 		}
 
