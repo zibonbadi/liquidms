@@ -67,7 +67,7 @@ BEGIN
 END#
 
 CREATE EVENT IF NOT EXISTS chaosnet_netgames_purge
-ON SCHEDULE EVERY 5 MINUTES
+ON SCHEDULE EVERY 5 MINUTE
 COMMENT 'Removes stale (30 min) and deleted (10 min) netgame entries'
 DO
 BEGIN
