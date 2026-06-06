@@ -1,6 +1,6 @@
 ![LiquidMS logo](doc/chaosnet.svg)
 
-ChaosNet (Beta 1)
+ChaosNet (Beta 2)
 =================
 
 *ChaosNet* (formerly Snitch V2) is the successor API for [LiquidMS Snitch].
@@ -20,10 +20,10 @@ netgame data through the ActivityPub protocol.
 Design Goals
 ------------
 
-3. **Distributed synchronisation**: LiquidMS nodes are designed to
+1. **Distributed synchronisation**: LiquidMS nodes are designed to
    synchronize among one another without central coordination nor
    broadcast storms. This lets LiquidMS build a resilient, consistent,
-   and distributed gaming network hosted by it's community.
+   and distributed gaming network hosted by its community.
 
 2. **ActivityPub-based**: ActivityPub defines stable, well-known web
    mechanisms for client-to-server and server-to-server communication.
@@ -40,12 +40,18 @@ Design Goals
    both bulk requests through the `Deliver` activity as well as manage
    singular netgame lifecycles using `Create`, `Update` and `Delete`.
 
-5. **Frequent updates**: Netgames update frequently and ChaosNet is designed
+5. **State machine lifecycle**: Netgame rows transition through defined
+   states (`new` → `active` → `stale` → `deleted`). ChaosNet detects
+   changes written by any API to the shared database and propagates them
+   across the social graph — even if the change came from a non-ChaosNet
+   API.
+
+6. **Frequent updates**: Netgames update frequently and ChaosNet is designed
    with that in mind. That's why the protocol is stateless and idempotent,
    to allow updating the network as often as the nodes allow.
 
 
-Scope of Beta 1
+Scope of Beta 2
 ---------------
 
 - Service actor with inbox, outbox, following, followers
@@ -55,13 +61,20 @@ Scope of Beta 1
 - Node-to-node bulk sync via `Deliver`
 - Follow/Accept subscription model for push distribution
 - Unified database table with JSON `api_data`
+- State machine lifecycle (new → active → stale → deleted)
+- `processPendingRows()` — detects `new`/`stale` rows left by other APIs,
+  creates outbox entries, transitions states, and optionally forwards to
+  followers
+- Inline forwarding — received activities are forwarded to all accepted
+  followers immediately during the inbox request
+- Outbox logging for pending rows on `GET /collection`
 - liquidanacron adapters (`fetchUpdate_chaosnet`, `snitch_chaosnet`)
 
 ### Stubbed elements (no-op placeholder)
 
 - HTTP Signatures (authentication)
 
-### Not included (post-Beta 1)
+### Not included (post-Beta 2)
 
 - Social features (Join/Leave, Person actors)
 - WebFinger discovery
@@ -220,9 +233,9 @@ Activity types accepted by `POST /inbox`:
 
 | Activity | Effect |
 |----------|--------|
-| `Create{object: Game}` | INSERT a new netgame |
-| `Update{object: Game}` | UPDATE an existing netgame |
-| `Delete{object: Game}` | DELETE a netgame by id or (host, port, api_name) |
+| `Create{object: Game}` | INSERT a new netgame. Sets row state to `active`. |
+| `Update{object: Game}` | UPDATE an existing netgame. Sets row state to `active`. |
+| `Delete{object: Game}` | Set row state to `deleted` by id or (host, port, api_name). |
 
 #### Server-to-Server activities
 
@@ -234,6 +247,16 @@ Activity types accepted by `POST /inbox`:
 | `Reject{object: Follow}` | Deny a follow request. |
 | `Undo{object: Follow}` | Unfollow (wraps the original `Follow` activity). |
 
+#### Inline forwarding
+
+Every `Create`, `Update`, `Delete`, and `Deliver` activity received via
+`POST /inbox` is immediately forwarded to all accepted inbound followers'
+inboxes during the same request. This ensures netgame changes propagate
+across the social graph without requiring a separate polling daemon.
+
+Forwarding is best-effort with a 10-second timeout per follower. Failed
+forwards are logged but do not affect the response.
+
 #### Path-based loop prevention
 
 To prevent broadcast storms, ChaosNet implements a loop prevention mechanism through use of a `path` array:
@@ -243,9 +266,26 @@ To prevent broadcast storms, ChaosNet implements a loop prevention mechanism thr
 - On inbound `Deliver` activities, the receiving node appends its own
   actor URI to each netgame's `path` before storing and before
   forwarding to followers.
+- On forwarding, the forwarding node appends its own actor URI to each
+  game object's `path` — preventing the activity from being re-delivered
+  back to nodes that have already seen it.
 - `origin_node` is set once on first insert and never overwritten by
   subsequent updates from other nodes - ensuring the original source
   is always preserved.
+
+#### Pending row processing
+
+Before processing any inbound activity, ChaosNet scans `chaosnet_netgames`
+for rows left in `new` or `stale` state by other APIs (e.g. srb2http,
+srb2kart) that share the same database table. For each pending row:
+
+| Current state | Action | Next state |
+|---------------|--------|------------|
+| `new` | Create or Update outbox entry (heuristic: `Update` if prior activity exists in outbox, `Create` otherwise). Forward to followers if this is an inbox request. | `active` |
+| `stale` | Create Delete outbox entry. Forward to followers if applicable. | `deleted` |
+
+When triggered by `GET /collection`, pending rows are logged to the outbox
+but not forwarded (HTTP forwarding only happens during inbox requests).
 
 
 Database Schema
@@ -266,6 +306,7 @@ Below is a full definition of all data fields:
 | `external_origin` | `VARCHAR(256)` | Source of the netgame data before entering the LiquidMS network. `NULL` if ChaosNet-native. |
 | `origin_node` | `VARCHAR(256)` | Actor URI of the first LiquidMS node that propagated this netgame. Set once on insert, never overwritten. |
 | `path` | `JSON` | Array of actor URIs this netgame has passed through. Used to prevent re-delivery to nodes that already have it. |
+| `state` | `ENUM('new','active','stale','deleted')` | Lifecycle state. Default `'new'`. |
 | `updated_at` | `DATETIME` | Auto-set on insert and update. |
 | `last_synced_at` | `DATETIME` | Receiver's timestamp of last sync activity. Used for culling. Indexed DESC. |
 
@@ -291,20 +332,88 @@ To implement ChaosNet's ActivityPub API, LiquidMS also defines the tables `chaos
 | `object` | `JSON` | Full JSON-LD activity object |
 | `published` | `DATETIME` | Publication timestamp, indexed DESC |
 
-### Culling lifecycle
+### State machine lifecycle
 
-A scheduled MariaDB event (`chaosnet_netgames_cull`) runs every minute and
-deletes rows where `last_synced_at` is older than 20 minutes. This ensures
-stale entries do not accumulate.
+Netgames in `chaosnet_netgames` transition through a state machine inspired
+by UNIX process states:
+
+```
+                     ┌──────────┐
+ Other API INSERT ──→│   new     │
+   (or UPDATE        └────┬─────┘
+    on unknown id)        │ processPendingRows()  (Create or Update outbox entry)
+                          ▼
+                     ┌──────────┐
+               ┌────→│  active   │ ←──────────────┐
+               │     └────┬─────┘                  │
+               │          │ cull event (20 min)    │ processPendingRows()
+               │          ▼                        │ (Update outbox entry)
+               │     ┌──────────┐                  │
+               │     │  stale    │─────────────────┘
+               │     └────┬─────┘
+               │          │ processPendingRows() (Delete outbox entry)
+               │          ▼
+               │     ┌──────────┐
+               │     │ deleted   │
+               │     └────┬─────┘
+               │          │ purge event (10 min)
+               │          ▼
+               │     (row removed)
+               │
+               └──── direct new→stale: other API sets state = 'stale'
+                     ChaosNet processes as Delete anyway
+```
+
+| State | Description |
+|-------|-------------|
+| `new` | Inserted by another API, not yet processed by ChaosNet |
+| `active` | Processed by ChaosNet (outbox entry created, forwarded if followers exist) |
+| `stale` | Hit the 20-minute cull timeout, or explicitly set by another API on unlist |
+| `deleted` | ChaosNet has logged a Delete activity for this row; awaiting purge |
+
+| Event | Schedule | Action |
+|-------|----------|--------|
+| `chaosnet_netgames_cull` | Every 1 minute | `UPDATE state='stale'` where `state IN ('new','active')` and `last_synced_at` > 20 min |
+| `chaosnet_netgames_purge` | Every 5 minutes | `DELETE` where `state='stale'` (> 30 min) or `state='deleted'` (> 10 min) |
 
 Culling uses `last_synced_at` (the **receiver's** timestamp) rather than
 `updated_at` (the sender's reported timestamp). This avoids clock skew
-issues - the culling decision is always based on the local database server's
-clock.
+issues — the culling decision is always based on the local database server's
+clock. The two fields are kept separate to detect and correct time skew
+across the network.
 
-Culling is **silent**: no `Delete` activity is emitted to the outbox or
-forwarded to followers. If the netgame is still alive, the owning node will
-re-push it on the next sync interval.
+### Pending row processing
+
+`InboxModel::processPendingRows()` scans for rows in `new` or `stale` state
+and processes them without requiring an explicit network activity. It is
+called automatically:
+
+| Trigger | Forward to followers? | Limit |
+|---------|----------------------|-------|
+| `POST /inbox` (any activity) | Yes | 50 rows per request |
+| `GET /collection` | No (outbox only) | Unlimited |
+
+For each `new` row, ChaosNet checks `chaosnet_outbox` for a prior
+Create/Update activity for the same game ID. If found → `Update`,
+otherwise → `Create`. The resulting activity is recorded in the outbox and,
+if forwarding is enabled, POSTed to all accepted followers' inboxes.
+
+For each `stale` row, a `Delete` activity is recorded in the outbox and
+forwarded.
+
+### Inline forwarding
+
+When ChaosNet processes a `Create`, `Update`, or `Delete` activity from its
+inbox, it immediately forwards the activity to all accepted inbound
+followers during the same request cycle. For `Deliver` activities, each
+individual item is forwarded as an `Update`. Forwarding is best-effort:
+
+- Uses cURL with a 10-second timeout per follower
+- Failures are logged and do not block the response
+- Each forwarded activity has the forwarding node's actor URI appended to
+  the game object's `path` array to prevent broadcast loops
+- No retry mechanism — stale data is naturally refreshed by the next
+  sync cycle or culled by the scheduled events
 
 
 Migration from Snitch V1

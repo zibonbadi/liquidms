@@ -20,6 +20,7 @@ namespace LiquidMS;
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/ConfigModel.php';
 require_once __DIR__.'/GameModel.php';
+require_once __DIR__.'/InboxModel.php';
 
 use LiquidMS\ConfigModel;
 
@@ -28,6 +29,8 @@ class CollectionModel{
 	public static function getCollection(int $page = 1, int $pageSize = 50): array{
 		$config = ConfigModel::getConfig();
 		$base = $config["node_actor_uri"] ?? "https://{$config["node_host"]}{$config["basepath"]}";
+
+		InboxModel::processPendingRows(false);
 
 		$gamesResult = GameModel::getAllGames($page, $pageSize);
 		if($gamesResult["error"] != 0){

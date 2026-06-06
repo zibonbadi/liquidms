@@ -29,6 +29,8 @@ use LiquidMS\ConfigModel;
 
 class InboxModel{
 
+	const MAX_FORWARD_PER_INBOX = 50;
+
 	public static function processActivity(array $activity): array{
 		$type = $activity["type"] ?? null;
 		if($type === null){
@@ -41,6 +43,8 @@ class InboxModel{
 		if($actor === null){
 			return ["error" => 400, "message" => "Missing actor"];
 		}
+
+		self::processPendingRows(true);
 
 		if(self::actorInPath($activity)){
 			$config = ConfigModel::getConfig();
@@ -70,6 +74,55 @@ class InboxModel{
 		default:
 			return ["error" => 400, "message" => "Unsupported activity type: {$type}"];
 		}
+	}
+
+	public static function processPendingRows(bool $forward = true): array{
+		$config = ConfigModel::getConfig();
+		$thisActor = $config["node_actor_uri"] ?? "https://{$config["node_host"]}{$config["basepath"]}";
+
+		$limit = $forward ? self::MAX_FORWARD_PER_INBOX : 1000;
+		$result = DBSingleton::execute(
+			"SELECT * FROM chaosnet_netgames WHERE state IN ('new', 'stale') ORDER BY last_synced_at ASC LIMIT :limit",
+			[":limit" => $limit]
+		);
+		if($result === false || $result["error"] != 0 || $result["rows"] == 0){
+			return ["error" => 0, "processed" => 0];
+		}
+
+		$count = 0;
+		foreach($result["data"] as $row){
+			$gameId = $row["id"];
+			$gameObj = GameModel::rowToGameObject($row, GameModel::normalizeName($row["name"] ?? ""));
+
+			if($row["state"] === 'new'){
+				$priorResult = DBSingleton::execute(
+					"SELECT COUNT(*) AS cnt FROM chaosnet_outbox WHERE JSON_EXTRACT(object, '$.id') = :id AND type IN ('Create', 'Update')",
+					[":id" => $gameObj["id"]]
+				);
+				$hasPrior = ($priorResult !== false && $priorResult["error"] == 0 && ($priorResult["data"][0]["cnt"] ?? 0) > 0);
+				$activityType = $hasPrior ? "Update" : "Create";
+				OutboxModel::recordActivity($activityType, $thisActor, $gameObj);
+				if($forward){
+					$activity = ["type" => $activityType, "actor" => $thisActor, "object" => $gameObj];
+					self::forwardActivityToFollowers($activity);
+				}
+				GameModel::updateGameState($gameId, 'active');
+			}elseif($row["state"] === 'stale'){
+				OutboxModel::recordActivity("Delete", $thisActor, $gameObj);
+				if($forward){
+					$activity = ["type" => "Delete", "actor" => $thisActor, "object" => $gameObj];
+					self::forwardActivityToFollowers($activity);
+				}
+				GameModel::updateGameState($gameId, 'deleted');
+			}
+			$count++;
+		}
+
+		if($config["loglevel"] == "verbose"){
+			error_log("Chaosnet: processPendingRows processed {$count} rows (forward=" . ($forward ? "true" : "false") . ")");
+		}
+
+		return ["error" => 0, "processed" => $count];
 	}
 
 	private static function actorInPath(array $activity): bool{
@@ -121,7 +174,10 @@ class InboxModel{
 		$externalOrigin = self::getExternalOrigin($object, $activity);
 		$path = self::getPath($object, $activity);
 		$result = GameModel::upsertGame($object, $originNode, $externalOrigin, $path);
-		OutboxModel::recordActivity("Create", $actor, $object);
+		if(($result["error"] ?? 1) == 0){
+			OutboxModel::recordActivity("Create", $actor, $object);
+			self::forwardActivityToFollowers($activity);
+		}
 		return $result;
 	}
 
@@ -133,7 +189,10 @@ class InboxModel{
 		$externalOrigin = self::getExternalOrigin($object, $activity);
 		$path = self::getPath($object, $activity);
 		$result = GameModel::upsertGame($object, $originNode, $externalOrigin, $path);
-		OutboxModel::recordActivity("Update", $actor, $object);
+		if(($result["error"] ?? 1) == 0){
+			OutboxModel::recordActivity("Update", $actor, $object);
+			self::forwardActivityToFollowers($activity);
+		}
 		return $result;
 	}
 
@@ -150,7 +209,10 @@ class InboxModel{
 		}else{
 			$result = GameModel::deleteGame($host, (int)$port, $apiName);
 		}
-		OutboxModel::recordActivity("Delete", $actor, $object);
+		if(($result["error"] ?? 1) == 0){
+			OutboxModel::recordActivity("Delete", $actor, $object);
+			self::forwardActivityToFollowers($activity);
+		}
 		return $result;
 	}
 
@@ -172,6 +234,12 @@ class InboxModel{
 			$result = GameModel::upsertGame($item, $originNode, $externalOrigin, $path);
 			if($result !== false && ($result["error"] ?? 1) == 0){
 				$count++;
+				$forwardActivity = [
+					"type" => "Update",
+					"actor" => $actor,
+					"object" => $item,
+				];
+				self::forwardActivityToFollowers($forwardActivity);
 			}else{
 				$errors[] = $result;
 			}
@@ -289,6 +357,60 @@ class InboxModel{
 		]);
 		curl_exec($ch);
 		curl_close($ch);
+	}
+
+	private static function forwardActivityToFollowers(array $activity): void{
+		$config = ConfigModel::getConfig();
+		$thisActor = $config["node_actor_uri"] ?? "https://{$config["node_host"]}{$config["basepath"]}";
+		$logVerbose = ($config["loglevel"] ?? "quiet") == "verbose";
+
+		$followerUris = FollowerModel::getInboxUris();
+		if(empty($followerUris)){
+			return;
+		}
+
+		$object = $activity["object"] ?? [];
+		if(!is_array($object)){ $object = []; }
+		$path = $object["path"] ?? [];
+		if(!is_array($path)){ $path = []; }
+		if(!in_array($thisActor, $path)){
+			$path[] = $thisActor;
+		}
+		$object["path"] = $path;
+
+		$forwardActivity = [
+			"@context" => "https://www.w3.org/ns/activitystreams",
+			"type" => $activity["type"],
+			"actor" => $thisActor,
+			"object" => $object,
+			"published" => date("c"),
+		];
+
+		$payload = json_encode($forwardActivity);
+
+		foreach($followerUris as $inboxUri){
+			if($logVerbose){
+				error_log("Chaosnet: forwarding {$activity["type"]} to {$inboxUri}");
+			}
+			$ch = curl_init();
+			curl_setopt_array($ch, [
+				CURLOPT_URL => $inboxUri,
+				CURLOPT_POST => true,
+				CURLOPT_POSTFIELDS => $payload,
+				CURLOPT_HTTPHEADER => [
+					"Content-Type: application/activity+json",
+					"Content-Length: " . strlen($payload),
+				],
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_TIMEOUT => 10,
+			]);
+			$response = curl_exec($ch);
+			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			if($httpCode < 200 || $httpCode >= 300){
+				error_log("Chaosnet: forward to {$inboxUri} returned {$httpCode}: {$response}");
+			}
+			curl_close($ch);
+		}
 	}
 }
 

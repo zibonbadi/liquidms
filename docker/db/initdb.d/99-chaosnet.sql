@@ -20,16 +20,18 @@ CREATE TABLE IF NOT EXISTS `chaosnet_netgames` (
   `id`              VARCHAR(64)  NOT NULL,
   `host`            VARCHAR(45)  NOT NULL,
   `port`            SMALLINT UNSIGNED NOT NULL,
-  `name` VARCHAR(256) DEFAULT NULL,
+  `name`            VARCHAR(256) DEFAULT NULL,
   `api_name`        VARCHAR(32)  NOT NULL,
   `api_data`        JSON         DEFAULT NULL,
   `external_origin` VARCHAR(256) DEFAULT NULL,
   `origin_node`     VARCHAR(256) DEFAULT NULL,
   `path`            JSON         DEFAULT NULL,
+  `state`           ENUM('new','active','stale','deleted') NOT NULL DEFAULT 'new',
   `updated_at`      DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `last_synced_at`  DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  INDEX `idx_updated` (`last_synced_at` DESC),
+  INDEX `idx_state` (`state`),
+  INDEX `idx_last_synced` (`last_synced_at` DESC),
   INDEX `idx_api` (`api_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -56,10 +58,22 @@ DELIMITER #
 
 CREATE EVENT IF NOT EXISTS chaosnet_netgames_cull
 ON SCHEDULE EVERY 1 MINUTE
-COMMENT 'Removes chaosnet netgame entries not synced within 20 minutes'
+COMMENT 'Marks new/active netgames as stale after 20 minutes of no sync'
 DO
 BEGIN
-   DELETE FROM chaosnet_netgames WHERE last_synced_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 20 MINUTE);
+   UPDATE chaosnet_netgames SET state = 'stale'
+   WHERE state IN ('new', 'active')
+     AND last_synced_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 20 MINUTE);
+END#
+
+CREATE EVENT IF NOT EXISTS chaosnet_netgames_purge
+ON SCHEDULE EVERY 5 MINUTES
+COMMENT 'Removes stale (30 min) and deleted (10 min) netgame entries'
+DO
+BEGIN
+   DELETE FROM chaosnet_netgames
+   WHERE (state = 'stale' AND last_synced_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 30 MINUTE))
+      OR (state = 'deleted' AND last_synced_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 10 MINUTE));
 END#
 
 DELIMITER ;

@@ -40,7 +40,7 @@ class GameModel{
 
 	public static function getAllGames(int $page = 1, int $pageSize = 50): array{
 		$offset = ($page - 1) * $pageSize;
-		$query = "SELECT * FROM chaosnet_netgames ORDER BY updated_at DESC, host ASC, port ASC LIMIT :limit OFFSET :offset";
+		$query = "SELECT * FROM chaosnet_netgames WHERE state IN ('new', 'active') ORDER BY updated_at DESC, host ASC, port ASC LIMIT :limit OFFSET :offset";
 		$result = DBSingleton::execute($query, [":limit" => $pageSize, ":offset" => $offset]);
 		if($result === false || $result["error"] != 0){
 			return ["error" => 1, "message" => "Database query failed", "data" => [], "rows" => 0];
@@ -62,12 +62,12 @@ class GameModel{
 	}
 
 	public static function count(): int{
-		$result = DBSingleton::execute("SELECT COUNT(*) AS cnt FROM chaosnet_netgames");
+		$result = DBSingleton::execute("SELECT COUNT(*) AS cnt FROM chaosnet_netgames WHERE state IN ('new', 'active')");
 		if($result === false || $result["error"] != 0){ return 0; }
 		return (int)$result["data"][0]["cnt"];
 	}
 
-	public static function upsertGame(array $game, string $originNode, ?string $externalOrigin = null, array $path = []): array{
+	public static function upsertGame(array $game, string $originNode, ?string $externalOrigin = null, array $path = [], string $state = 'active'): array{
 		
 		$host = $game["game_host"] ?? "";
 		$port = (int)($game["game_port"] ?? 0);
@@ -77,11 +77,6 @@ class GameModel{
 
 		$apiData = $game["game_api_data"] ?? [];
 
-		/*
-		$name = self::normalizeName($apiData["name"] ?? $apiData["servername"] ?? "");
-		$apiData["name"] = $name;
-		*/
-		
 		$pathJson = json_encode($path);
 		$apiDataJson = json_encode($apiData);
 		
@@ -101,8 +96,8 @@ class GameModel{
 			$pathJson = json_encode($finalPath);
 		}
 
-		$query = "INSERT INTO chaosnet_netgames (id, host, port, name, api_name, api_data, external_origin, origin_node, path)
-		          VALUES (:id, :host, :port, :name, :api_name, :api_data, :external_origin, :origin_node, :path)
+		$query = "INSERT INTO chaosnet_netgames (id, host, port, name, api_name, api_data, external_origin, origin_node, path, state)
+		          VALUES (:id, :host, :port, :name, :api_name, :api_data, :external_origin, :origin_node, :path, :state)
 		          ON DUPLICATE KEY UPDATE
 		            host = VALUES(host),
 		            port = VALUES(port),
@@ -111,7 +106,8 @@ class GameModel{
 		            api_data = VALUES(api_data),
 		            external_origin = VALUES(external_origin),
 		            origin_node = VALUES(origin_node),
-		            path = VALUES(path)";
+		            path = VALUES(path),
+		            state = VALUES(state)";
 
 		return DBSingleton::execute($query, [
 			":id" => $id,
@@ -123,19 +119,28 @@ class GameModel{
 			":external_origin" => $externalOrigin ?? $game["external_origin"] ?? NULL,
 			":origin_node" => $finalOriginNode,
 			":path" => $pathJson,
+			":state" => $state,
 		]);
 	}
 
 	public static function deleteGame(string $host, int $port, string $apiName): array{
 		$id = self::generateId($host, $port, $apiName);
-		return DBSingleton::execute("DELETE FROM chaosnet_netgames WHERE id = :id", [":id" => $id]);
+		return self::deleteGameById($id);
 	}
 
 	public static function deleteGameById(string $id): array{
-		return DBSingleton::execute("DELETE FROM chaosnet_netgames WHERE id = :id", [":id" => $id]);
+		return DBSingleton::execute("UPDATE chaosnet_netgames SET state = 'deleted', last_synced_at = NOW() WHERE id = :id", [":id" => $id]);
+	}
+
+	public static function updateGameState(string $id, string $state): array{
+		return DBSingleton::execute(
+			"UPDATE chaosnet_netgames SET state = :state, last_synced_at = NOW() WHERE id = :id",
+			[":id" => $id, ":state" => $state]
+		);
 	}
 
 	public static function rowToGameObject(array $row, string $name): array{
+		$base = \LiquidMS\ConfigModel::getConfig()["basepath"];
 		$apiData = json_decode($row["api_data"] ?? "{}", true);
 		$path = json_decode($row["path"] ?? "[]", true);
 		$scheme = ($_SERVER["REQUEST_SCHEME"] ?? "https");
@@ -143,7 +148,7 @@ class GameModel{
 
 		$obj = [
 			"type" => "Game",
-			"id" => "{$scheme}://{$host}{$row["id"]}",
+			"id" => "{$scheme}://{$host}{$base}/collection/{$row["id"]}",
 			"name" => $name,
 			"game_host" => $row["host"],
 			"game_port" => (int)$row["port"],
