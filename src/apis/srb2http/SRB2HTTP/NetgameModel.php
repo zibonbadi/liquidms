@@ -157,7 +157,16 @@ class NetgameModel{
 				}else if($room != NULL){ 
 					$querycondition = "WHERE {$roomtable}._id = {$room}";
 				}
-				$query = "SELECT INET6_NTOA(host) AS host, port, servername, {$roomtable}._id AS roomid, {$roomtable}.roomname, version, {$servtable}.origin FROM {$servtable} INNER JOIN {$roomtable} ON {$servtable}.roomname = {$roomtable}.roomname AND {$roomtable}.origin = {$servtable}.origin {$querycondition};";
+				$query = "SELECT ".
+								"host, ".
+								"port, ".
+								"JSON_UNQUOTE(JSON_EXTRACT(api_data,'$.servername')) AS servername, ".
+								"JSON_UNQUOTE(JSON_EXTRACT(api_data,'$.version')) AS version, ".
+								"JSON_UNQUOTE(JSON_EXTRACT(api_data,'$.roomname')) AS roomname, ".
+								"external_origin AS origin ".
+							"FROM chaosnet_netgames ".
+							"WHERE api_name = 'srb2http'";
+				
 				#echo $query."\n";
 				$serverdata = self::$db->execute($query);
 				#var_dump($serverdata);
@@ -181,7 +190,14 @@ class NetgameModel{
 				$rVal = [];
 				$filter = "";
 				if($room != NULL){ $filter = " WHERE _id = {$room}"; }
-				$query = "SELECT _id AS roomid, roomname, origin, description FROM {$roomtable} {$filter} ORDER BY _id;";
+				$query = "SELECT ".
+							"ROW_NUMBER() OVER (ORDER BY roomname ASC, origin ASC) + 1 as roomid, ".
+							"JSON_UNQUOTE(JSON_EXTRACT(api_data,'$.roomname')) AS roomname, ".
+							"external_origin AS origin ".
+						"FROM chaosnet_netgames ".
+						"WHERE api_name = 'srb2http'".
+						"GROUP BY roomname ASC, origin ASC";
+				
 				#echo $query."\n";
 				$serverdata = self::$db->execute($query);
 

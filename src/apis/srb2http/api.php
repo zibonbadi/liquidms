@@ -129,7 +129,7 @@ $router->with("{$basepath}/rooms", function() use ($router){
 					foreach($rooms["data"] as $room_index => $room_value){
 						if($room_value["origin"] != 'localhost'){
 							$roomname_token = "@{$room_value["roomname"]}";
-							$description_token = "@{$room_value["origin"]}\n{$room_value["roomname"]}\n{$room_value["description"]}";
+							$description_token = "@{$room_value["origin"]}\n{$room_value["roomname"]}\nThis room is not local to your LiquidMS node. Registering Netgames here will be useless.";
 						}else{
 							$roomname_token = "{$room_value["roomname"]}";
 							$description_token = "{$room_value["description"]}";
