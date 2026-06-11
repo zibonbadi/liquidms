@@ -104,7 +104,24 @@ $router->with("{$basepath}", function() use ($router){
 		$pageSize = (int)($request->param("pagesize", 50));
 		if($pageSize > 200){ $pageSize = 200; }
 
-		$result = CollectionModel::getCollection($page, $pageSize);
+		// Manually parsing query strings to get around PHP being stupid
+		$query_params = [];
+		foreach(explode('&', $request->server()['QUERY_STRING'] ?? '') as $pair){
+			if($pair === ''){continue;}
+			$parts = explode('=', $pair, 2);
+			$key = urldecode($parts[0]);
+			$value = isset($parts[1]) ? urldecode($parts[1]): '';
+			$query_params[$key] = $value;
+		}
+
+		$filters = [];
+		foreach($query_params as $key => $value){
+			if(str_starts_with($key, 'json.')){
+				$filters[] = ['path' => substr($key, 5), 'value' => $value];
+			}
+		}
+
+		$result = CollectionModel::getCollection($page, $pageSize, $filters);
 
 		$response->header('Content-Type', 'application/activity+json');
 		if($result["error"] != 0){

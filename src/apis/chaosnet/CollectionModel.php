@@ -26,13 +26,13 @@ use LiquidMS\ConfigModel;
 
 class CollectionModel{
 
-	public static function getCollection(int $page = 1, int $pageSize = 50): array{
+	public static function getCollection(int $page = 1, int $pageSize = 50, array $filters = []): array{
 		$config = ConfigModel::getConfig();
 		$base = $config["node_actor_uri"] ?? "https://{$config["node_host"]}{$config["basepath"]}";
 
 		InboxModel::processPendingRows(false);
 
-		$gamesResult = GameModel::getAllGames($page, $pageSize);
+		$gamesResult = GameModel::getAllGames($page, $pageSize, $filters);
 		if($gamesResult["error"] != 0){
 			return $gamesResult;
 		}
