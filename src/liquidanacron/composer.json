@@ -2,20 +2,12 @@
     "name": "zibonbadi/liquidms",
 	"description": "HTTP master server for Sonic Robo Blast 2 (and Kart)",
 	"type": "project",
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "https://github.com/optimacros/klein.php/",
-			"no-api": true
-		}
-	],
 	"require": {
 	    "ext-mbstring": "*",
 	    "ext-pdo": "*",
 	    "ext-sockets": "*",
 	    "ext-yaml": "*",
-	    "klein/klein": "dev-dev-php8",
-	    "php": ">=8.1"
+	    "php": ">=8.5"
 	},
 	"license": "AGPL-3.0-or-later",
 	"authors": [
