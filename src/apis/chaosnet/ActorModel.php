@@ -22,16 +22,37 @@ require_once __DIR__.'/ConfigModel.php';
 
 class ActorModel{
 
-	public static function getActorDocument(){
+	public static function getRootDocument(){
 		$config = ConfigModel::getConfig();
 		$base = $config["node_actor_uri"] ?? "https://{$config["node_host"]}{$config["basepath"]}";
-		$basepath = $config["basepath"];
+
+		$items = [];
+		foreach($config["apis"] ?? [] as $apiName){
+			$items[] = [
+				"type" => "Service",
+				"id" => ConfigModel::getApiActorUri($apiName),
+				"name" => $apiName,
+			];
+		}
+
+		return [
+			"@context" => "https://www.w3.org/ns/activitystreams",
+			"id" => $base,
+			"type" => "Collection",
+			"name" => "LiquidMS node at {$config["node_host"]}",
+			"items" => $items,
+		];
+	}
+
+	public static function getActorDocument(string $apiName){
+		$config = ConfigModel::getConfig();
+		$base = ConfigModel::getApiActorUri($apiName);
 
 		return [
 			"@context" => "https://www.w3.org/ns/activitystreams",
 			"type" => "Service",
 			"id" => $base,
-			"name" => "LiquidMS node at {$config["node_host"]}",
+			"name" => "{$apiName} netgames at {$config["node_host"]}",
 			"inbox" => "{$base}/inbox",
 			"outbox" => "{$base}/outbox",
 			"following" => "{$base}/following",

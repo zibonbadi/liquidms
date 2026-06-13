@@ -33,11 +33,27 @@ if(LiquidMS\ConfigModel::getConfig()["basepath"]){
 	$basepath = '/'.trim(ConfigModel::getConfig()["basepath"], "/");
 }
 
-$router->with("{$basepath}", function() use ($router){
+$router->respond('GET', $basepath . '/?', function($request, $response){
+	$response->header('Content-Type', 'application/activity+json');
+	$doc = ActorModel::getRootDocument();
+	$response->json($doc);
+});
+
+$router->with($basepath . '/services/[:api]', function() use ($router){
+
+	$router->respond(function($request, $response, $service, $app){
+		$apiName = $request->param('api');
+		$config = ConfigModel::getConfig();
+		if(!in_array($apiName, $config["apis"] ?? [])){
+			$response->code(404);
+			$response->json(["error" => 404, "message" => "Unknown API: {$apiName}"]);
+			return false;
+		}
+	});
 
 	$router->respond('GET', '/?', function($request, $response){
 		$response->header('Content-Type', 'application/activity+json');
-		$actor = ActorModel::getActorDocument();
+		$actor = ActorModel::getActorDocument($request->param('api'));
 		$response->json($actor);
 	});
 
@@ -56,7 +72,7 @@ $router->with("{$basepath}", function() use ($router){
 			return;
 		}
 
-		$result = InboxModel::processActivity($activity);
+		$result = InboxModel::processActivity($activity, $request->param('api'));
 
 		if(($result["error"] ?? 0) != 0){
 			$response->code(($result["error"] >= 400 && $result["error"] < 600) ? $result["error"] : 500);
@@ -70,8 +86,7 @@ $router->with("{$basepath}", function() use ($router){
 
 	$router->respond('GET', '/inbox', function($request, $response){
 		$response->header('Content-Type', 'application/activity+json');
-		$config = ConfigModel::getConfig();
-		$base = $config["node_actor_uri"] ?? "https://{$config["node_host"]}{$config["basepath"]}";
+		$base = ConfigModel::getApiActorUri($request->param('api'));
 
 		$response->json([
 			"@context" => "https://www.w3.org/ns/activitystreams",
@@ -87,7 +102,7 @@ $router->with("{$basepath}", function() use ($router){
 		$pageSize = (int)($request->param("pagesize", 20));
 		if($pageSize > 100){ $pageSize = 100; }
 
-		$result = OutboxModel::getOutbox($page, $pageSize);
+		$result = OutboxModel::getOutbox($request->param('api'), $page, $pageSize);
 
 		$response->header('Content-Type', 'application/activity+json');
 		if($result["error"] != 0){
@@ -104,7 +119,6 @@ $router->with("{$basepath}", function() use ($router){
 		$pageSize = (int)($request->param("pagesize", 50));
 		if($pageSize > 200){ $pageSize = 200; }
 
-		// Manually parsing query strings to get around PHP being stupid
 		$query_params = [];
 		foreach(explode('&', $request->server()['QUERY_STRING'] ?? '') as $pair){
 			if($pair === ''){continue;}
@@ -121,7 +135,7 @@ $router->with("{$basepath}", function() use ($router){
 			}
 		}
 
-		$result = CollectionModel::getCollection($page, $pageSize, $filters);
+		$result = CollectionModel::getCollection($request->param('api'), $page, $pageSize, $filters);
 
 		$response->header('Content-Type', 'application/activity+json');
 		if($result["error"] != 0){
@@ -135,10 +149,9 @@ $router->with("{$basepath}", function() use ($router){
 
 	$router->respond('GET', '/following', function($request, $response){
 		$response->header('Content-Type', 'application/activity+json');
-		$config = ConfigModel::getConfig();
-		$base = $config["node_actor_uri"] ?? "https://{$config["node_host"]}{$config["basepath"]}";
+		$base = ConfigModel::getApiActorUri($request->param('api'));
 
-		$following = FollowerModel::getFollowing();
+		$following = FollowerModel::getFollowing($request->param('api'));
 		$items = [];
 		foreach($following["data"] as $row){
 			$items[] = $row["actor_uri"];
@@ -155,10 +168,9 @@ $router->with("{$basepath}", function() use ($router){
 
 	$router->respond('GET', '/followers', function($request, $response){
 		$response->header('Content-Type', 'application/activity+json');
-		$config = ConfigModel::getConfig();
-		$base = $config["node_actor_uri"] ?? "https://{$config["node_host"]}{$config["basepath"]}";
+		$base = ConfigModel::getApiActorUri($request->param('api'));
 
-		$followers = FollowerModel::getFollowers();
+		$followers = FollowerModel::getFollowers($request->param('api'));
 		$items = [];
 		foreach($followers["data"] as $row){
 			$items[] = $row["actor_uri"];

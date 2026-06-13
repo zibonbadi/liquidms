@@ -38,11 +38,11 @@ class GameModel{
 		return $name;
 	}
 
-	public static function getAllGames(int $page = 1, int $pageSize = 50, array $filters = []): array{
+	public static function getAllGames(string $apiName, int $page = 1, int $pageSize = 50, array $filters = []): array{
 		$offset = ($page - 1) * $pageSize;
 		[$whereSql, $whereParams] = self::buildFilterWhere($filters);
-		$query = "SELECT * FROM chaosnet_netgames WHERE state IN ('new', 'active'){$whereSql} ORDER BY updated_at DESC, host ASC, port ASC LIMIT :limit OFFSET :offset";
-		$params = array_merge($whereParams, [":limit" => $pageSize, ":offset" => $offset]);
+		$query = "SELECT * FROM chaosnet_netgames WHERE state IN ('new', 'active') AND api_name = :api_name{$whereSql} ORDER BY updated_at DESC, host ASC, port ASC LIMIT :limit OFFSET :offset";
+		$params = array_merge([":api_name" => $apiName], $whereParams, [":limit" => $pageSize, ":offset" => $offset]);
 		$result = DBSingleton::execute($query, $params);
 		if($result === false || $result["error"] != 0){
 			return ["error" => 1, "message" => "Database query failed", "data" => [], "rows" => 0];
@@ -59,13 +59,16 @@ class GameModel{
 			"error" => 0,
 			"data" => $games,
 			"rows" => count($games),
-			"total" => self::count($filters),
+			"total" => self::count($apiName, $filters),
 		];
 	}
 
-	public static function count(array $filters = []): int{
+	public static function count(string $apiName, array $filters = []): int{
 		[$whereSql, $whereParams] = self::buildFilterWhere($filters);
-		$result = DBSingleton::execute("SELECT COUNT(*) AS cnt FROM chaosnet_netgames WHERE state IN ('new', 'active'){$whereSql}", $whereParams);
+		$result = DBSingleton::execute(
+			"SELECT COUNT(*) AS cnt FROM chaosnet_netgames WHERE state IN ('new', 'active') AND api_name = :api_name{$whereSql}",
+			array_merge([":api_name" => $apiName], $whereParams)
+		);
 		if($result === false || $result["error"] != 0){ return 0; }
 		return (int)$result["data"][0]["cnt"];
 	}
@@ -216,7 +219,9 @@ class GameModel{
 	}
 
 	public static function rowToGameObject(array $row, string $name): array{
-		$base = \LiquidMS\ConfigModel::getConfig()["basepath"];
+		$config = \LiquidMS\ConfigModel::getConfig();
+		$base = $config["basepath"];
+		$apiName = $row["api_name"];
 		$apiData = json_decode($row["api_data"] ?? "{}", true);
 		$path = json_decode($row["path"] ?? "[]", true);
 		$scheme = ($_SERVER["REQUEST_SCHEME"] ?? "https");
@@ -224,7 +229,7 @@ class GameModel{
 
 		$obj = [
 			"type" => "Game",
-			"id" => "{$scheme}://{$host}{$base}/collection/{$row["id"]}",
+			"id" => "{$scheme}://{$host}{$base}/services/{$apiName}/collection/{$row["id"]}",
 			"name" => $name,
 			"game_host" => $row["host"],
 			"game_port" => (int)$row["port"],

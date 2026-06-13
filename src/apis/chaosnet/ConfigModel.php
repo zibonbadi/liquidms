@@ -27,6 +27,7 @@ class ConfigModel{
 		"loglevel" => "quiet",
 		"node_host" => "localhost",
 		"node_actor_uri" => null,
+		"apis" => [],
 		"db" => [
 			"dsn" => NULL,
 			"user" => NULL,
@@ -63,6 +64,9 @@ class ConfigModel{
 		if(self::child_assertType("node_actor_uri", $newconfig, "string")){
 			self::$config["node_actor_uri"] = $newconfig["node_actor_uri"];
 		}
+		if(array_key_exists("apis", $newconfig) && gettype($newconfig["apis"]) == "array"){
+			self::$config["apis"] = $newconfig["apis"];
+		}
 		if(self::child_assertType("db", $newconfig, "array")){
 			if(self::child_assertType("dsn", $newconfig["db"], "string")){
 				self::$config["db"]["dsn"] = $newconfig["db"]["dsn"];
@@ -78,6 +82,12 @@ class ConfigModel{
 
 	static function dumpConfig(){
 		yaml_emit_file(__DIR__."/config.yaml", self::$config);
+	}
+
+	static function getApiActorUri(string $apiName): string{
+		$config = self::$config;
+		$base = $config["node_actor_uri"] ?? "https://{$config["node_host"]}{$config["basepath"]}";
+		return "{$base}/services/{$apiName}";
 	}
 
 	private static function child_assertType(string $field, Array $parent, string $type){

@@ -26,11 +26,11 @@ use LiquidMS\ConfigModel;
 
 class OutboxModel{
 
-	public static function recordActivity(string $type, $actor, $object): array{
+	public static function recordActivity(string $type, $actor, $object, string $apiName): array{
 		$config = ConfigModel::getConfig();
-		$thisActor = $config["node_actor_uri"] ?? "https://{$config["node_host"]}{$config["basepath"]}";
-		$actorId = is_string($actor) ? $actor : ($actor["id"] ?? $thisActor);
-		$activityId = uniqid("{$thisActor}/activities/", true);
+		$base = ConfigModel::getApiActorUri($apiName);
+		$actorId = is_string($actor) ? $actor : ($actor["id"] ?? $base);
+		$activityId = uniqid("{$base}/activities/", true);
 
 		$activity = [
 			"@context" => "https://www.w3.org/ns/activitystreams",
@@ -44,28 +44,32 @@ class OutboxModel{
 		$objectJson = json_encode($activity);
 
 		return DBSingleton::execute(
-			"INSERT INTO chaosnet_outbox (id, type, actor, object, published) VALUES (:id, :type, :actor, :object, NOW())",
+			"INSERT INTO chaosnet_outbox (id, type, actor, api_name, object, published) VALUES (:id, :type, :actor, :api_name, :object, NOW())",
 			[
 				":id" => $activityId,
 				":type" => $type,
 				":actor" => $actorId,
+				":api_name" => $apiName,
 				":object" => $objectJson,
 			]
 		);
 	}
 
-	public static function getOutbox(int $page = 1, int $pageSize = 20): array{
+	public static function getOutbox(string $apiName, int $page = 1, int $pageSize = 20): array{
 		$offset = ($page - 1) * $pageSize;
 		$result = DBSingleton::execute(
-			"SELECT * FROM chaosnet_outbox ORDER BY published DESC LIMIT :limit OFFSET :offset",
-			[":limit" => $pageSize, ":offset" => $offset]
+			"SELECT * FROM chaosnet_outbox WHERE api_name = :api_name ORDER BY published DESC LIMIT :limit OFFSET :offset",
+			[":api_name" => $apiName, ":limit" => $pageSize, ":offset" => $offset]
 		);
 
 		if($result === false || $result["error"] != 0){
 			return ["error" => 1, "message" => "Database query failed", "data" => [], "rows" => 0];
 		}
 
-		$countResult = DBSingleton::execute("SELECT COUNT(*) AS cnt FROM chaosnet_outbox");
+		$countResult = DBSingleton::execute(
+			"SELECT COUNT(*) AS cnt FROM chaosnet_outbox WHERE api_name = :api_name",
+			[":api_name" => $apiName]
+		);
 		$total = 0;
 		if($countResult !== false && $countResult["error"] == 0){
 			$total = (int)$countResult["data"][0]["cnt"];
@@ -79,7 +83,7 @@ class OutboxModel{
 		}
 
 		$config = ConfigModel::getConfig();
-		$base = $config["node_actor_uri"] ?? "https://{$config["node_host"]}{$config["basepath"]}";
+		$base = ConfigModel::getApiActorUri($apiName);
 
 		return [
 			"error" => 0,

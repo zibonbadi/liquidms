@@ -26,21 +26,22 @@ use LiquidMS\ConfigModel;
 
 class FollowerModel{
 
-	public static function addFollower(string $actorUri, string $inboxUri, string $direction): array{
-		$query = "INSERT INTO chaosnet_follows (actor_uri, inbox_uri, state, direction, created_at)
-		          VALUES (:actor_uri, :inbox_uri, 'accepted', :direction, NOW())
+	public static function addFollower(string $actorUri, string $inboxUri, string $apiName, string $direction): array{
+		$query = "INSERT INTO chaosnet_follows (actor_uri, inbox_uri, api_name, state, direction, created_at)
+		          VALUES (:actor_uri, :inbox_uri, :api_name, 'accepted', :direction, NOW())
 		          ON DUPLICATE KEY UPDATE state = 'accepted', inbox_uri = VALUES(inbox_uri)";
 		return DBSingleton::execute($query, [
 			":actor_uri" => $actorUri,
 			":inbox_uri" => $inboxUri,
+			":api_name" => $apiName,
 			":direction" => $direction,
 		]);
 	}
 
-	public static function removeFollower(string $actorUri, string $direction): array{
+	public static function removeFollower(string $actorUri, string $apiName, string $direction): array{
 		return DBSingleton::execute(
-			"DELETE FROM chaosnet_follows WHERE actor_uri = :actor_uri AND direction = :direction",
-			[":actor_uri" => $actorUri, ":direction" => $direction]
+			"DELETE FROM chaosnet_follows WHERE actor_uri = :actor_uri AND api_name = :api_name AND direction = :direction",
+			[":actor_uri" => $actorUri, ":api_name" => $apiName, ":direction" => $direction]
 		);
 	}
 
@@ -58,9 +59,10 @@ class FollowerModel{
 		);
 	}
 
-	public static function getFollowers(): array{
+	public static function getFollowers(string $apiName): array{
 		$result = DBSingleton::execute(
-			"SELECT actor_uri, inbox_uri FROM chaosnet_follows WHERE direction = 'inbound' AND state = 'accepted'"
+			"SELECT actor_uri, inbox_uri FROM chaosnet_follows WHERE api_name = :api_name AND direction = 'inbound' AND state = 'accepted'",
+			[":api_name" => $apiName]
 		);
 		if($result === false || $result["error"] != 0){
 			return ["error" => 0, "data" => []];
@@ -68,9 +70,10 @@ class FollowerModel{
 		return $result;
 	}
 
-	public static function getFollowing(): array{
+	public static function getFollowing(string $apiName): array{
 		$result = DBSingleton::execute(
-			"SELECT actor_uri, inbox_uri FROM chaosnet_follows WHERE direction = 'outbound' AND state = 'accepted'"
+			"SELECT actor_uri, inbox_uri FROM chaosnet_follows WHERE api_name = :api_name AND direction = 'outbound' AND state = 'accepted'",
+			[":api_name" => $apiName]
 		);
 		if($result === false || $result["error"] != 0){
 			return ["error" => 0, "data" => []];
@@ -78,8 +81,8 @@ class FollowerModel{
 		return $result;
 	}
 
-	public static function getFollowerUris(): array{
-		$result = self::getFollowers();
+	public static function getFollowerUris(string $apiName): array{
+		$result = self::getFollowers($apiName);
 		$uris = [];
 		foreach($result["data"] as $row){
 			$uris[] = $row["actor_uri"];
@@ -87,8 +90,8 @@ class FollowerModel{
 		return $uris;
 	}
 
-	public static function getInboxUris(): array{
-		$result = self::getFollowers();
+	public static function getInboxUris(string $apiName): array{
+		$result = self::getFollowers($apiName);
 		$uris = [];
 		foreach($result["data"] as $row){
 			$uris[] = $row["inbox_uri"];
