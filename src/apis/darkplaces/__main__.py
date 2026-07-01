@@ -382,7 +382,7 @@ class UDPDarkplacesProtocol:
                     challenge = db.challenge(incoming_ip, protocol=request.protocol, challenge=None)
                     if type(challenge) != str:
                         log.info(f"Removing stale challenge for {incoming_ip}")
-                        challenge = db.challenge(ip, protocol=request.protocol, challenge=None)
+                        challenge = db.challenge(ip=incoming_ip, protocol=request.protocol, challenge=None)
                     
                     log.debug(f"Issuing getinfo challenge {challenge}")
 
