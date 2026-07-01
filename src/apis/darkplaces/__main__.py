@@ -363,8 +363,7 @@ class NetgameDB():
 class UDPDarkplacesProtocol:
     def connection_made(self, transport):
         self.transport = transport
-        timestamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
-        log.info(f'[{timestamp}] {config["hostname"]}:{config["port"]} UP')
+        log.info(f'{config["hostname"]}:{config["port"]} UP')
 
     def datagram_received(self, data, addr):
         log.info(f"{addr} issued {data} ({len(data)} bytes)")
