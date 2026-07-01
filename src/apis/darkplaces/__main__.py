@@ -498,7 +498,7 @@ if __name__ == '__main__':
     
     db = NetgameDB( config["db"] )
 
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.INFO)
     log_fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
     log_out = logging.StreamHandler()
     log_out.setFormatter(log_fmt)
