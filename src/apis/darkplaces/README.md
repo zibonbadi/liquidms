@@ -68,10 +68,10 @@ Message | Direction | Description
 ### heartbeat
 
 ```Python
-"\xFF\xFF\xFF\xFFgetinfo <protocol>\n"
+"\xFF\xFF\xFF\xFFheartbeat <protocol>\n"
 ```
 
-`heartbeat` is a registration/keep-alive signal sent by a netgame to the master server. `protocol` defines the *game protocol* being listed against (e.g. `QuakeArena-1`, `DarkPlaces`).
+`heartbeat` is a registration/keep-alive signal sent by a netgame to the master server. `protocol` defines the *DarkPlaces-native master server protocol* being listed against (e.g. `QuakeArena-1`, `DarkPlaces`).
 
 Game protocol names may use all printable ASCII characters **EXCEPT** `\`,`/`,`;`,`"` and `%`.
 
