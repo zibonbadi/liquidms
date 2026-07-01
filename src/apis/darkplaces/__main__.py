@@ -134,7 +134,7 @@ class UDPMessage():
                         server_structs.append(
                             struct.pack(f"!c16sH", \
                                             '/'.encode('ascii',errors="ignore"),
-                                            mapped_ip.packed,
+                                            n["ip"].packed,
                                             int(n["port"])
                             )
                         )
@@ -142,7 +142,7 @@ class UDPMessage():
                         server_structs.append(
                             struct.pack(f"!c4sH", \
                                             '\\'.encode('ascii',errors="ignore"),
-                                            mapped_ip.packed,
+                                            n["ip"].packed,
                                             int(n["port"])
                             )
                         )
