@@ -170,15 +170,6 @@ class UDPMessage():
         return packets
 
 
-
-
-    def to_struct(self):
-        if self.protocol_version == 12:
-            # Return API v12 packet
-            return struct.pack(f"!lll{self.length}s", self.id, self.type, self.length, self.data)
-        return struct.pack(f"!llll{self.length}s", self.id, self.type, self.room, self.length, self.data)
-
-
 class NetgameDB():
     def __init__(self, db, ipv6=True):
         # Global vars bc SQLAlchemy is weird
