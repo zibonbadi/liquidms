@@ -83,7 +83,7 @@ class UDPMessage():
                 #regex_matches = re.search(r"getservers(Ext)?(?:\s+([^\s\\\/;\"%]+))?\s+(\d+)(?:[ \r\t\v]+(\S+))*", msg_string)
                 regex_matches = re.search(r"getservers(Ext)?(?:\s+([^\s\\\/;\"%]+))?\s+(\d+)([^\n]*)", msg_string)
 
-                self.protocol_number = regex_matches.group(3)
+                self.protocol = regex_matches.group(3)
                 self.game_name = regex_matches.group(2)
                 options_pre = regex_matches.group(4).split()
                 self.options = {}
@@ -418,7 +418,7 @@ class UDPDarkplacesProtocol:
                             log.info(f"Responding {msg}")
                             self.transport.sendto(msg, addr)    
                 case "getservers" | "getserversExt" as m:
-                    servers = db.getserversExt(m, **request.options)
+                    servers = db.getserversExt(m, request.protocol, **request.options)
                     log.debug(f"Servers received: {servers}")
                     
                     if m == "getserversExt":
