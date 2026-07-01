@@ -199,20 +199,8 @@ class NetgameDB():
         self.challenges = {}
         pass
     
-    def map6to4(ip):
-
-        base_ip = ip
-        if type(ip) == bytes:
-            base_ip = str(ip_address(ip))
-
-        ipv4_regex = re.search(r"::ffff:([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})", base_ip)
-
-        if ipv4_regex != None and ipv4_regex.group(1):
-            return IPv4Address(ipv4_regex.group(1))
-        return IPv6Address(ip)
-        
-        # Fallback output - This should cause errors
-        return None
+    def map6to4(self, ip):
+        return ip_address(ip)
 
     def encode_ip(ip):
         if type(ip) == IPv6Address:
@@ -300,51 +288,47 @@ class NetgameDB():
 
         return challenge_check
 
-    def getserversExt(self, message, **kwargs):
+    def getserversExt(self, message, protocol, **kwargs):
 
         servers = []
 
-        """TODO: Add database logic
-        """
         query = sqlalchemy.select(self.tbl_servers.c.host,self.tbl_servers.c.port,self.tbl_servers.c.api_data) \
-                    .where(self.tbl_servers.c.api_name == GAME_API_NAME) \
-                    .where(self.tbl_servers.c.state in ["new", "active"])
+            .filter( self.tbl_servers.c.api_data["protocol"] == protocol ) \
+            .filter( self.tbl_servers.c.state.in_(["new", "active"]) )
 
         # Additional conditions if needed
         if "empty" in kwargs:
-            query = query.where(self.tbl_servers.c.game_api_data["clients"] == 0)
+            query = query.filter(self.tbl_servers.c.api_data["clients"] == 0)
         if "full" in kwargs:
-            query = query.where(self.tbl_servers.c.game_api_data["clients"] == self.tbl_servers.game_api_data["sv_maxclients"])
+            query = query.filter(self.tbl_servers.c.api_data["clients"] == self.tbl_servers.c.api_data["sv_maxclients"])
         if "gametype" in kwargs:
-            query = query.where(self.tbl_servers.c.game_api_data["gametype"] == params["gametype"])
+            query = query.filter(self.tbl_servers.c.api_data["gametype"] == kwargs["gametype"])
+
+        log.debug(f"[SQL] {query}")
 
         # Query database and add netgames to response
         with Session(self.sqlengine) as session:
-            result = session.execute(query)
-            """
+            result = session.execute(query).fetchall()
+
             if message == "getserversExt":
                 filtered_results = result
             else:
-                filtered_results = [x for x in result if (self.map6to4(x)) == IPv6Address]
+                log.info("Restricting query to IPv4 addresses")
+                filtered_results = [x for x in result if type(self.map6to4(x.host)) == IPv4Address]
             
+            log.info(f"Found {len(filtered_results)} netgames")
+
             servers = []
-            for row in filtered_results:
-                mapped_ip = self.map6to4(netgame_host)
+            for netgame in filtered_results:
+                mapped_ip = self.map6to4(netgame.host)
 
                 sv = {
-                    "ip": self.map6to4(netgame.game_host),
-                    "port": int(row.game_port),
+                    "ip": mapped_ip,
+                    "port": int(netgame.port),
                     # More API-specific data idk
                 }
+
                 servers.append(sv)
-            """
-
-            servers = [{
-                "ip": self.map6to4(netgame.game_host),
-                "port": int(row.game_port),
-                # More API-specific data idk
-            } for netgame in result if not (message == "getservers" and type(self.map6to4(netgame.game_host) == IPv6Address)) ]
-
 
         return servers
 
