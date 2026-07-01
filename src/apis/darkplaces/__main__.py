@@ -77,7 +77,7 @@ class UDPMessage():
                     log.debug(f"\tInfoResponse attr {k}: {v}")
                     self.options[k] = v
                 pass
-            case "getservers" | "getserverExt":
+            case "getservers" | "getserversExt":
                 # Commented out: Regex to potentially match each option individually
                 # Instead we just collect all options and split them later
                 #regex_matches = re.search(r"getservers(Ext)?(?:\s+([^\s\\\/;\"%]+))?\s+(\d+)(?:[ \r\t\v]+(\S+))*", msg_string)
@@ -162,7 +162,7 @@ class UDPMessage():
                 packets.append(tmp_packet)
     
                 pass
-            case "getservers" | "getserverExt" | "infoResponse" | "heartbeat":
+            case "getservers" | "getserversExt" | "infoResponse" | "heartbeat":
                 raise NotImplementedError(f"Converting to {self.message} packets not implemented yet!")
             case _:
                 pass
