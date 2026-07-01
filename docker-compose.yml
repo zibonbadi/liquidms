@@ -64,6 +64,24 @@ services:
     networks:
       - liquidms-net
       - default
+  api-darkplaces: 
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    build: 
+      dockerfile: src/apis/darkplaces/Dockerfile
+    develop:
+      watch:
+        - action: rebuild
+          path: src/apis/darkplaces/
+          target: /usr/src/app/
+    depends_on:
+      - db
+    ports:
+      - "27950:27950/udp" # Standard Quake3Arena port
+    networks:
+      - liquidms-net
+      - default
   snitch: #has php-fpm with extensions and composer, check Dockerfile!
     build: 
       dockerfile: docker/snitch/Dockerfile #installs necessary modules etc.
