@@ -296,13 +296,16 @@ class NetgameDB():
             .filter( self.tbl_servers.c.api_data["protocol"] == protocol ) \
             .filter( self.tbl_servers.c.state.in_(["new", "active"]) )
 
+        gametype = kwargs["gametype"] if "gametype" in kwargs.keys() else None
+        gametype = self.translate_q3a_gametype(**kwargs) if int(protocol) == 71 else gametype
+
         # Additional conditions if needed
         if "empty" in kwargs:
             query = query.filter(self.tbl_servers.c.api_data["clients"] == 0)
         if "full" in kwargs:
             query = query.filter(self.tbl_servers.c.api_data["clients"] == self.tbl_servers.c.api_data["sv_maxclients"])
-        if "gametype" in kwargs:
-            query = query.filter(self.tbl_servers.c.api_data["gametype"] == kwargs["gametype"])
+        if gametype != None:
+            query = query.filter(self.tbl_servers.c.api_data["gametype"] == gametype)
 
         log.debug(f"[SQL] {query}")
 
@@ -342,6 +345,30 @@ class NetgameDB():
             session.commit()
 
         pass
+
+    def translate_q3a_gametype(self, **kwargs):
+        """
+        Translates Quake III Arena/OpenArena-style gametype names into numbers.
+        """
+        
+        gt_aliases = [x.name for x in Q3AGametype]
+
+        # Check explicit gametype parameter
+        out = kwargs["gametype"] if "gametype" in kwargs.keys() else None
+
+        # Check if the parameter is using a name
+        if out in gt_aliases:
+            # Convert detected gametype into Q3A/OA number
+            out = NetgameState[gametype].value
+
+        # Check if the gametype is given otherwise
+        for gt in gt_aliases:
+            if gt in kwargs.keys():
+                # Convert detected gametype into Q3A/OA number
+                out = Q3AGametype[gt].value
+                break
+
+        return out
 
 
 class UDPDarkplacesProtocol:
