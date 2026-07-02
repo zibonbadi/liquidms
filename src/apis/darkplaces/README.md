@@ -93,7 +93,7 @@ Each heartbeat is closed by a newline `\n`.
 
 - `\challenge\<challenge>`: Challenge string previously received from `getinfo`.
 - `\protocol\<protocol>`: Protocol number identical to that issued `getservers`.
-- `\clients\<num>`: Challenge string previously received from `getinfo`.
+- `\clients\<num>`: Currently active players on the netgame.
 - `\sv_maxclients\<num>`: Maximum supported players. Must not be 0.
 
 Additionally, most clients also supply `gamemode=<num|string>` to allow filtering by game type. Protocol-wise, the value may be a string, but must be mapped to a numerical value representing the game type.
