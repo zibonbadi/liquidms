@@ -94,6 +94,11 @@ class UDPMessage():
                 #regex_matches = re.search(r"getservers(Ext)?(?:\s+([^\s\\\/;\"%]+))?\s+(\d+)(?:[ \r\t\v]+(\S+))*", msg_string)
                 regex_matches = re.search(r"getservers(Ext)?(?:\s+([^\s\\\/;\"%]+))?\s+(\d+)([^\n]*)", msg_string)
 
+                if regex_matches == None:
+                    # Emergency breakout
+                    self.message = None
+                    break
+
                 self.protocol = regex_matches.group(3)
                 self.game_name = regex_matches.group(2)
                 options_pre = regex_matches.group(4).split()
@@ -447,7 +452,8 @@ class UDPDarkplacesProtocol:
 
                 case "disconnect":
                     log.info(f"Goodbye {addr}! (\"{request.message}\")")
-
+                case None:
+                    log.error(f"Oops! Received a malformed message \"{data}\".")
                 case _:
                     log.error(f"Message \"{request.message}\" not supported!")
                     log.debug(f"\tPacket data: {data}")
