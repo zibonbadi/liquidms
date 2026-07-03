@@ -26,6 +26,17 @@ class NetgameState(enum.Enum):
     stale   = 2
     deleted = 3
 
+class Q3AGametype(enum.Enum):
+    ffa             = 0
+    tourney         = 1
+    team            = 2
+    ctf             = 3
+    elimination     = 8
+    ctfelmination   = 9
+    lms             = 10
+    dd              = 11
+    dom             = 12
+
 
 class UDPMessage():
 
