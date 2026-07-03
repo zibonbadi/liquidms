@@ -74,3 +74,10 @@ Fetch jobs running against the `srb2legacy` API require two additional arguments
 
 1. `protocol_version: 12 | 21`: Use 1.09-style or 2.1-style master server protocol.
 2. `server_msg: GET_SERVER_MSG | GET_SHORT_SERVER_MSG | GET_EXT_SERVER_MESSAGE`: Determines the server message to send to the host. `GET_EXT_SERVER_MESSAGE` changes the response data structure to allow IPv6 support. It is thus incompatible with vanilla SRB2 clients and servers.
+
+#### DarkPlaces API
+
+Fetch jobs running against the `darkplaces` API require two additional arguments:
+
+1. `protocol: <str>`: Game protocol (e.g. `"71"`, `"DarkPlaces-1"`, etc.)
+2. `use_getservers_ext: <bool>`: Use DarkPlaces' `getserversExt` extension (IPv6 support). `false` by default for vanilla compatibility.

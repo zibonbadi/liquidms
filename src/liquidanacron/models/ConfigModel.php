@@ -129,6 +129,16 @@ class ConfigModel{
 						self::child_assertType("srb2kart_game", $peer_data, "string") ){
 						self::$config["src"][$peer_name]["srb2kart_game"] = $peer_data["srb2kart_game"];
 					}
+
+					//DarkPlaces API
+					if(
+						self::child_assertType("protocol", $peer_data, "string") ){
+						self::$config["src"][$peer_name]["protocol"] = $peer_data["protocol"];
+					}
+					if(
+						self::child_assertType("use_getservers_ext", $peer_data, "boolean") ){
+						self::$config["src"][$peer_name]["use_getservers_ext"] = $peer_data["use_getservers_ext"];
+					}
 				}
 			}
 
