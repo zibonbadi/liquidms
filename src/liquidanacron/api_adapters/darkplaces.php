@@ -119,7 +119,7 @@ function fetch(array $config, array $job = []){
 				"game_host"		 => $ng["host"],
 				"game_port"		 => $ng["port"],
 				"game_api_name"	=> "darkplaces",
-				#"game_api_data" => []
+				"game_api_data" => null,
 				# Make Snitch transparent -> treat Snitch as origin_node
 				"external_origin" => $job["host"],
 				"origin_node"	  => NULL,
