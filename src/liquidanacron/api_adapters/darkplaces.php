@@ -30,7 +30,9 @@ function fetch(array $config, array $job = []){
    echo "Connecting to {$job["host"]} on port {$job["port"]}...\n";
    
    if($conn == NULL){
-	error_log(socket_strerror(socket_last_error($conn)));
+	$last_err = socket_last_error($conn);
+	echo "socket_create error {$last_err}: ".socket_strerror($last_err);
+	error_log(socket_strerror($last_err));
 	return [];
    }
    
@@ -43,7 +45,9 @@ function fetch(array $config, array $job = []){
    
    // Let's pass this request over UDP-style!
    if(!socket_sendto($conn, $request_msg, strlen($request_msg), 0, $job["host"], $job["port"])){
-	error_log(socket_strerror(socket_last_error($conn)));
+	$last_err = socket_last_error($conn);
+	echo "socket_sendto error {$last_err}: ".socket_strerror($last_err);
+	error_log(socket_strerror($last_err));
 	return [];
    }
 
@@ -57,7 +61,12 @@ function fetch(array $config, array $job = []){
 
 		// Can we get anything yet?
 		$bytes = socket_recvfrom($conn, $res, 2048, 0, $job["host"], $job["port"]);
-		if($bytes == false){ error_log(socket_strerror(socket_last_error($conn))); break; }
+		if($bytes == false){
+			$last_err = socket_last_error($conn);
+			echo "socket_recvfrom error {$last_err}: ".socket_strerror($last_err);
+			error_log(socket_strerror($last_err));
+			break;
+		}
 		
 
 		// A byte-encoded IP/Port combo may contain
