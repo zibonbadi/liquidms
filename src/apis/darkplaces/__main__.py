@@ -20,6 +20,14 @@ import asyncio
 import enum,struct,datetime,socket # Built-in libs
 
 
+LOGLEVEL = {
+    "debug":    logging.DEBUG,
+    "info":     logging.INFO,
+    "warning":  logging.WARNING,
+    "error":    logging.ERROR,
+    "critical": logging.CRITICAL,
+}
+
 class NetgameState(enum.Enum):
     new     = 0
     active  = 1
@@ -511,6 +519,7 @@ if __name__ == '__main__':
 
     config = {
         "hostname": "localhost",
+        "loglevel": "info",
         "port": 27950,
         "buffer_size": 2048,
         "max_timeout": 10,
@@ -526,7 +535,7 @@ if __name__ == '__main__':
     
     db = NetgameDB( config["db"] )
 
-    log.setLevel(logging.INFO)
+    log.setLevel(LOGLEVEL[config["loglevel"]])
     log_fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
     log_out = logging.StreamHandler()
     log_out.setFormatter(log_fmt)

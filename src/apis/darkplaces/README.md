@@ -20,6 +20,7 @@ LiquidMS DarkPlaces can be run with custom configuration files by specifying `co
 
 ```YAML
 hostname: localhost # Needs to match your server's outside hostname.
+loglevel: "critical" | "error" | "debug | "info" | "warning"
 port: 27950         # Publicly accessible server port
 buffer_size: 2048   # Buffer size to fetch from client
 max_timeout: 10
