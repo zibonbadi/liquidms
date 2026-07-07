@@ -316,10 +316,10 @@ class NetgameDB():
         gametype = self.translate_q3a_gametype(**kwargs) if int(protocol) == 71 else gametype
 
         # Additional conditions if needed
-        if "empty" in kwargs:
-            query = query.filter(self.tbl_servers.c.api_data["clients"] == 0)
-        if "full" in kwargs:
-            query = query.filter(self.tbl_servers.c.api_data["clients"] == self.tbl_servers.c.api_data["sv_maxclients"])
+        if "empty" not in kwargs:
+            query = query.filter(self.tbl_servers.c.api_data["clients"] != 0)
+        if "full" not in kwargs:
+            query = query.filter(self.tbl_servers.c.api_data["clients"] != self.tbl_servers.c.api_data["sv_maxclients"])
         if gametype != None:
             query = query.filter(self.tbl_servers.c.api_data["gametype"] == gametype)
 
