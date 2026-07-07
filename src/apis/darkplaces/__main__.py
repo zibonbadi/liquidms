@@ -97,7 +97,7 @@ class UDPMessage():
                 if regex_matches == None:
                     # Emergency breakout
                     self.message = None
-                    break
+                    pass
 
                 self.protocol = regex_matches.group(3)
                 self.game_name = regex_matches.group(2)
