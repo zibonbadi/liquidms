@@ -64,6 +64,24 @@ services:
     networks:
       - liquidms-net
       - default
+  api-darkplaces: 
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    build: 
+      dockerfile: src/apis/darkplaces/Dockerfile
+    develop:
+      watch:
+        - action: rebuild
+          path: src/apis/darkplaces/
+          target: /usr/src/app/
+    depends_on:
+      - db
+    ports:
+      - "27950:27950/udp" # Standard Quake3Arena port
+    networks:
+      - liquidms-net
+      - default
   snitch: #has php-fpm with extensions and composer, check Dockerfile!
     build: 
       dockerfile: docker/snitch/Dockerfile #installs necessary modules etc.
@@ -75,14 +93,7 @@ services:
     environment:
       TZ: $TZ
       PHP_MEMORY_LIMIT: 1024M
-    #volumes:
-    #  - type: bind
-    #    read_only: true
-    #    source: docker/snitch/config.yaml
-    #    target: /var/www/liquidms/config.yaml
-    networks:
-      - liquidms-net
-      - default # Access external nodes
+    network_mode: host
   db:
     restart: always
     image: mariadb:latest

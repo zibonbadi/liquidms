@@ -14,6 +14,8 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+CREATE DATABASE IF NOT EXISTS `liquidms`;
+
 USE `liquidms`;
 
 CREATE TABLE IF NOT EXISTS `chaosnet_netgames` (
@@ -38,20 +40,23 @@ CREATE TABLE IF NOT EXISTS `chaosnet_netgames` (
 CREATE TABLE IF NOT EXISTS `chaosnet_follows` (
   `actor_uri`    VARCHAR(256) NOT NULL,
   `inbox_uri`    VARCHAR(256) NOT NULL,
+  `api_name`     VARCHAR(32)  NOT NULL,
   `state`        ENUM('pending','accepted','rejected') NOT NULL DEFAULT 'pending',
   `direction`    ENUM('inbound','outbound') NOT NULL,
   `created_at`   DATETIME DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`actor_uri`, `direction`)
+  PRIMARY KEY (`actor_uri`, `direction`, `api_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `chaosnet_outbox` (
   `id`           VARCHAR(256) NOT NULL,
   `type`         VARCHAR(32)  NOT NULL,
   `actor`        VARCHAR(256) NOT NULL,
+  `api_name`     VARCHAR(32)  NOT NULL,
   `object`       JSON         NOT NULL,
   `published`    DATETIME     DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  INDEX `idx_published` (`published` DESC)
+  INDEX `idx_published` (`published` DESC),
+  INDEX `idx_api_outbox` (`api_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DELIMITER #
@@ -67,7 +72,7 @@ BEGIN
 END#
 
 CREATE EVENT IF NOT EXISTS chaosnet_netgames_purge
-ON SCHEDULE EVERY 5 MINUTES
+ON SCHEDULE EVERY 5 MINUTE
 COMMENT 'Removes stale (30 min) and deleted (10 min) netgame entries'
 DO
 BEGIN

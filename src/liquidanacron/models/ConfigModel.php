@@ -1,6 +1,7 @@
 <?php
-# liquidMS - distributable SRB2 master server
-# Copyright (C) 2021-2022 Zibon Badi et al.
+# LiquidMS - federated master server
+# Copyright (C) 2021-2026 Zibon Badi et al.
+# LiquidAnacron Copyright (C) 2021-2026 Zibon Badi et al.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -23,11 +24,6 @@ class ConfigModel{
 
 	private static $instance = null;
 	private static $config = [
-		"db" => [
-			"dsn" => "liquidms",
-		"user" => "sonic",
-		"password" => "gottagofast",
-		],
 		"netgame_query_limit" => [
 			"n" => 20,
 			"seconds" => 1,
@@ -133,6 +129,16 @@ class ConfigModel{
 						self::child_assertType("srb2kart_game", $peer_data, "string") ){
 						self::$config["src"][$peer_name]["srb2kart_game"] = $peer_data["srb2kart_game"];
 					}
+
+					//DarkPlaces API
+					if(
+						self::child_assertType("protocol", $peer_data, "string") ){
+						self::$config["src"][$peer_name]["protocol"] = $peer_data["protocol"];
+					}
+					if(
+						self::child_assertType("use_getservers_ext", $peer_data, "boolean") ){
+						self::$config["src"][$peer_name]["use_getservers_ext"] = $peer_data["use_getservers_ext"];
+					}
 				}
 			}
 
@@ -147,18 +153,6 @@ class ConfigModel{
 			}
 			*/
 			self::$config["dest"] = $newconfig["dest"];
-
-			if( self::child_assertType("db", $newconfig, "array") ){
-				if( self::child_assertType("dsn", $newconfig["db"], "string") ){
-					self::$config["db"]["dsn"] = $newconfig["db"]["dsn"];
-				}
-				if( self::child_assertType("user", $newconfig["db"], "string") ){
-					self::$config["db"]["user"] = $newconfig["db"]["user"];
-				}
-				if( self::child_assertType("password", $newconfig["db"], "string") ){
-					self::$config["db"]["password"] = $newconfig["db"]["password"];
-				}
-			}
 
 			if( self::child_assertType("netgame_query_limit", $newconfig, "array") ){
 				if( self::child_assertType("n", $newconfig["netgame_query_limit"], "integer") ){

@@ -54,10 +54,12 @@ Design Goals
 Scope of Beta 2
 ---------------
 
-- Service actor with inbox, outbox, following, followers
-- `POST /inbox` for Create, Update, Delete, Deliver, Follow, (Undo-)Follow
-- `GET /outbox` activity log
-- `GET /collection` current netgame state (the primary listing endpoint)
+- Per-API Service actors with independent inbox, outbox, following, followers
+- `GET /api/chaosnet` root directory listing of available API actors
+- `POST /api/chaosnet/services/<api>/inbox` for Create, Update, Delete, Deliver, Follow
+- `GET /api/chaosnet/services/<api>/outbox` per-API activity log
+- `GET /api/chaosnet/services/<api>/collection` per-API netgame listing
+- `GET /api/chaosnet/services/<api>/following` and `/followers`
 - Node-to-node bulk sync via `Deliver`
 - Follow/Accept subscription model for push distribution
 - Unified database table with JSON `api_data`
@@ -82,7 +84,6 @@ Scope of Beta 2
 - Shared inbox for multi-actor deployments
 
 
-
 Configuration
 -------------
 
@@ -94,6 +95,9 @@ basepath: /api/chaosnet
 loglevel: verbose
 node_host: "liquidms.example"
 node_actor_uri: "https://liquidms.example/api/chaosnet"
+apis:
+  - srb2http
+  - srb2kart
 db:
   dsn: mysql:host=db;dbname=liquidms
   user: dbuser
@@ -107,7 +111,9 @@ db:
 
 `node_host`: hostname of your LiquidMS node (default: `"localhost"`).
 
-`node_actor_uri`: Full URI of the actor document (optional; defaults to `https://{node_host}/api/chaosnet`).
+`node_actor_uri`: Full URI of the node's root actor document (optional; defaults to `https://{node_host}/api/chaosnet`).
+
+`apis`: List of game APIs this node supports. Each API gets its own Service actor at `/api/chaosnet/services/<api>`.
 
 `db.dsn`: DSN connection string for your database.
 
@@ -119,24 +125,33 @@ db:
 ActivityPub and Web API
 -----------------------
 
-Under ChaosNet, every LiquidMS node is an ActivityPub `Service` actor.
-Netgames are represented as ActivityStreams `Game` objects, which are
-passed through various ActivityPub activities.
-All of these are further specified below.
+ChaosNet implements a multi-actor model. The root endpoint (`/api/chaosnet`)
+returns a directory listing of available per-API Service actors. Each
+supported game API has its own dedicated actor, inbox, outbox, collection,
+and follower graph, hosted under `/api/chaosnet/services/<api>`.
 
-### Endpoints
+This design lets nodes independently manage which APIs they host and
+propagate, scoping the social graph by API support.
+
+### Root endpoint
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET`  | `/api/chaosnet` | Directory listing of available API actors |
+
+### Per-API endpoints
 
 All endpoints return `Content-Type: application/activity+json`.
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET`  | `/api/chaosnet` | Service actor document |
-| `POST` | `/api/chaosnet/inbox` | Receive activities |
-| `GET`  | `/api/chaosnet/inbox` | Inbox collection (empty for now) |
-| `GET`  | `/api/chaosnet/outbox` | Recent activity log (OrderedCollection, paginated) |
-| `GET`  | `/api/chaosnet/collection` | Current netgames (OrderedCollection, paginated) |
-| `GET`  | `/api/chaosnet/following` | Outbound subscriptions |
-| `GET`  | `/api/chaosnet/followers` | Inbound subscriptions |
+| `GET`  | `/api/chaosnet/services/<api>` | Service actor document |
+| `POST` | `/api/chaosnet/services/<api>/inbox` | Receive activities for this API |
+| `GET`  | `/api/chaosnet/services/<api>/inbox` | Inbox collection (empty for now) |
+| `GET`  | `/api/chaosnet/services/<api>/outbox` | Recent activity log (OrderedCollection, paginated) |
+| `GET`  | `/api/chaosnet/services/<api>/collection` | Current netgames for this API (OrderedCollection, paginated) |
+| `GET`  | `/api/chaosnet/services/<api>/following` | Outbound subscriptions for this API |
+| `GET`  | `/api/chaosnet/services/<api>/followers` | Inbound subscriptions for this API |
 
 `GET` endpoints are paginated, requiring the following query parameters:
 
@@ -147,38 +162,54 @@ All endpoints return `Content-Type: application/activity+json`.
 
 Paginated responses includes a sub-object `links` with fields `first`, `last`, `next`, `prev`, `self`.
 
-### Actor Model
+### Root Actor Model
 
-Each LiquidMS node is an ActivityPub `Service` actor. The actor document behind `GET /api/chaosnet` (sample basepath) looks like this:
+The root endpoint `/api/chaosnet` returns a collection of available API actors:
+
+```json
+{
+    "@context": "https://www.w3.org/ns/activitystreams",
+    "id": "https://liquidms.example/api/chaosnet",
+    "type": "Collection",
+    "name": "LiquidMS node at liquidms.example",
+    "items": [
+        {"type": "Service", "id": "https://liquidms.example/api/chaosnet/services/srb2http", "name": "srb2http"},
+        {"type": "Service", "id": "https://liquidms.example/api/chaosnet/services/srb2kart", "name": "srb2kart"}
+    ]
+}
+```
+
+### Per-API Actor Model
+
+Each configured API gets a `Service` actor. The actor document behind
+`GET /api/chaosnet/services/srb2http` looks like this:
 
 ```json
 {
     "@context": "https://www.w3.org/ns/activitystreams",
     "type": "Service",
-    "id": "https://liquidms.example/api/chaosnet",
-    "name": "LiquidMS node at liquidms.example",
-    "inbox": "https://liquidms.example/api/chaosnet/inbox",
-    "outbox": "https://liquidms.example/api/chaosnet/outbox",
-    "following": "https://liquidms.example/api/chaosnet/following",
-    "followers": "https://liquidms.example/api/chaosnet/followers",
+    "id": "https://liquidms.example/api/chaosnet/services/srb2http",
+    "name": "srb2http netgames at liquidms.example",
+    "inbox": "https://liquidms.example/api/chaosnet/services/srb2http/inbox",
+    "outbox": "https://liquidms.example/api/chaosnet/services/srb2http/outbox",
+    "following": "https://liquidms.example/api/chaosnet/services/srb2http/following",
+    "followers": "https://liquidms.example/api/chaosnet/services/srb2http/followers",
     "generator": {
         "type": "Application",
         "name": "LiquidMS ChaosNet"
     },
-    "url": "https://liquidms.example/api/chaosnet/collection"
+    "url": "https://liquidms.example/api/chaosnet/services/srb2http/collection"
 }
 ```
 
 ChaosNet `Service` actors are identified by their URI. This ensures a unique, queryable ID without the need for a user account system.
-
-You can find more info on Actor identification under [Configuration](#configuration).
 
 ### Game Object
 
 ```json
 {
     "type": "Game",
-    "id": "https://liquidms.example/<sha256-id>",
+    "id": "https://liquidms.example/api/chaosnet/services/srb2http/collection/<sha256-id>",
     "name": "Alice's Server",
     "game_host": "203.0.113.42",
     "game_port": 5029,
@@ -189,10 +220,10 @@ You can find more info on Actor identification under [Configuration](#configurat
         "roomname": "Standard"
     },
     "external_origin": "mb.srb2.org",
-    "origin_node": "https://node-a.example/api/chaosnet",
+    "origin_node": "https://node-a.example/api/chaosnet/services/srb2http",
     "path": [
-        "https://node-a.example/api/chaosnet",
-        "https://node-b.example/api/chaosnet"
+        "https://node-a.example/api/chaosnet/services/srb2http",
+        "https://node-b.example/api/chaosnet/services/srb2http"
     ],
     "updated": "2026-05-27 12:00:00"
 }
@@ -229,20 +260,20 @@ The following table describes the full set of fields:
 
 #### Client-to-Server activities
 
-Activity types accepted by `POST /inbox`:
+Activity types accepted by `POST /api/chaosnet/services/<api>/inbox`:
 
 | Activity | Effect |
 |----------|--------|
-| `Create{object: Game}` | INSERT a new netgame. Sets row state to `active`. |
-| `Update{object: Game}` | UPDATE an existing netgame. Sets row state to `active`. |
+| `Create{object: Game}` | INSERT a new netgame. `game_api_name` must match the actor's API. Sets row state to `active`. |
+| `Update{object: Game}` | UPDATE an existing netgame. `game_api_name` must match the actor's API. Sets row state to `active`. |
 | `Delete{object: Game}` | Set row state to `deleted` by id or (host, port, api_name). |
 
 #### Server-to-Server activities
 
 | Activity | Effect |
 |----------|--------|
-| `Deliver{object: OrderedCollection{items: [Game]}}` | Batch upsert of all games in the collection. Used for initial sync and periodic bulk updates. |
-| `Follow{object: Service}` | Subscribe to the target node's outbox. Auto-responded with `Accept`. |
+| `Deliver{object: OrderedCollection{items: [Game]}}` | Batch upsert of all games in the collection. Items must have matching `game_api_name`. Used for initial sync and periodic bulk updates. |
+| `Follow{object: Service}` | Subscribe to the target API actor's outbox. Auto-responded with `Accept`. |
 | `Accept{object: Follow}` | Confirm a follow request (sent automatically by the followed node). |
 | `Reject{object: Follow}` | Deny a follow request. |
 | `Undo{object: Follow}` | Unfollow (wraps the original `Follow` activity). |
@@ -250,9 +281,9 @@ Activity types accepted by `POST /inbox`:
 #### Inline forwarding
 
 Every `Create`, `Update`, `Delete`, and `Deliver` activity received via
-`POST /inbox` is immediately forwarded to all accepted inbound followers'
-inboxes during the same request. This ensures netgame changes propagate
-across the social graph without requiring a separate polling daemon.
+a per-API inbox is immediately forwarded to all accepted inbound followers
+of that same API during the same request. This ensures netgame changes
+propagate across the social graph without requiring a separate polling daemon.
 
 Forwarding is best-effort with a 10-second timeout per follower. Failed
 forwards are logged but do not affect the response.
@@ -261,12 +292,12 @@ forwards are logged but do not affect the response.
 
 To prevent broadcast storms, ChaosNet implements a loop prevention mechanism through use of a `path` array:
 
-- Every inbound activity is checked: if this node's actor URI is already
+- Every inbound activity is checked: if this API actor's URI is already
   in the netgame's `path` array, the activity is **silently skipped**.
 - On inbound `Deliver` activities, the receiving node appends its own
-  actor URI to each netgame's `path` before storing and before
+  API actor URI to each netgame's `path` before storing and before
   forwarding to followers.
-- On forwarding, the forwarding node appends its own actor URI to each
+- On forwarding, the forwarding node appends its own API actor URI to each
   game object's `path` — preventing the activity from being re-delivered
   back to nodes that have already seen it.
 - `origin_node` is set once on first insert and never overwritten by
@@ -277,12 +308,15 @@ To prevent broadcast storms, ChaosNet implements a loop prevention mechanism thr
 
 Before processing any inbound activity, ChaosNet scans `chaosnet_netgames`
 for rows left in `new` or `stale` state by other APIs (e.g. srb2http,
-srb2kart) that share the same database table. For each pending row:
+srb2kart) that share the same database table. This scan is global across
+all APIs. For each pending row, ChaosNet uses the row's own `api_name`
+to determine which API actor to record the activity under and which
+followers to forward to.
 
 | Current state | Action | Next state |
 |---------------|--------|------------|
-| `new` | Create or Update outbox entry (heuristic: `Update` if prior activity exists in outbox, `Create` otherwise). Forward to followers if this is an inbox request. | `active` |
-| `stale` | Create Delete outbox entry. Forward to followers if applicable. | `deleted` |
+| `new` | Create or Update outbox entry under the row's API actor (heuristic: `Update` if prior activity exists in outbox, `Create` otherwise). Forward to that API's followers if applicable. | `active` |
+| `stale` | Create Delete outbox entry under the row's API actor. Forward to that API's followers if applicable. | `deleted` |
 
 When triggered by `GET /collection`, pending rows are logged to the outbox
 but not forwarded (HTTP forwarding only happens during inbox requests).
@@ -318,9 +352,11 @@ To implement ChaosNet's ActivityPub API, LiquidMS also defines the tables `chaos
 |--------|------|-------------|
 | `actor_uri` | `VARCHAR(256)` | URI of the following/followed actor |
 | `inbox_uri` | `VARCHAR(256)` | Inbox URI of the follower (for forwarding) |
+| `api_name` | `VARCHAR(32)` | The API this follow relationship belongs to |
 | `state` | `ENUM('pending','accepted','rejected')` | Follow state |
 | `direction` | `ENUM('inbound','outbound')` | Inbound (they follow us) or outbound (we follow them) |
 | `created_at` | `DATETIME` | Timestamp |
+| PK | `(actor_uri, direction, api_name)` | |
 
 ### `chaosnet_outbox`
 
@@ -329,6 +365,7 @@ To implement ChaosNet's ActivityPub API, LiquidMS also defines the tables `chaos
 | `id` | `VARCHAR(256)` PK | Unique activity ID |
 | `type` | `VARCHAR(32)` | Activity type |
 | `actor` | `VARCHAR(256)` | Actor URI |
+| `api_name` | `VARCHAR(32)` | The API this outbox entry belongs to |
 | `object` | `JSON` | Full JSON-LD activity object |
 | `published` | `DATETIME` | Publication timestamp, indexed DESC |
 
@@ -388,29 +425,31 @@ across the network.
 and processes them without requiring an explicit network activity. It is
 called automatically:
 
-| Trigger | Forward to followers? | Limit |
-|---------|----------------------|-------|
-| `POST /inbox` (any activity) | Yes | 50 rows per request |
-| `GET /collection` | No (outbox only) | Unlimited |
+| Trigger | Forward to followers? | Limit | Scope |
+|---------|----------------------|-------|-------|
+| `POST /inbox` (any activity) | Yes | 50 rows per request | Global (all APIs) |
+| `GET /collection` | No (outbox only) | Unlimited | Global (all APIs) |
 
 For each `new` row, ChaosNet checks `chaosnet_outbox` for a prior
-Create/Update activity for the same game ID. If found → `Update`,
-otherwise → `Create`. The resulting activity is recorded in the outbox and,
-if forwarding is enabled, POSTed to all accepted followers' inboxes.
+Create/Update activity for the same game ID within the same API. If found
+→ `Update`, otherwise → `Create`. The resulting activity is recorded in the
+outbox under the row's API actor and, if forwarding is enabled, POSTed to all
+accepted followers of that API.
 
 For each `stale` row, a `Delete` activity is recorded in the outbox and
-forwarded.
+forwarded under the row's API actor.
 
 ### Inline forwarding
 
 When ChaosNet processes a `Create`, `Update`, or `Delete` activity from its
-inbox, it immediately forwards the activity to all accepted inbound
-followers during the same request cycle. For `Deliver` activities, each
-individual item is forwarded as an `Update`. Forwarding is best-effort:
+per-API inbox, it immediately forwards the activity to all accepted inbound
+followers of that same API during the same request cycle. For `Deliver`
+activities, each individual item is forwarded as an `Update`. Forwarding is
+best-effort:
 
 - Uses cURL with a 10-second timeout per follower
 - Failures are logged and do not block the response
-- Each forwarded activity has the forwarding node's actor URI appended to
+- Each forwarded activity has the forwarding API actor's URI appended to
   the game object's `path` array to prevent broadcast loops
 - No retry mechanism — stale data is naturally refreshed by the next
   sync cycle or culled by the scheduled events
@@ -425,7 +464,7 @@ Snitch V1 (the CSV-based protocol at `/api/snitch`) is **deprecated**.
   and `X-LiquidMS-Deprecated` HTTP headers.
 - New deployments should use `api: chaosnet` in their liquidanacron config.
 - To migrate, point your dest configuration to the peer's
-  `/api/chaosnet/inbox` URL instead of `/api/snitch`.
+  `/api/chaosnet/services/<api>/inbox` URL instead of `/api/snitch`.
 
 
 License

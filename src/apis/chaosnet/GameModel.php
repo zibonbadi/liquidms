@@ -38,10 +38,12 @@ class GameModel{
 		return $name;
 	}
 
-	public static function getAllGames(int $page = 1, int $pageSize = 50): array{
+	public static function getAllGames(string $apiName, int $page = 1, int $pageSize = 50, array $filters = []): array{
 		$offset = ($page - 1) * $pageSize;
-		$query = "SELECT * FROM chaosnet_netgames WHERE state IN ('new', 'active') ORDER BY updated_at DESC, host ASC, port ASC LIMIT :limit OFFSET :offset";
-		$result = DBSingleton::execute($query, [":limit" => $pageSize, ":offset" => $offset]);
+		[$whereSql, $whereParams] = self::buildFilterWhere($filters);
+		$query = "SELECT * FROM chaosnet_netgames WHERE state IN ('new', 'active') AND api_name = :api_name{$whereSql} ORDER BY updated_at DESC, host ASC, port ASC LIMIT :limit OFFSET :offset";
+		$params = array_merge([":api_name" => $apiName], $whereParams, [":limit" => $pageSize, ":offset" => $offset]);
+		$result = DBSingleton::execute($query, $params);
 		if($result === false || $result["error"] != 0){
 			return ["error" => 1, "message" => "Database query failed", "data" => [], "rows" => 0];
 		}
@@ -57,12 +59,16 @@ class GameModel{
 			"error" => 0,
 			"data" => $games,
 			"rows" => count($games),
-			"total" => self::count(),
+			"total" => self::count($apiName, $filters),
 		];
 	}
 
-	public static function count(): int{
-		$result = DBSingleton::execute("SELECT COUNT(*) AS cnt FROM chaosnet_netgames WHERE state IN ('new', 'active')");
+	public static function count(string $apiName, array $filters = []): int{
+		[$whereSql, $whereParams] = self::buildFilterWhere($filters);
+		$result = DBSingleton::execute(
+			"SELECT COUNT(*) AS cnt FROM chaosnet_netgames WHERE state IN ('new', 'active') AND api_name = :api_name{$whereSql}",
+			array_merge([":api_name" => $apiName], $whereParams)
+		);
 		if($result === false || $result["error"] != 0){ return 0; }
 		return (int)$result["data"][0]["cnt"];
 	}
@@ -139,8 +145,83 @@ class GameModel{
 		);
 	}
 
+	private static function buildFilterWhere(array $filters): array{
+		if(empty($filters)){
+			return ["", []];
+		}
+
+		$columnMap = [
+			'name' => 'name',
+			'game_host' => 'host',
+			'game_port' => 'port',
+			'game_api_name' => 'api_name',
+			'external_origin' => 'external_origin',
+			'origin_node' => 'origin_node',
+		];
+
+		$clauses = [];
+		$params = [];
+		$idx = 0;
+
+		foreach($filters as $filter){
+			$path = $filter["path"] ?? "";
+			$value = $filter["value"] ?? "";
+			$idx++;
+
+			$column = null;
+			$isJson = false;
+
+			if(str_starts_with($path, 'game_api_data.')){
+				$column = 'api_data';
+				$isJson = true;
+			}elseif(isset($columnMap[$path])){
+				$column = $columnMap[$path];
+			}
+
+			if($column === null){
+				$clauses[] = "1=0";
+				continue;
+			}
+
+			$paramKey = ":filter_{$idx}";
+			$hasWildcard = str_contains($value, '*');
+
+			if($isJson){
+				$jsonSubPath = substr($path, strlen('game_api_data.'));
+				if(!preg_match('/^[a-zA-Z_][a-zA-Z0-9_.]*$/', $jsonSubPath)){
+					$clauses[] = "1=0";
+					continue;
+				}
+				$jsonExpr = "JSON_UNQUOTE(JSON_EXTRACT({$column}, '$.{$jsonSubPath}'))";
+				if($hasWildcard){
+					$clauses[] = "{$jsonExpr} LIKE {$paramKey}";
+					$params[$paramKey] = str_replace('*', '%', $value);
+				}else{
+					$clauses[] = "{$jsonExpr} = {$paramKey}";
+					$params[$paramKey] = $value;
+				}
+			}else{
+				if($hasWildcard){
+					$clauses[] = "{$column} LIKE {$paramKey}";
+					$params[$paramKey] = str_replace('*', '%', $value);
+				}else{
+					if($column === 'port'){
+						$params[$paramKey] = (int)$value;
+					}else{
+						$params[$paramKey] = $value;
+					}
+					$clauses[] = "{$column} = {$paramKey}";
+				}
+			}
+		}
+
+		return [" AND " . implode(" AND ", $clauses), $params];
+	}
+
 	public static function rowToGameObject(array $row, string $name): array{
-		$base = \LiquidMS\ConfigModel::getConfig()["basepath"];
+		$config = \LiquidMS\ConfigModel::getConfig();
+		$base = $config["basepath"];
+		$apiName = $row["api_name"];
 		$apiData = json_decode($row["api_data"] ?? "{}", true);
 		$path = json_decode($row["path"] ?? "[]", true);
 		$scheme = ($_SERVER["REQUEST_SCHEME"] ?? "https");
@@ -148,7 +229,7 @@ class GameModel{
 
 		$obj = [
 			"type" => "Game",
-			"id" => "{$scheme}://{$host}{$base}/collection/{$row["id"]}",
+			"id" => "{$scheme}://{$host}{$base}/services/{$apiName}/collection/{$row["id"]}",
 			"name" => $name,
 			"game_host" => $row["host"],
 			"game_port" => (int)$row["port"],
