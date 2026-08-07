@@ -12,10 +12,24 @@ services:
     depends_on:
       - db 
     volumes:
+      ### HTTP APIs are mounted one-by-one for
+      ### flexibility and added isolation.
       - type: bind
-        source: src/apis
+        source: src/apis/chaosnet
         read_only: true
-        target: /var/www/html/api
+        target: /var/www/html/api/chaosnet
+      - type: bind
+        source: src/apis/srb2http
+        read_only: true
+        target: /var/www/html/api/srb2http
+      - type: bind
+        source: src/apis/srb2kart
+        read_only: true
+        target: /var/www/html/api/srb2kart
+      - type: bind
+        source: src/apis/snitch
+        read_only: true
+        target: /var/www/html/api/snitch
       - type: bind
         source: src/frontend
         read_only: true
