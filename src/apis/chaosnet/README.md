@@ -122,6 +122,12 @@ db:
 `db.password`: Your database user's password.
 
 
+### Webfinger Discovery
+
+To support subdirectory-based hosting (e.g. on Shared Hosting services), LiquidMS ChaosNet *deliberately does not implement* it's own Webfinger endpoint. Instead you **MUST** deploy the [LiquidMS Webfinger API](../webfinger/README.md) alongside or provide your own Webfinger solution.
+
+
+
 ActivityPub and Web API
 -----------------------
 

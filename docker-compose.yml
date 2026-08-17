@@ -14,6 +14,13 @@ services:
     volumes:
       ### HTTP APIs are mounted one-by-one for
       ### flexibility and added isolation.
+      ###
+      ### well-known: Webfinger API for ChaosNet
+      - type: bind
+        source: src/apis/webfinger
+        read_only: true
+        target: /var/www/html/.well-known/webfinger
+      ### HTTP-based game APIs
       - type: bind
         source: src/apis/chaosnet
         read_only: true
@@ -26,10 +33,12 @@ services:
         source: src/apis/srb2kart
         read_only: true
         target: /var/www/html/api/srb2kart
+      ### (Legacy) Snitch API
       - type: bind
         source: src/apis/snitch
         read_only: true
         target: /var/www/html/api/snitch
+      ### Web frontend
       - type: bind
         source: src/frontend
         read_only: true
